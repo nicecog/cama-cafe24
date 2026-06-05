@@ -4,14 +4,16 @@
 > **워크스페이스:** `F:\cama_pjt` · **작업 루트:** `F:\cama_pjt\cama-cafe24`  
 > **목적:** Cursor AI를 새로 열었을 때 **즉시 이어서 작업**할 수 있도록, 완료 내역·검증 결과·APK 실접속 테스트 절차를 한 문서에 정리.
 
+**GitHub:** https://github.com/nicecog/cama-cafe24
+
 **문서 읽는 순서 (권장)**
 
-1. **[CAFE24_SESSION_HANDOFF_2026-06-03.md](CAFE24_SESSION_HANDOFF_2026-06-03.md)** — **최신** WebView·로그인 ID 변경(happycog)·로그인 메시지·APK 1.2.7
-2. **[CAFE24_PROGRESS_HANDOFF.md](CAFE24_PROGRESS_HANDOFF.md)** — 계정 복구·APK 1.2.4·Brevo·최신 진행
-3. **본 문서** (핸드오프·재시작 체크리스트)
-3. [CAFE24_WORK_STATUS_AND_TODO.md](CAFE24_WORK_STATUS_AND_TODO.md) — 상세 현황·TO-BE
-3. [CAFE24_TEST_GUIDE.md](CAFE24_TEST_GUIDE.md) — 링크·TC·APK 테스트
-4. [CAFE24_BATCH_SCHEDULE.md](CAFE24_BATCH_SCHEDULE.md) — 배치 스케줄·FCM
+1. **[CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md](CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md)** — **최신** AWS→Cafe24·Super Admin·서비스 API·Git
+2. **[CAFE24_SESSION_HANDOFF_2026-06-04.md](CAFE24_SESSION_HANDOFF_2026-06-04.md)** — WebView 성능·탭바·헤더
+3. **[CAFE24_SESSION_HANDOFF_2026-06-03.md](CAFE24_SESSION_HANDOFF_2026-06-03.md)** — WebView nginx·ID 변경·APK 1.2.7
+4. **[CAFE24_PROGRESS_HANDOFF.md](CAFE24_PROGRESS_HANDOFF.md)** — 전체 롤업
+5. **본 문서** (핸드오프·재시작 체크리스트)
+6. [CAFE24_AWS_DECOMMISSION.md](CAFE24_AWS_DECOMMISSION.md) · [CAFE24_WORK_STATUS_AND_TODO.md](CAFE24_WORK_STATUS_AND_TODO.md)
 
 ---
 
@@ -23,7 +25,9 @@
 [ ] 3. 4컨테이너 Up 확인: postgres, cama-plus-server, cama-back-batch, cama-doctor-web
 [ ] 4. HTTPS: curl.exe -sk https://camaplus.cafe24.com/actuator/health  → 200
 [ ] 5. 앱 설정 확인: cama-plus-app/src/config/stage.ts → currentStage = 'PROD'
-[ ] 6. APK 존재: dist/cama-plus-cafe24-1.2.7-release.apk (없으면 §C 빌드, 상세는 CAFE24_SESSION_HANDOFF_2026-06-03.md)
+[ ] 6. APK: dist/cama-plus-cafe24-1.2.7-release.apk (Git: github.com/nicecog/cama-cafe24)
+[ ] 6c. AWS URL 감사: python deploy/scripts/aws-to-cafe24-migrate.py --audit --use-legacy-aws-config
+[ ] 6d. 서비스 신청: https://camaplus.cafe24.com/service-management/service/list (의사 로그인)
 [ ] 6b. recover API: ssh camaplus-vps "python3 /tmp/vps-reset-password-test.py" (스크립트 없으면 PROGRESS_HANDOFF §6)
 [ ] 7. FCM DRY_RUN 유지 확인: ssh camaplus-vps "grep CAMA_BATCH /opt/cama/deploy/.env.cafe24"
       → CAMA_BATCH_FCM_DRY_RUN=true (실푸시 금지, 검증 전)
@@ -34,6 +38,8 @@
 ---
 
 ## B. 완료된 작업 요약 (2026-06-03 기준)
+
+> **2026-06-03 추가:** AWS→Cafe24 이관·Super Admin·`/api/doctor/service`·GitHub — [MIGRATION-GIT](CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md)
 
 ### B.1 인프라 · 서버
 
@@ -60,7 +66,8 @@
 | API/Admin URL | ✅ 전부 `https://camaplus.cafe24.com` (localhost·AWS·billive 미사용) |
 | `currentStage` | ✅ `PROD` |
 | Android 빌드 | ✅ **JDK 17** (`assembleRelease` 성공) |
-| APK 배포본 | ✅ `dist/cama-plus-cafe24-1.2.4-release.apk` (v1.2.4 / code 23, ID·PW 초기화) |
+| APK 배포본 | ✅ `dist/cama-plus-cafe24-1.2.7-release.apk` (Git 추적) |
+| GitHub | ✅ https://github.com/nicecog/cama-cafe24 |
 | 계정 복구 API·앱 | ✅ public `/api/public/patient/recover/*` VPS 배포·스모크 OK — [상세](CAFE24_PROGRESS_HANDOFF.md) §3 |
 | Brevo SMTP | ⏳ yml/compose만, VPS·camaplus.me DNS 미완 — [상세](CAFE24_PROGRESS_HANDOFF.md) §5 |
 | JDK 21 앱 빌드 | ❌ 비호환 — **유지하지 말 것** |

@@ -1,18 +1,22 @@
 # Cafe24 이관 — 작업 진행 상황 (재시작용)
 
-> **최종 갱신:** 2026-06-04  
+> **최종 갱신:** 2026-06-03  
 > **워크스페이스:** `F:\cama_pjt` · **작업 루트:** `F:\cama_pjt\cama-cafe24`  
 > **목적:** Cursor·개발자가 세션을 새로 열 때 **지금까지 한 일·미완료·다음 단계**를 한 번에 파악.
 
 **관련 문서 (읽는 순서)**
 
-1. **[CAFE24_SESSION_HANDOFF_2026-06-04.md](CAFE24_SESSION_HANDOFF_2026-06-04.md)** — **최신** WebView 성능·탭바·RN 홈 복귀·웰빙/건강코칭 헤더
-2. **[CAFE24_SESSION_HANDOFF_2026-06-03.md](CAFE24_SESSION_HANDOFF_2026-06-03.md)** — WebView nginx·ID 변경·로그인·APK 1.2.7
-3. **[WEBVIEW_PERFORMANCE_FUTURE.md](WEBVIEW_PERFORMANCE_FUTURE.md)** — WebView 성능 추후 검토
-4. **본 문서** — 계정 복구·APK 1.2.4·Brevo·이슈 정리
-5. [CAFE24_CURSOR_HANDOFF.md](CAFE24_CURSOR_HANDOFF.md) — 재시작 5분 체크리스트·배치·APK 테스트
-6. [CAFE24_WORK_STATUS_AND_TODO.md](CAFE24_WORK_STATUS_AND_TODO.md) — 인프라·TO-BE 상세
-7. [CAFE24_TEST_GUIDE.md](CAFE24_TEST_GUIDE.md) · [CAFE24_DEPLOYMENT_GUIDE.md](CAFE24_DEPLOYMENT_GUIDE.md)
+1. **[CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md](CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md)** — **최신** AWS→Cafe24 이관·Super Admin·서비스 신청 API·GitHub
+2. **[CAFE24_SESSION_HANDOFF_2026-06-04.md](CAFE24_SESSION_HANDOFF_2026-06-04.md)** — WebView 성능·탭바·RN 홈 복귀·웰빙/건강코칭 헤더
+3. **[CAFE24_SESSION_HANDOFF_2026-06-03.md](CAFE24_SESSION_HANDOFF_2026-06-03.md)** — WebView nginx·ID 변경·로그인·APK 1.2.7
+4. **[CAFE24_AWS_DECOMMISSION.md](CAFE24_AWS_DECOMMISSION.md)** — AWS 리소스 만료 체크리스트
+5. **[WEBVIEW_PERFORMANCE_FUTURE.md](WEBVIEW_PERFORMANCE_FUTURE.md)** — WebView 성능 추후 검토
+6. **본 문서** — 계정 복구·APK·Brevo·이슈 롤업
+7. [CAFE24_CURSOR_HANDOFF.md](CAFE24_CURSOR_HANDOFF.md) — 재시작 5분 체크리스트
+8. [CAFE24_WORK_STATUS_AND_TODO.md](CAFE24_WORK_STATUS_AND_TODO.md) — 인프라·TO-BE 상세
+9. [CAFE24_TEST_GUIDE.md](CAFE24_TEST_GUIDE.md) · [CAFE24_DEPLOYMENT_GUIDE.md](CAFE24_DEPLOYMENT_GUIDE.md)
+
+**GitHub:** https://github.com/nicecog/cama-cafe24 (`main`)
 
 ---
 
@@ -21,10 +25,15 @@
 | 영역 | 상태 |
 |------|------|
 | VPS + HTTPS `camaplus.cafe24.com` | ✅ 운영 중 |
+| **AWS → Cafe24** (S3·DB URL·`/files/`) | ✅ [세션 문서](CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md) §2 |
+| **Super Admin** `/admin/` | ✅ 라우팅·테마·치료정보 사용현황 |
+| **의사 웹 서비스 신청** API | ✅ `/api/doctor/service` 구현·배포 |
+| **GitHub** 소스 공유 | ✅ [nicecog/cama-cafe24](https://github.com/nicecog/cama-cafe24) + `dist/` APK |
 | 환자 **ID 찾기 / PW 초기화** API·앱 | ✅ 배포·프로덕션 스모크 OK |
-| Android APK **1.2.4** | ✅ 빌드·`dist/` 반영 |
-| **Brevo SMTP** | ⏳ DNS(`camaplus.com`) **등록 완료** → Brevo Authenticate·VPS `SPRING_MAIL_USERNAME`·발송 테스트 남음 |
-| APK 실접속 E2E (로그인·WebView 등) | ⏳ 다음 작업 |
+| Android APK **1.2.7** | ✅ `dist/cama-plus-cafe24-1.2.7-release.apk` (Git 추적) |
+| **Brevo SMTP** | ⏳ DNS·VPS `.env`·발송 테스트 남음 |
+| AWS 리소스 **실제 만료** | ⏳ [DECOMMISSION](CAFE24_AWS_DECOMMISSION.md) |
+| APK 실접속 E2E | ⏳ 다음 작업 |
 | permitAll 401 (`/api/enums` 등) | ⚠️ 별도 이슈 잔존 가능 |
 
 ---
@@ -219,27 +228,52 @@ docker restart cama-plus-server
 
 ---
 
-## 7. 미완료 · 다음 작업 (우선순위)
+## 7. AWS → Cafe24 · Super Admin · Git (2026-06-03) — 요약
+
+> 상세: [CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md](CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md)
+
+| 작업 | 결과 |
+|------|------|
+| S3 `cama-images` + `cama-files` → VPS | ✅ `/opt/cama/data/cama-files` |
+| DB CloudFront·S3 URL 치환 | ✅ 감사 0건 |
+| `/files/**` 공개 | ✅ GET·HEAD |
+| Super Admin 빈 화면·`theme.spacing`·치료현황 | ✅ |
+| `/api/doctor/service` (서비스 신청 목록) | ✅ 538건 조회 OK |
+| Git push | ✅ `b32e870`, `a15a4eb` |
+
+```powershell
+python deploy/scripts/aws-to-cafe24-migrate.py --verify --use-legacy-aws-config
+python deploy/scripts/vps-deploy-server-src.py
+python deploy/scripts/vps-deploy-super-admin.py
+```
+
+---
+
+## 8. 미완료 · 다음 작업 (우선순위)
 
 | 우선 | 작업 | 비고 |
 |------|------|------|
-| **P0** | APK **1.2.4** 실기기 E2E | ID 찾기 → PW 초기화 → 임시 PW 로그인 |
-| **P0** | Brevo `camaplus.me` DNS 인증 + VPS `.env` + JAR 재배포 | SMTP key 재발급 권장(채팅 유출 이력) |
-| P1 | `reset-password` 성공 시 응답에서 PW 제거 + 이메일 발송 | 보안·Brevo 연동 후 |
-| P1 | `/api/enums` 등 permitAll 401 | SecurityConfig·필터 |
-| P1 | `MyPhoto/index.tsx` 하드코딩 JWT 만료 | 별도 이슈 |
-| P2 | SMS (NCP/알리고 등) | 이메일 없는 계정 대량 |
+| **P0** | APK **1.2.7** 실기기 E2E | ID 찾기 → PW 초기화 → 로그인·WebView |
+| **P0** | AWS 만료 전 E2E | 이미지·HTML·서비스 승인 UI — [DECOMMISSION](CAFE24_AWS_DECOMMISSION.md) |
+| **P0** | Brevo `camaplus.me` DNS + VPS `.env` | SMTP key 재발급 권장 |
+| P1 | `api.camaplus.me` DNS 리다이렉트 | AWS 트래픽 차단 |
+| P1 | prod RDS 재덤프 (6/2 이후 데이터) | 선택 |
+| P1 | IAM 키 로테이션 | 레거시 yml 노출 키 |
+| P1 | `/api/enums` 등 permitAll 401 | SecurityConfig |
 | P2 | FCM `CAMA_BATCH_FCM_DRY_RUN=false` | APK·배치 검증 후 |
 
 ---
 
-## 8. 재시작 시 5분 체크리스트
+## 9. 재시작 시 5분 체크리스트
 
 ```text
 [ ] ssh camaplus-vps "docker ps"  → postgres, cama-plus-server, batch, doctor-web Up
 [ ] curl.exe -sk https://camaplus.cafe24.com/actuator/health → 200
 [ ] recover API: ssh + python3 /tmp/vps-reset-password-test.py (또는 curl)
-[ ] dist/cama-plus-cafe24-1.2.4-release.apk 존재
+[ ] dist/cama-plus-cafe24-1.2.7-release.apk 존재
+[ ] python deploy/scripts/aws-to-cafe24-migrate.py --audit  → AWS URL 0건
+[ ] curl 서비스 신청 API 또는 /service-management/service/list UI
+[ ] git remote: github.com/nicecog/cama-cafe24
 [ ] stage.ts → PROD, baseURL camaplus.cafe24.com
 [ ] grep CAMA_MAIL /opt/cama/deploy/.env.cafe24  → Brevo 설정 여부
 [ ] Brevo Domains: camaplus.me DKIM/DMARC 상태
@@ -247,7 +281,7 @@ docker restart cama-plus-server
 
 ---
 
-## 9. 보안 · 운영 메모
+## 10. 보안 · 운영 메모
 
 - `.env.cafe24`, Firebase JSON, **SMTP key** — Git·채팅에 올리지 않음
 - SMTP key가 채팅에 노출된 적 있음 → **Brevo에서 재발급** 후 VPS만 갱신
@@ -255,13 +289,14 @@ docker restart cama-plus-server
 
 ---
 
-## 10. 변경 이력
+## 11. 변경 이력
 
 | 날짜 | 내용 |
 |------|------|
-| 2026-06-02~03 | VPS·DB·배치·doctor-web·APK 1.2.3 ([CURSOR_HANDOFF](CAFE24_CURSOR_HANDOFF.md)) |
-| 2026-06-03 | ID/PW 찾기 401 수정, public recover API, reset-password, APK **1.2.4**, VPS 재배포 |
-| 2026-06-03 | Brevo SMTP yml/compose/example 추가, camaplus.me vs cafe24.com 메일 정리, **본 문서 작성** |
+| 2026-06-02~03 | VPS·DB·배치·doctor-web·APK ([CURSOR_HANDOFF](CAFE24_CURSOR_HANDOFF.md)) |
+| 2026-06-03 | ID/PW 찾기, recover API, APK 1.2.4, Brevo yml |
+| 2026-06-03 | **AWS→Cafe24** S3·DB URL·`/files/`, Super Admin, `/api/doctor/service`, GitHub push |
+| 2026-06-04 | WebView 성능·탭바·헤더 ([SESSION 06-04](CAFE24_SESSION_HANDOFF_2026-06-04.md)) |
 
 ---
 

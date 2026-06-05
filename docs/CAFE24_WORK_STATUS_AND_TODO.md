@@ -2,8 +2,9 @@
 
 > **작성일:** 2026-06-03 · **최종 갱신:** 2026-06-03  
 > **대상 경로:** `F:\cama_pjt\cama-cafe24`  
-> **Cursor AI 재시작 시:** 👉 **[CAFE24_PROGRESS_HANDOFF.md](CAFE24_PROGRESS_HANDOFF.md)** (최신 진행) → [CAFE24_CURSOR_HANDOFF.md](CAFE24_CURSOR_HANDOFF.md) (체크리스트)  
-> **관련 문서:** [진행 상황](CAFE24_PROGRESS_HANDOFF.md) · [핸드오프](CAFE24_CURSOR_HANDOFF.md) · [배포 가이드](CAFE24_DEPLOYMENT_GUIDE.md) · [API 마이그레이션](CAFE24_API_MIGRATION.md) · [테스트 가이드](CAFE24_TEST_GUIDE.md) · [배치 스케줄](CAFE24_BATCH_SCHEDULE.md)
+> **Cursor AI 재시작 시:** 👉 **[CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md](CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md)** (AWS·Admin·Git) → [CAFE24_PROGRESS_HANDOFF.md](CAFE24_PROGRESS_HANDOFF.md)  
+> **GitHub:** https://github.com/nicecog/cama-cafe24  
+> **관련 문서:** [AWS 만료](CAFE24_AWS_DECOMMISSION.md) · [Super Admin](CAFE24_SUPER_ADMIN_MIG.md) · [핸드오프](CAFE24_CURSOR_HANDOFF.md) · [배포](CAFE24_DEPLOYMENT_GUIDE.md) · [테스트](CAFE24_TEST_GUIDE.md)
 
 ---
 
@@ -11,7 +12,7 @@
 
 | 구분 | 방침 |
 |------|------|
-| **앱 검증** | **`dist/cama-plus-cafe24-1.2.4-release.apk` 실기기·에뮬레이터 실접속** (Metro/localhost 아님) |
+| **앱 검증** | **`dist/cama-plus-cafe24-1.2.7-release.apk` 실기기·에뮬레이터 실접속** (Metro/localhost 아님) |
 | **서버 검증** | SSH·docker·curl 보조, DB row count |
 | **배치 검증** | 로그 + (필요 시) `deploy/scripts/insert-batch-test-schedule.sql` |
 | **FCM** | DRY_RUN 유지, APK·배치 검증 완료 후에만 실발송 전환 |
@@ -28,13 +29,19 @@
 | cama-plus-server / batch JAR 배포 | ✅ 완료 | Spring Boot 3.5, JDK 21 (컨테이너) |
 | cama-doctor-web | ✅ 배포·소스 동기화 | Cafe24 프로필, JDK 21 |
 | 환자 앱 (`cama-plus-app`) Cafe24 URL | ✅ 완료 | `currentStage = PROD` |
-| Android APK 빌드 (JDK 17) | ✅ 완료 | `dist/cama-plus-cafe24-1.2.4-release.apk` (v23) |
+| Android APK 빌드 (JDK 17) | ✅ 완료 | `dist/cama-plus-cafe24-1.2.7-release.apk` (Git 추적) |
+| **AWS S3 → VPS 로컬 파일** | ✅ 완료 | `cama-images` + `cama-files` — [MIGRATION-GIT §2](CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md) |
+| **DB AWS URL 치환** | ✅ 완료 | 전 컬럼 감사 0건 |
+| **Super Admin** `/admin/` | ✅ 완료 | 라우팅·테마·치료정보 사용현황 |
+| **의사 웹 서비스 신청 API** | ✅ 완료 | `/api/doctor/service` |
+| **GitHub** | ✅ 완료 | `nicecog/cama-cafe24` |
 | 환자 ID/PW 찾기·초기화 (API+앱) | ✅ VPS 배포 | [PROGRESS §3](CAFE24_PROGRESS_HANDOFF.md) |
-| Brevo SMTP | ⏳ 설정만 | VPS `.env` + `camaplus.me` DNS — [PROGRESS §5](CAFE24_PROGRESS_HANDOFF.md) |
-| cama-back-batch 스케줄 + FCM dry-run | ✅ 검증 | 테스트 일정 → dry-run 로그 확인 |
+| Brevo SMTP | ⏳ 설정만 | VPS `.env` + `camaplus.me` DNS |
+| cama-back-batch 스케줄 + FCM dry-run | ✅ 검증 | dry-run 로그 확인 |
 | FCM 실발송 | ⏸ 보류 | `CAMA_BATCH_FCM_DRY_RUN=true` |
-| **APK 실접속 E2E** | ⏳ **다음 작업** | 로그인·홈·WebView·업로드·ID/PW 찾기 |
-| API permitAll 401 | ⚠️ 미해결 | curl·앱 로그인 시 재확인 |
+| **AWS 리소스 만료** | ⏳ 검증 후 | [CAFE24_AWS_DECOMMISSION.md](CAFE24_AWS_DECOMMISSION.md) |
+| **APK 실접속 E2E** | ⏳ 다음 | 로그인·WebView·이미지·서비스 승인 UI |
+| API permitAll 401 | ⚠️ 미해결 | `/api/enums` 등 |
 
 ---
 
@@ -55,7 +62,7 @@
 | Firebase JSON | `/opt/cama/secrets/firebase-adminsdk.json` |
 | 업로드 파일 | `/opt/cama/data/cama-files` |
 
-### 2.2 Docker 서비스 (4개)
+### 2.2 Docker 서비스
 
 | 컨테이너 | 이미지/런타임 | 포트 (호스트) | 역할 |
 |----------|---------------|---------------|------|
@@ -303,10 +310,13 @@ cd F:\cama_pjt\cama-cafe24\cama-plus-app\android
 - RN/Firebase는 SDK 33 세대 기대, 프로젝트는 compile 34 / target 35 — **당분간 유지**, 대규모 업그레이드 전까지 무분별 SDK 상향 지양
 - Play 배포용 APK는 **release keystore**로 재서명 필요
 
-### 8.5 파일·이미지
+### 8.5 파일·이미지 ✅ (2026-06-03)
 
 - `CAMA_STORAGE_TYPE=local`, 경로 `/opt/cama/data/cama-files`
-- 운영 S3 등 외부 스토리지에 있던 파일은 **DB만 이관된 상태**일 수 있음 — 이미지 404 시 파일 동기화 별도 작업
+- S3 `cama-images` + `cama-files` → VPS 동기화 완료 (~4700 objects)
+- DB URL → `https://camaplus.cafe24.com/files/` 치환 완료
+- `/files/**` GET·HEAD 공개 (`SecurityConfig`)
+- 재동기화: `python deploy/scripts/aws-to-cafe24-migrate.py --sync-s3 --use-legacy-aws-config`
 
 ### 8.6 도메인 · 배치
 
@@ -329,7 +339,9 @@ cd F:\cama_pjt\cama-cafe24\cama-plus-app\android
 | 4 | **API 401 원인 조사** | 실패 시 `SecurityConfig` / JWT — curl `/api/enums` 401 잔존 |
 | 5 | **의사 웹 Billive 프록시 인증** | doctor-web → plus-server 호출 시 401 해결 |
 | 6 | **`cama_doctor` 실데이터** | 운영에 없음 — 구 환경 덤프 확보 시 `app_user` 반영 |
-| 7 | **업로드 파일 동기화** | 운영 S3 등 → VPS `cama-files` (이미지 404 시) |
+| 7 | ~~업로드 파일 동기화~~ | ✅ 완료 — [MIGRATION-GIT](CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md) |
+| 8 | **AWS RDS·CloudFront·S3 만료** | [CAFE24_AWS_DECOMMISSION.md](CAFE24_AWS_DECOMMISSION.md) |
+| 9 | **서비스 승인 UI E2E** | `/service-management/service/list` → 승인 화면 |
 
 ### 9.2 FCM (검증 완료 후)
 
@@ -355,7 +367,7 @@ cd F:\cama_pjt\cama-cafe24\cama-plus-app\android
 | # | 작업 | 설명 |
 |---|------|------|
 | 15 | React Native 업그레이드 | 0.71 → 0.74 → 0.76+ (JDK 21·AGP 8·compileSdk 36 정렬) |
-| 16 | AWS RDS cutover / read-only | Cafe24 안정화 후 트래픽 전환·구 RDS 정리 |
+| 16 | AWS RDS·S3·CloudFront **만료** | Cafe24 검증 후 — [DECOMMISSION](CAFE24_AWS_DECOMMISSION.md) |
 | 17 | iOS 앱 | 동일 Cafe24 base URL 반영·TestFlight |
 | 18 | CI/CD | JAR·APK 빌드·배포 파이프라인 |
 
@@ -392,14 +404,16 @@ cama-cafe24/
 │   ├── docker-compose.cafe24.yml
 │   ├── env.cafe24.example
 │   └── scripts/           # 배치 테스트 SQL 등
-├── dist/                  # ★ APK: cama-plus-cafe24-1.2.3-release.apk
+├── cama-super-admin/      # Super Admin SPA (/admin/)
+├── react-app-dawplus/     # 환자 WebView SPA
+├── dist/                  # ★ APK: cama-plus-cafe24-1.2.7-release.apk (Git 추적)
 └── docs/
-    ├── CAFE24_CURSOR_HANDOFF.md       ← ★ Cursor 재시작 시 첫 문서
+    ├── CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md  ← ★ AWS·Admin·Git
+    ├── CAFE24_AWS_DECOMMISSION.md
+    ├── CAFE24_PROGRESS_HANDOFF.md
+    ├── CAFE24_CURSOR_HANDOFF.md
     ├── CAFE24_WORK_STATUS_AND_TODO.md  ← 본 문서
-    ├── CAFE24_TEST_GUIDE.md
-    ├── CAFE24_BATCH_SCHEDULE.md
-    ├── CAFE24_DEPLOYMENT_GUIDE.md
-    └── CAFE24_API_MIGRATION.md
+    └── …
 ```
 
 ---
@@ -412,7 +426,8 @@ cama-cafe24/
 | 2026-06-03 | cama-doctor-web 소스 동기화·JAR 배포, `cama_doctor` 스키마 복원, APK 빌드(JDK17), 본 문서 작성 |
 | 2026-06-03 | [CAFE24_TEST_GUIDE.md](CAFE24_TEST_GUIDE.md) 추가 (링크·테스트 케이스) |
 | 2026-06-03 | [CAFE24_BATCH_SCHEDULE.md](CAFE24_BATCH_SCHEDULE.md) 추가 (스케줄 배치 상세) |
-| 2026-06-03 | 배치 FCM dry-run E2E 검증, [CAFE24_CURSOR_HANDOFF.md](CAFE24_CURSOR_HANDOFF.md) 최종·APK 테스트方針 |
+| 2026-06-03 | 배치 FCM dry-run E2E, [CAFE24_CURSOR_HANDOFF.md](CAFE24_CURSOR_HANDOFF.md) |
+| 2026-06-03 | AWS→Cafe24 S3·DB·`/files/`, Super Admin, `/api/doctor/service`, GitHub, [MIGRATION-GIT](CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md) |
 
 ---
 
