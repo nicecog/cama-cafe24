@@ -7,8 +7,9 @@ BOOT-INF/
 
 # Node / frontend
 node_modules/
-dist/
-dist-ssr/
+react-app-dawplus/dist/
+react-app-dawplus/dist-ssr/
+cama-plus-app/dist/
 coverage/
 .cache/
 
