@@ -1,0 +1,44 @@
+# Google Cloud Build: Artifact Registry에 이미지 푸시 후 Cloud Run 배포
+# gcloud builds submit --config=cloudbuild.yaml .
+#
+# 치환: _REGION, _SERVICE, _REPO, _AR_HOST 는 프로젝트에 맞게 수정하세요.
+
+substitutions:
+  _REGION: asia-northeast3
+  _SERVICE: cama-doctor-web
+  _REPO: cama-docker
+  _AR_HOST: asia-northeast3-docker.pkg.dev
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - '-t'
+      - '$_AR_HOST/$PROJECT_ID/$_REPO/$_SERVICE:$SHORT_SHA'
+      - '-t'
+      - '$_AR_HOST/$PROJECT_ID/$_REPO/$_SERVICE:latest'
+      - .
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - '$_AR_HOST/$PROJECT_ID/$_REPO/$_SERVICE:$SHORT_SHA'
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - $_SERVICE
+      - '--image=$_AR_HOST/$PROJECT_ID/$_REPO/$_SERVICE:$SHORT_SHA'
+      - '--region=$_REGION'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars=SPRING_PROFILES_ACTIVE=production'
+
+images:
+  - '$_AR_HOST/$PROJECT_ID/$_REPO/$_SERVICE:$SHORT_SHA'
+  - '$_AR_HOST/$PROJECT_ID/$_REPO/$_SERVICE:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

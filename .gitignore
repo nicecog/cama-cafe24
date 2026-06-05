@@ -1,0 +1,53 @@
+# Java / Spring
+target/
+build/
+BOOT-INF/
+*.jar
+!**/gradle/wrapper/gradle-wrapper.jar
+
+# Node / frontend
+node_modules/
+dist/
+dist-ssr/
+coverage/
+.cache/
+
+# IDE / OS
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.DS_Store
+
+# Runtime / local data
+data/
+*.log
+*.pid
+.server.pid
+.batch.pid
+
+# Secrets & credentials (never commit)
+local-cafe24.env
+local-cafe24.mail.env
+local-cafe24.mail.env*
+local-aws-migrate.env
+**/firebase*.json
+**/firebase/
+**/*firebase-adminsdk*.json
+**/*service-account*.json
+**/*.p8
+.env
+.env.local
+.env.*.local
+**/.env
+!**/.env.example
+!**/.env.cafe24.example
+!**/env.cafe24.example
+**/CAFE24_VPS_ACCESS.local.md
+deploy/.vps-credentials.*
+deploy/*.zip
+deploy/.env.cafe24
+
+# Deploy artifacts
+deploy/jars/

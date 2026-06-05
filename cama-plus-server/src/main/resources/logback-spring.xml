@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}/}spring.miningLogs}"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    <include resource="org/springframework/boot/logging/logback/file-appender.xml"/>
+
+    <springProperty scope="context" name="slackWebhookDev" source="cama.slack.webhook.dev" defaultValue=""/>
+    <springProperty scope="context" name="slackWebhookPrd" source="cama.slack.webhook.prd" defaultValue=""/>
+
+    <appender name="SLACK" class="com.github.maricn.logback.SlackAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%-4relative [%thread] %-5level %class - %msg%n</pattern>
+        </layout>
+        <webhookUri>${slackWebhookDev}</webhookUri>
+        <username>cama-dev</username>
+        <colorCoding>true</colorCoding>
+    </appender>
+
+    <appender name="SLACK_PRD" class="com.github.maricn.logback.SlackAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%-4relative [%thread] %-5level %class - %msg%n</pattern>
+        </layout>
+        <webhookUri>${slackWebhookPrd}</webhookUri>
+        <username>cama-prd</username>
+        <colorCoding>true</colorCoding>
+    </appender>
+
+    <appender name="ASYNC_SLACK" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="SLACK"/>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+
+    <appender name="ASYNC_SLACK_PRD" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="SLACK_PRD"/>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+
+    <springProfile name="local">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_SLACK"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="prd">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="ASYNC_SLACK_PRD"/>
+        </root>
+    </springProfile>
+
+</configuration>

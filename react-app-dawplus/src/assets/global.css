@@ -1,0 +1,491 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans;
+  }
+}
+@font-face {
+  font-family: "Jalnan";
+  src: url("/src/assets/fonts/Jalnan2.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SUIT";
+  font-weight: 100;
+  src: url("./fonts/suit/SUIT-Thin.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "SUIT";
+  font-weight: 200;
+  src: url("./fonts/suit/SUIT-ExtraLight.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "SUIT";
+  font-weight: 300;
+  src: url("./fonts/suit/SUIT-Light.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "SUIT";
+  font-weight: 400;
+  src: url("./fonts/suit/SUIT-Regular.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "SUIT";
+  font-weight: 500;
+  src: url("./fonts/suit/SUIT-Medium.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "SUIT";
+  font-weight: 600;
+  src: url("./fonts/suit/SUIT-SemiBold.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "SUIT";
+  font-weight: 700;
+  src: url("./fonts/suit/SUIT-Bold.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "SUIT";
+  font-weight: 800;
+  src: url("./fonts/suit/SUIT-ExtraBold.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "SUIT";
+  font-weight: 900;
+  src: url("./fonts/suit/SUIT-Heavy.woff2") format("woff2");
+  font-display: swap;
+}
+body {
+  font-family: "SUIT";
+  font-size: 16px; /* 고정 크기 - 명시적으로 클래스를 사용한 요소만 동적 조절 */
+}
+/* === Default Theme (Site Default) === */
+:root {
+  /* 동적 폰트 크기 변수 (기본값: medium) */
+  --font-xs: 0.75rem; /* 12px */
+  --font-sm: 0.875rem; /* 14px */
+  --font-base: 1rem; /* 16px */
+  --font-lg: 1.125rem; /* 18px */
+  --font-xl: 1.25rem; /* 20px */
+  --font-2xl: 1.5rem; /* 24px */
+  --font-3xl: 1.875rem; /* 30px */
+  --font-4xl: 2.25rem; /* 36px */
+  --font-5xl: 3rem; /* 48px */
+
+  --color-primary: 210 100% 40%; /* #0066CC */
+  --color-primary-hover: 210 100% 32%; /* #0052A3 */
+  --color-primary-light: 210 66% 53%; /* #3385D6 */
+  --color-primary-foreground: 0 0% 100%;
+  --color-primary-thin: 210 66% 90%;
+  --color-primary-text: 0 0% 100%; /* 흰색 글자 */
+  --color-primary-light-text: 0 0% 0%; /* 밝은 primary-light/thin용 검정 글자 */
+
+  --color-secondary: 190 100% 43%; /* #00B4D8 */
+  --color-secondary-foreground: 0 0% 100%;
+  --color-secondary-text: 0 0% 100%; /* 흰색 글자 */
+
+  --color-background: 210 100% 98%; /* #F5F9FF */
+  --color-background-light-text: 0 0% 0%; /* 밝은 배경에 검정 글자 */
+  --color-foreground: 0 0% 10%; /* #1A1A1A */
+
+  /* 전체 탭 배경 (Inactive) */
+  --color-tab-bg: 210 66% 93%; /* 연한 블루, #e6f2ff */
+  --color-tab-text: 210 100% 25%; /* 진한 블루, #003366 */
+
+  /* Active 탭 */
+  --color-tab-active-bg: 210 100% 45%; /* 메인 블루, #3385D6 */
+  --color-tab-active-text: 0 0% 100%; /* 흰색 */
+  --color-tab-active-hover: 210 90% 50%; /* 밝은 블루, hover 효과 */
+
+  /* Hover (Inactive) */
+  --color-tab-hover-bg: 210 90% 60%; /* 밝은 블루, 기존보다 조금 더 밝게 */
+  --color-tab-hover-text: 0 0% 100%; /* 흰색으로 변경 */
+
+  --color-card: 0 0% 100%;
+  --color-card-foreground: 0 0% 10%;
+
+  --color-popover: 0 0% 100%;
+  --color-popover-foreground: 0 0% 10%;
+
+  --color-muted: 210 20% 95%; /* #F1F5F9 */
+  --color-muted-foreground: 0 0% 30%; /* #4D4D4D */
+
+  --color-accent: 210 66% 53%; /* #3385D6 */
+  --color-accent-foreground: 0 0% 100%;
+
+  --color-destructive: 0 72% 55%; /* #DC2626 */
+  --color-destructive-foreground: 0 0% 100%;
+
+  --color-border: 210 20% 92%; /* #E2E8F0 */
+  --color-input: 210 20% 92%;
+  --color-ring: 210 100% 40%; /* #0066CC */
+
+  --color-chart-1: 210 100% 40%;
+  --color-chart-2: 190 100% 43%;
+  --color-chart-3: 210 66% 53%;
+  --color-chart-4: 190 71% 75%;
+  --color-chart-5: 190 72% 90%;
+  --chart-1: oklch(0.646 0.22 210); /* primary */
+  --chart-2: oklch(0.5 0.18 210); /* primary-light */
+  --chart-3: oklch(0.45 0.16 200); /* secondary */
+  --chart-4: oklch(0.4 0.14 190); /* secondary-light */
+  --chart-5: oklch(0.7 0.15 220); /* highlight */
+  --chart-6: oklch(0.4 0 210); /* 채도 0 → 완전 회색, 명도 0.4 → 중간 밝기 */
+  --chart-7: oklch(0.8 0 210); /* 명도 0.7 → 밝은 회색, 채도 0 → 무채색 */
+  --chart-background: oklch(0.9 0 250); /* 명도 0.7 → 밝은 회색, 채도 0 → 무채색 */
+}
+
+/* === Site A Theme === */
+[data-theme="siteA"] {
+  --color-primary: 195 100% 39%; /* #0096C7 */
+  --color-primary-hover: 195 100% 33%; /* #007A9E */
+  --color-primary-light: 195 90% 50%; /* #33BFFF */
+  --color-primary-foreground: 0 0% 100%;
+
+  --color-secondary: 175 100% 40%; /* 청록 포인트 */
+  --color-secondary-foreground: 0 0% 100%;
+
+  --color-background: 195 100% 97%;
+  --color-foreground: 0 0% 10%;
+}
+
+/* === Site B Theme === */
+[data-theme="siteB"] {
+  --color-primary: 217 91% 60%; /* #1A73E8 */
+  --color-primary-hover: 217 91% 45%; /* #174EA6 */
+  --color-primary-light: 217 91% 70%; /* #4D90FE */
+  --color-primary-foreground: 0 0% 100%;
+
+  --color-secondary: 200 100% 45%; /* 블루-시안 포인트 */
+  --color-secondary-foreground: 0 0% 100%;
+
+  --color-background: 217 100% 97%;
+  --color-foreground: 0 0% 10%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.recharts-wrapper svg,
+.recharts-wrapper g,
+.recharts-wrapper path {
+  outline: none;
+}
+
+.swiper {
+  width: 100%;
+  height: 100%;
+}
+
+.swiper-slide {
+  text-align: center;
+  font-size: 18px;
+  background: #fff;
+
+  /* Center slide text vertically */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.swiper-slide {
+  text-align: center;
+  font-size: 18px;
+  background: #fff;
+
+  /* Center slide text vertically */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* globals.css or tailwind.css */
+.hide-scrollbar,
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+.hide-scrollbar::-webkit-scrollbar,
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* 모바일 터치 스크롤 최적화 */
+.overflow-auto,
+.overflow-y-auto,
+.overflow-x-auto {
+  /* iOS에서 부드러운 스크롤 */
+  -webkit-overflow-scrolling: touch;
+
+  /* 스크롤 영역 경계에서 bounce 효과 제어 */
+  overscroll-behavior: contain;
+
+  /* 터치 액션 최적화 */
+  touch-action: pan-y;
+}
+
+/* 모바일 길게 누르기 방지 (컨텍스트 메뉴, 이미지 저장 등) */
+img,
+button,
+a {
+  /* 사용자 선택 방지 */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  /* iOS Safari 길게 누르기 메뉴 방지 */
+  -webkit-touch-callout: none;
+
+  /* 컨텍스트 메뉴 방지 */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* swiper-slide 내부 이미지는 더 구체적인 스타일 적용 */
+.swiper-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 텍스트는 선택 가능하도록 유지 */
+p,
+span,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+li {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Smooth Fade In Up Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Walking Animation - 걷는 느낌 */
+@keyframes walk {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  25% {
+    transform: translateY(-8px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(0) rotate(3deg);
+  }
+  75% {
+    transform: translateY(-8px) rotate(0deg);
+  }
+}
+
+/* Filter Accordion Animation */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    max-height: 600px;
+    transform: translateY(0);
+  }
+}
+
+/* Content Body Styles - Dynamic Font Size Support */
+.content-body {
+  font-size: var(--font-base);
+  line-height: 1.75;
+  color: #374151;
+}
+
+/* 링크 스타일 */
+.content-body a {
+  color: #2563eb;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.content-body a:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+/* 제목 스타일 */
+.content-body h1 {
+  font-size: var(--font-3xl);
+  font-weight: 700;
+  color: #111827;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  line-height: 1.25;
+}
+
+.content-body h2 {
+  font-size: var(--font-2xl);
+  font-weight: 700;
+  color: #111827;
+  margin-top: 1.75rem;
+  margin-bottom: 0.875rem;
+  line-height: 1.3;
+}
+
+.content-body h3 {
+  font-size: var(--font-xl);
+  font-weight: 600;
+  color: #111827;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+.content-body h4 {
+  font-size: var(--font-lg);
+  font-weight: 600;
+  color: #111827;
+  margin-top: 1.25rem;
+  margin-bottom: 0.625rem;
+  line-height: 1.5;
+}
+
+/* 단락 스타일 */
+.content-body p {
+  margin-bottom: 1.25rem;
+  line-height: 1.75;
+}
+
+/* 강조 텍스트 */
+.content-body strong,
+.content-body b {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* 리스트 스타일 */
+.content-body ul,
+.content-body ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+.content-body ul {
+  list-style-type: disc;
+}
+
+.content-body ol {
+  list-style-type: decimal;
+}
+
+.content-body li {
+  margin-bottom: 0.5rem;
+  line-height: 1.75;
+}
+
+/* 이미지 스타일 */
+.content-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+/* 인용구 스타일 */
+.content-body blockquote {
+  border-left: 4px solid #3b82f6;
+  background-color: rgba(59, 130, 246, 0.05);
+  padding: 0.75rem 1rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+}
+
+/* 코드 스타일 */
+.content-body code {
+  background-color: #fce7f3;
+  color: #db2777;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+}
+
+.content-body pre {
+  background-color: #1f2937;
+  color: #f9fafb;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.content-body pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+/* 테이블 스타일 */
+.content-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+.content-body th,
+.content-body td {
+  border: 1px solid #e5e7eb;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.content-body th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+}
+
+/* 수평선 */
+.content-body hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 2rem 0;
+}

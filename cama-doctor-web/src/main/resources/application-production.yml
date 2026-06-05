@@ -1,0 +1,50 @@
+# 운영/배포 공통 — SPRING_PROFILES_ACTIVE=production
+# (Dockerfile·Cloud Run·Cafe24 VPS)
+spring:
+  thymeleaf:
+    cache: true
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:5432/cama_doctor}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    hikari:
+      maximum-pool-size: ${SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE:10}
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:validate}
+    show-sql: false
+  lifecycle:
+    timeout-per-shutdown-phase: ${SPRING_LIFECYCLE_TIMEOUT:30s}
+
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+  forward-headers-strategy: framework
+  servlet:
+    session:
+      cookie:
+        secure: ${SERVER_SESSION_COOKIE_SECURE:false}
+        same-site: lax
+    multipart:
+      max-file-size: 32MB
+      max-request-size: 40MB
+
+cama:
+  billive:
+    base-url: ${CAMA_BILLIVE_BASE_URL:https://api.billive.me}
+  firebase:
+    enabled: ${CAMA_FIREBASE_ENABLED:false}
+    # 클래스패스: firebase/xxx.json | 서버 절대경로: /opt/cama/firebase-sa.json
+    credentials-path: ${CAMA_FIREBASE_CREDENTIALS_PATH:firebase/cama-service-account.json}
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: when_authorized

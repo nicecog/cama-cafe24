@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>볼거리</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+</head>
+<body class="has-drawer" data-require-auth="true">
+<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+<main class="app-main">
+    <div class="card">
+        <h1 class="card__title">볼거리</h1>
+        <p class="muted-note">React 원본은 목록 API가 주석 처리되어 있습니다. Billive 목록 API가 정해지면 <code>article-list.js</code>의 <code>fetchList</code>에 연결하세요.</p>
+        <div class="toolbar">
+            <input id="searchText" class="input-full" type="search" placeholder="검색어 입력" style="max-width:320px;" disabled title="검색 API 미정"/>
+            <button type="button" class="btn" disabled title="검색 API 미정">검색</button>
+            <a class="btn btn-primary" th:href="@{/content-management/article/add}">등록</a>
+        </div>
+        <div class="table-wrap">
+            <table class="data">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>제목</th>
+                    <th>등록일</th>
+                    <th>관리</th>
+                </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+        <div class="pager">
+            <button type="button" class="btn" id="btnPrev" disabled>이전</button>
+            <span id="pageInfo">—</span>
+            <button type="button" class="btn" id="btnNext" disabled>다음</button>
+        </div>
+    </div>
+</main>
+<script th:src="@{/js/cama-api.js}"></script>
+<script th:src="@{/js/app-shell.js}"></script>
+<script th:src="@{/js/article-list.js}"></script>
+</body>
+</html>

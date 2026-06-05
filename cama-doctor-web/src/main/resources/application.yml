@@ -1,0 +1,38 @@
+# 공통 설정 — 프로필: local-cafe24 | cafe24 | production | cloudrun
+spring:
+  application:
+    name: cama-doctor-web
+  thymeleaf:
+    cache: false
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: public
+    show-sql: false
+  profiles:
+    group:
+      cloudrun:
+        - production
+
+cama:
+  firebase:
+    enabled: false
+    credentials-path: firebase/cama-service-account.json
+
+server:
+  forward-headers-strategy: framework
+  servlet:
+    session:
+      cookie:
+        name: CAMA_DOCTOR_SESSION
+    multipart:
+      max-file-size: 32MB
+      max-request-size: 40MB
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info

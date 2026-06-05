@@ -1,0 +1,155 @@
+# Cafe24 VPS — 5 services (6GB RAM tuned). Usage:
+#   docker compose -f docker-compose.cafe24.yml --env-file .env.cafe24 up -d
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: cama-cafe24-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-cama}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-cama}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cama} -d ${POSTGRES_DB:-cama}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+
+  cama-plus-server:
+    image: eclipse-temurin:21-jre-jammy
+    container_name: cama-plus-server
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    working_dir: /app
+    volumes:
+      - ../jars/cama-back-1.0-SNAPSHOT.jar:/app/app.jar:ro
+      - ../data/cama-files:/opt/cama/data/cama-files
+    command:
+      - java
+      - -Xms512m
+      - -Xmx1536m
+      - -jar
+      - /app/app.jar
+      - --spring.profiles.active=cafe24
+    environment:
+      SERVER_PORT: "8080"
+      DB_URL: jdbc:postgresql://postgres:5432/cama
+      DB_USER: ${POSTGRES_USER:-cama}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_CLIENT_SECRET: ${JWT_CLIENT_SECRET}
+      IAMPORT_KEY: ${IAMPORT_KEY:-}
+      IAMPORT_SECRET: ${IAMPORT_SECRET:-}
+      CAMA_STORAGE_TYPE: ${CAMA_STORAGE_TYPE:-local}
+      FILE_STORAGE_PATH: ${FILE_STORAGE_PATH:-/opt/cama/data/cama-files}
+      IMAGE_CDN_BASE_URL: ${IMAGE_CDN_BASE_URL}
+      CAMA_CORS_ORIGINS: ${CAMA_CORS_ORIGINS}
+      CAMA_MAIL_ENABLED: ${CAMA_MAIL_ENABLED:-false}
+      CAMA_MAIL_FROM: ${CAMA_MAIL_FROM:-noreply@camaplus.com}
+      CAMA_MAIL_PROVIDER: ${CAMA_MAIL_PROVIDER:-smtp}
+      CAMA_MAIL_SENDER_NAME: ${CAMA_MAIL_SENDER_NAME:-CAMA Plus}
+      BREVO_API_KEY: ${BREVO_API_KEY:-}
+      SPRING_MAIL_HOST: ${SPRING_MAIL_HOST:-}
+      SPRING_MAIL_PORT: ${SPRING_MAIL_PORT:-587}
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME:-}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD:-}
+    ports:
+      - "127.0.0.1:8080:8080"
+    deploy:
+      resources:
+        limits:
+          memory: 1792M
+
+  cama-back-batch:
+    image: eclipse-temurin:21-jre-jammy
+    container_name: cama-back-batch
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      cama-plus-server:
+        condition: service_started
+    working_dir: /app
+    volumes:
+      - ../jars/cama-batch-1.0-SNAPSHOT.jar:/app/app.jar:ro
+      - ../secrets/firebase-adminsdk.json:${FIREBASE_CREDENTIALS_PATH:-/secrets/firebase-adminsdk.json}:ro
+    command:
+      - java
+      - -Xms128m
+      - -Xmx512m
+      - -jar
+      - /app/app.jar
+      - --spring.profiles.active=cafe24
+    environment:
+      SERVER_PORT: "8082"
+      DB_URL: jdbc:postgresql://postgres:5432/cama
+      DB_USER: ${POSTGRES_USER:-cama}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      FIREBASE_CREDENTIALS_PATH: ${FIREBASE_CREDENTIALS_PATH:-/secrets/firebase-adminsdk.json}
+      CAMA_BATCH_FCM_DRY_RUN: ${CAMA_BATCH_FCM_DRY_RUN:-true}
+      CAMA_BATCH_SLACK_ENABLED: ${CAMA_BATCH_SLACK_ENABLED:-false}
+    # 외부 포트 노출 없음
+    deploy:
+      resources:
+        limits:
+          memory: 640M
+
+  cama-super-admin:
+    image: nginx:1.27-alpine
+    container_name: cama-super-admin
+    restart: unless-stopped
+    volumes:
+      - ../www/super-admin:/usr/share/nginx/html:ro
+      - ./nginx/cama-super-admin-container.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "127.0.0.1:8083:80"
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  cama-doctor-web:
+    image: eclipse-temurin:21-jre-jammy
+    container_name: cama-doctor-web
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      cama-plus-server:
+        condition: service_started
+    working_dir: /app
+    volumes:
+      - ../jars/cama-doctor-web-0.0.1-SNAPSHOT.jar:/app/app.jar:ro
+    command:
+      - java
+      - -Xms128m
+      - -Xmx512m
+      - -jar
+      - /app/app.jar
+      - --spring.profiles.active=cafe24
+    environment:
+      SERVER_PORT: "8081"
+      DOCTOR_DB_URL: jdbc:postgresql://postgres:5432/cama_doctor
+      DOCTOR_DB_USER: ${POSTGRES_USER:-cama}
+      DOCTOR_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      CAMA_BILLIVE_BASE_URL: ${CAMA_BILLIVE_BASE_URL:-http://cama-plus-server:8080}
+      CAMA_FIREBASE_ENABLED: ${CAMA_FIREBASE_ENABLED:-false}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO:-update}
+    ports:
+      - "127.0.0.1:8081:8081"
+    deploy:
+      resources:
+        limits:
+          memory: 640M
+
+volumes:
+  pgdata:

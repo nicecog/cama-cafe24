@@ -1,0 +1,91 @@
+{
+  "name": "cama-super-admin",
+  "version": "0.0.1",
+  "private": true,
+  "homepage": "/admin",
+  "dependencies": {
+    "@date-io/dayjs": "^2.16.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@fxts/core": "^0.13.0",
+    "@hookform/resolvers": "^2.9.9",
+    "@mui/icons-material": "^5.10.3",
+    "@mui/material": "^5.10.4",
+    "@mui/styled-engine": "npm:@mui/styled-engine-sc@latest",
+    "@mui/x-date-pickers": "^5.0.3",
+    "@tanstack/react-query": "^4.10.3",
+    "@tanstack/react-query-devtools": "^4.11.0",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.11.58",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "axios": "^1.1.2",
+    "dayjs": "^1.11.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-dropzone": "^14.2.3",
+    "react-hook-form": "^7.37.0",
+    "react-loading": "^2.0.3",
+    "react-quill": "^2.0.0",
+    "react-router-dom": "^6.30.1",
+    "react-scripts": "5.0.1",
+    "react-sortablejs": "^6.1.4",
+    "recoil": "^0.7.5",
+    "sortablejs": "^1.15.0",
+    "styled-components": "^5.3.5",
+    "typescript": "^4.8.2",
+    "uuid": "^9.0.0",
+    "web-vitals": "^2.1.4",
+    "yup": "^0.32.11"
+  },
+  "resolutions": {
+    "@mui/styled-engine": "npm:@mui/styled-engine-sc@latest"
+  },
+  "scripts": {
+    "start": "cross-env REACT_APP_PROFILE=cafe24 REACT_APP_API_URL=https://camaplus.cafe24.com PUBLIC_URL=/admin react-scripts start",
+    "start:legacy": "cross-env REACT_APP_PROFILE=dev react-scripts start",
+    "build": "react-scripts build",
+    "build:cafe24": "cross-env REACT_APP_PROFILE=cafe24 REACT_APP_API_URL=https://camaplus.cafe24.com PUBLIC_URL=/admin GENERATE_SOURCEMAP=false TSC_COMPILE_ON_ERROR=true DISABLE_ESLINT_PLUGIN=true react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "lint": "eslint './**/*.{ts,tsx}'",
+    "lint:fix": "eslint --fix './**/*.{ts,tsx}'",
+    "build:dev": "cross-env REACT_APP_PROFILE=dev GENERATE_SOURCEMAP=false TSC_COMPILE_ON_ERROR=true DISABLE_ESLINT_PLUGIN=true react-scripts build",
+    "build:prod": "cross-env REACT_APP_PROFILE=prod GENERATE_SOURCEMAP=false TSC_COMPILE_ON_ERROR=true DISABLE_ESLINT_PLUGIN=true react-scripts build",
+    "deploy:cafe24": "node ../deploy/scripts/build-super-admin-cafe24.mjs",
+    "deploy:aws:legacy": "echo AWS S3/CloudFront deploy retired — use deploy/scripts/vps-deploy-super-admin.py"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/sortablejs": "^1.15.1",
+    "@types/styled-components": "^5.1.26",
+    "@types/uuid": "^9.0.1",
+    "@typescript-eslint/eslint-plugin": "^5.36.2",
+    "@typescript-eslint/parser": "^5.36.2",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.23.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^3.5.1",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jsx-a11y": "^6.6.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.31.7",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^2.7.1"
+  }
+}

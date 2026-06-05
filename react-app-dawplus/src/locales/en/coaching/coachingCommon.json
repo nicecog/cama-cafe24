@@ -1,0 +1,39 @@
+{
+  "account_name": "Member",
+  "greeting_title": "Welcome!",
+  "greeting_subtitle": "We welcome your first step towards healthy change.",
+  "title_prefix": "Personalized",
+  "title_emphasis": "Coaching",
+  "title_suffix": "for me.",
+  "extra_placeholder": "Please write any additional questions or comments.",
+  "extra_label": "Additional Comments",
+  "step_visual_alt": "Coaching Guide Image",
+  "today_mission_badge": "Today's Mission",
+  "toast": {
+    "action_required": "Please enter the content.",
+    "select_required": "Please select an item.",
+    "saved": "Saved successfully.",
+    "error": "An error occurred. Please try again."
+  },
+  "options": {
+    "msg_001": "For an energetic day",
+    "msg_002": "For emotional stability",
+    "msg_003": "For physical health",
+    "msg_004": "For better focus",
+    "msg_005": "For precious time with family",
+    "msg_006": "Other"
+  },
+  "slider": {
+    "min_label": "Not important",
+    "max_label": "Very important",
+    "helper_text": "Move the slider to select",
+    "current_label": "Current value",
+    "percent_suffix": "%"
+  },
+  "step_flow": {
+    "start": "Start",
+    "prev": "Prev",
+    "next": "Next",
+    "complete": "Complete"
+  }
+}

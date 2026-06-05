@@ -1,0 +1,76 @@
+# 로컬 PC — Cafe24 스택 (Spring Boot 3.5, JDK 21, PostgreSQL 17)
+# 실행: scripts/run-local-cafe24.ps1
+
+server:
+  port: ${SERVER_PORT:8080}
+  forward-headers-strategy: framework
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://127.0.0.1:55432/cama}
+    username: ${DB_USER:cama}
+    password: ${DB_PASSWORD:cama_local_dev}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      connection-timeout: 10000
+      max-lifetime: 300000
+      idle-timeout: 120000
+      keepalive-time: 30000
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    show-sql: false
+    open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  mail:
+    host: ${SPRING_MAIL_HOST:}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+jwt:
+  token:
+    clientSecret: ${JWT_CLIENT_SECRET:local-dev-jwt-secret-change-me}
+
+iamport:
+  key: ${IAMPORT_KEY:local-test-key}
+  secure: ${IAMPORT_SECRET:local-test-secret}
+
+cama:
+  hosting:
+    storage-type: local
+    local-storage-path: ${FILE_STORAGE_PATH:./data/cama-files}
+    image-cdn-base-url: ${IMAGE_CDN_BASE_URL:http://localhost:8080/files}
+    cors-allowed-origins:
+      - http://localhost:3000
+      - http://127.0.0.1:3000
+      - http://localhost:8080
+  mail:
+    enabled: ${CAMA_MAIL_ENABLED:false}
+    from: ${CAMA_MAIL_FROM:noreply@camaplus.com}
+
+logging:
+  level:
+    root: INFO
+    com.cama.back: DEBUG
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html

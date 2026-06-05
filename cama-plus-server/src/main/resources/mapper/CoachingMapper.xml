@@ -1,0 +1,414 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cama.back.mapper.CoachingMapper">
+   
+    <select id="getCodeInfoList" resultType="com.cama.back.dto.coaching.CodeInfo">
+	   select scm.code
+  		     ,scm.name
+   		     ,scd.cd
+   		     ,scd.val
+  		 from sys_code_mst scm
+     		 ,sys_code_det scd
+ 		where 1=1
+  		  and scm.code = scd.code 
+  		  and scm.use_yn = 'Y'
+  		  and scd.use_yn = 'Y'
+  		 <if test='code != null and code != ""'>
+			   and scm.code = #{code}
+		 </if>
+  		 <if test='cd != null and cd != ""'>
+			   and scd.cd = #{cd}
+		 </if>
+ 		 order by scm.code,scd.cd
+    </select>
+    
+    <select id="getAccountSeq" resultType="int">
+        select seq as accountSeq
+          from account at
+         where 1=1
+		   and login_id = #{loginId}
+    </select>   
+  
+     <select id="getQuestionInfoList" resultType="com.cama.back.dto.coaching.QuestionInfo">
+       select cqi.category_cd
+             ,cqi.step_day_cd
+             ,cqi.progress_type_cd
+             ,cqi.answer_type_cd
+             ,cqi.contents_info
+             ,cqi.question_answer_cnt
+             ,cqi.question
+             ,(select name from account a where a.seq = #{accountSeq}) as account_name
+         from coaching_question_info cqi 
+        where 1=1
+  		 <if test='categoryCd != null and categoryCd != ""'>
+			   and cqi.category_cd = #{categoryCd}
+		 </if>
+  		 <if test='stepDayCd != null and stepDayCd != ""'>
+			   and cqi.step_day_cd = #{stepDayCd}
+		 </if>
+   		 <if test='progressTypeCd != null and progressTypeCd != ""'>
+			   and cqi.progress_type_cd = #{progressTypeCd}
+		 </if>
+  		 <if test='answerTypeCd != null and answerTypeCd != ""'>
+			   and cqi.answer_type_cd = #{answerTypeCd}
+		 </if>
+		 order by cqi.category_cd,cqi.step_day_cd,cqi.progress_type_cd
+    </select>   
+
+  
+     <select id="getQuestionDetailInfoList" resultType="com.cama.back.dto.coaching.QuestionDetailInfo">
+        select cqdi.category_cd
+              ,cqdi.step_day_cd
+              ,cqdi.progress_type_cd
+              ,cqdi.detail_seq
+              ,cqdi.detail_info
+              ,cqdi.add_detail_info
+              ,(select name from account a where a.seq = #{accountSeq}) as account_name
+          from coaching_question_detail_info cqdi 
+         where 1=1
+  		 <if test='categoryCd != null and categoryCd != ""'>
+			   and cqdi.category_cd = #{categoryCd}
+		 </if>
+  		 <if test='stepDayCd != null and stepDayCd != ""'>
+			   and cqdi.step_day_cd = #{stepDayCd}
+		 </if>
+   		 <if test='progressTypeCd != null and progressTypeCd != ""'>
+			   and cqdi.progress_type_cd = #{progressTypeCd}
+		 </if>
+  		 <if test='detailSeq != 0'>
+			   and cqdi.detail_seq = #{detailSeq}
+		 </if>
+ 		 order by cqdi.category_cd,cqdi.step_day_cd,cqdi.progress_type_cd,cqdi.detail_seq
+    </select>   
+    
+  
+     <select id="getUserAnswerInfoList" resultType="com.cama.back.dto.coaching.UserAnswerInfo">
+       select cuai.account_seq
+             ,cuai.category_cd
+             ,cuai.step_day_cd
+             ,cuai.progress_type_cd
+             ,cuai.answer_choice_seq
+             ,cuai.answer_choice
+             ,cuai.ref_val1
+             ,cuai.ref_val2
+             ,cuai.ref_val3
+             ,cuai.ref_val4
+             ,cuai.ref_val5
+             ,(select name from account a where a.seq = #{accountSeq}) as account_name
+         from coaching_user_answer_info cuai
+        where 1=1
+ 			   and cuai.account_seq = #{accountSeq}
+  		 <if test='categoryCd != null and categoryCd != ""'>
+			   and cuai.category_cd = #{categoryCd}
+		 </if>
+  		 <if test='stepDayCd != null and stepDayCd != ""'>
+			   and cuai.step_day_cd = #{stepDayCd}
+		 </if>
+   		 <if test='progressTypeCd != null and progressTypeCd != ""'>
+			   and cuai.progress_type_cd = #{progressTypeCd}
+		 </if>
+  		 <if test='answerChoiceSeq != 0'>
+			   and cuai.answer_choice_seq = #{answerChoiceSeq}
+		 </if>
+ 		 order by cuai.account_seq,cuai.category_cd,cuai.step_day_cd,cuai.progress_type_cd,cuai.answer_choice_seq
+    </select>   
+
+    <select id="getAnswerCnt" resultType="int">
+        select count(*) as answerCnt
+          from coaching_user_answer_info cuai
+         where 1=1
+		   and account_seq = #{accountSeq}
+		   and category_cd = #{categoryCd}
+		   and step_day_cd = #{stepDayCd}
+		   and progress_type_cd = #{progressTypeCd}
+		   and answer_choice_seq = #{answerChoiceSeq}
+    </select>   
+
+    <delete id="deleteAnswer" >
+		delete from coaching_user_answer_info
+		 where account_seq = #{accountSeq}
+		   and category_cd = #{categoryCd}
+		   and step_day_cd = #{stepDayCd}
+	</delete>
+
+    <update id="updateAnswer" >
+		update coaching_user_answer_info
+		   set answer_choice = #{answerChoice}
+		      ,ref_val1 = #{refVal1}
+              ,ref_val2 = #{refVal2}
+              ,ref_val3 = #{refVal3}
+              ,ref_val4 = #{refVal4}
+              ,ref_val5 = #{refVal5}
+		      ,updated_at = now()
+		 where account_seq = #{accountSeq}
+		   and category_cd = #{categoryCd}
+		   and step_day_cd = #{stepDayCd}
+		   and progress_type_cd = #{progressTypeCd}
+		   and answer_choice_seq = #{answerChoiceSeq}
+	</update>
+	
+    <insert id="insertAnswer" >
+        insert into coaching_user_answer_info
+            (account_seq
+            ,category_cd
+            ,step_day_cd
+            ,progress_type_cd
+            ,answer_choice_seq
+            ,answer_choice
+            ,ref_val1
+            ,ref_val2
+            ,ref_val3
+            ,ref_val4
+            ,ref_val5)
+         select #{accountSeq}
+               ,#{categoryCd}
+               ,#{stepDayCd}
+               ,#{progressTypeCd}
+               ,a.answerChoiceSeq
+               ,#{answerChoice}
+               ,#{refVal1}
+               ,#{refVal2}
+               ,#{refVal3}
+               ,#{refVal4}
+               ,#{refVal5}
+           from (select coalesce(max(answer_choice_seq),0) + 1 as answerChoiceSeq
+                   from coaching_user_answer_info
+                  where account_seq = #{accountSeq}
+		            and category_cd = #{categoryCd}
+		            and step_day_cd = #{stepDayCd}
+		            and progress_type_cd = #{progressTypeCd}
+                ) a
+	</insert>
+	
+    <delete id="deleteAddAnswer" >
+		delete from coaching_user_add_answer_info
+		 where account_seq = #{accountSeq}
+		   and category_cd = #{categoryCd}
+		   and step_day_cd = #{stepDayCd}
+	</delete>
+	
+    <insert id="insertAddAnswer" >
+        insert into coaching_user_add_answer_info
+            (account_seq
+            ,category_cd
+            ,step_day_cd
+            ,progress_type_cd
+            ,answer_choice_seq
+            ,answer_choice
+            ,ref_val1
+            ,ref_val2
+            ,ref_val3
+            ,ref_val4
+            ,ref_val5
+            )
+         select #{accountSeq}
+               ,#{categoryCd}
+               ,#{stepDayCd}
+               ,#{progressTypeCd}
+               ,a.answerChoiceSeq
+               ,#{answerChoice}
+               ,#{refVal1}
+               ,#{refVal2}
+               ,#{refVal3}
+               ,#{refVal4}
+               ,#{refVal5}
+           from (select coalesce(max(answer_choice_seq),0) + 1 as answerChoiceSeq
+                   from coaching_user_add_answer_info
+                  where account_seq = #{accountSeq}
+		            and category_cd = #{categoryCd}
+		            and step_day_cd = #{stepDayCd}
+		            and progress_type_cd = #{progressTypeCd}
+                ) a
+	</insert>
+
+    <select id="getCoachingProgressList" resultType="com.cama.back.dto.coaching.UserAnswerInfo">
+         select a.category_cd
+              , a.category_nm
+              , a.name as account_name
+              , a.disease_seq
+              , a.disease_name
+              , a.disease_treatment
+              , a.disease
+		      , case when (a.tot_question_step_day_cnt::decimal = 0)
+		        then 0
+		        else round(a.tot_answer_step_day_cnt::decimal / a.tot_question_step_day_cnt::decimal * 100)
+	            end as progress
+          from (
+		        select  ac.seq
+		              , scd.cd as category_cd
+		              , scd.val as category_nm
+		              , ac.name
+		              , ts.disease ->> 'diseaseSeq' as disease_seq
+		              , ts.disease ->> 'name' as disease_name
+		              , ts.disease -> 'diseaseTreatment' -> 0 ->> 'name' as disease_treatment
+		              , ts.disease
+		              , (select count(*) 
+		                   from coaching_question_info cqi 
+		                  where cqi.progress_type_cd in ( 'A1','E01','K01')
+		                    and cqi.category_cd = scd.cd) as tot_question_step_day_cnt
+		              , (select count(distinct step_day_cd)
+		                   from coaching_user_answer_info cuai
+		                  where cuai.account_seq = ac.seq
+		                    and cuai.category_cd = scd.cd) as tot_answer_step_day_cnt
+		               , (select max(created_at)
+		                    from coaching_user_answer_info cuai
+		                   where cuai.account_seq = ac.seq
+		                     and cuai.category_cd = scd.cd) as created_at
+		           from  account ac
+		                 left join track_service ts on ac.seq = ts.account_seq and ts.status = 'ACTIVE'
+		               , sys_code_det scd
+		          where 1=1 
+		            and ac.seq  = #{accountSeq}
+		            and scd.code = 'CATEGORY_CD'
+		            and scd.use_yn = 'Y'    
+		            and ac.is_enabled
+		            and scd.cd in ('A','B','C','D')
+		       union all 
+	            select  ac.seq
+		              , scd.cd as category_cd
+		              , scd.val as category_nm
+		              , ac.name
+		              , ts.disease ->> 'diseaseSeq' as disease_seq
+		              , ts.disease ->> 'name' as disease_name
+		              , ts.disease -> 'diseaseTreatment' -> 0 ->> 'name' as disease_treatment
+		              , ts.disease
+		              , (select count(*) 
+		                   from coaching_user_answer_info cuai 
+		                  where cuai.account_seq = ac.seq
+		                    and cuai.category_cd = scd.cd) as tot_question_step_day_cnt
+		              , (select count(*)
+		                   from coaching_user_answer_info cuai
+		                  where cuai.answer_choice = 'Y'
+		                    and cuai.account_seq = ac.seq
+		                    and cuai.category_cd = scd.cd) as tot_answer_step_day_cnt
+		               , (select max(created_at)
+		                    from coaching_user_answer_info cuai
+		                   where cuai.account_seq = ac.seq
+		                     and cuai.category_cd = scd.cd) as created_at
+		           from  account ac
+		                 left join track_service ts on ac.seq = ts.account_seq and ts.status = 'ACTIVE'
+		               , sys_code_det scd
+		          where 1=1 
+		            and ac.seq  =  #{accountSeq}
+		            and scd.code = 'CATEGORY_CD'
+		            and scd.use_yn = 'Y'    
+		            and ac.is_enabled
+		            and scd.cd in ('E')
+		       ) a  
+    </select>
+    
+    <select id="getCoachinExerciseUserClassInfo" resultType="com.cama.back.dto.coaching.ExerciseUserClassInfo">
+       select  exercise_program_cd
+             , cancer_type_cd
+             , aerobic
+             , therapy_cd
+         from  coaching_account_exercise_class
+        where  account_seq = #{accountSeq}
+    </select>
+
+    <update id="updateExerciseUserClass" >
+		update coaching_account_exercise_class
+		   set exercise_program_cd = #{exerciseProgramCd}
+		      ,cancer_type_cd = #{cancerTypeCd}
+		      ,aerobic = #{aerobic}
+              ,therapy_cd = #{therapyCd}
+		      ,updated_at = now()
+		 where account_seq = #{accountSeq}
+	</update>
+	
+    <insert id="insertExerciseUserClass" >
+        insert into coaching_account_exercise_class
+            (account_seq
+            ,cancer_type_cd
+            ,exercise_program_cd
+            ,aerobic
+            ,therapy_cd
+            ,created_at
+            ,updated_at)
+       values (
+             #{accountSeq}
+            ,#{cancerTypeCd}
+            ,#{exerciseProgramCd}
+            ,#{aerobic}
+            ,#{therapyCd}
+            ,now()
+            ,now()
+       )
+	</insert>
+	    
+    <select id="getCoachingExerciseContentList" resultType="com.cama.back.dto.coaching.ExerciseContentInfo">
+       select  exercise_type_cd
+             , index_num
+             , difficulty_cd
+             , eng_name
+             , kor_name
+             , (select url 
+                  from cm_contents_video ccv 
+                 where ccv.video_type_cd = concat(a.exercise_type_cd,a.difficulty_cd)
+                   and ccv.priority = a.index_num
+                   and ccv.use_yn = 'Y'
+               )
+         from  coaching_exercise_contents_mst a
+        where  1 = 1
+         <if test='exerciseTypeCd != null and exerciseTypeCd != ""'>
+	      and exercise_type_cd = #{exerciseTypeCd}
+		 </if>
+         <if test='difficultyCd != null and difficultyCd != ""'>
+	      and difficulty_cd = #{difficultyCd}
+		 </if>
+    </select>
+    
+     <select id="getSurveySeq" resultType="int">
+        select coalesce(max(seq),0) as surveySeq
+          from coaching_exercise_survey_result_hst 
+         where 1=1
+		   and account_seq = #{accountSeq}
+    </select>      
+    
+    <delete id="deleteExerciseProgressResult" >
+		delete from coaching_exercise_progress_result_hst
+		 where account_seq = #{accountSeq}
+		   and survey_seq = #{surveySeq}
+		   and answer_choice_seq = #{answerChoiceSeq}
+	</delete>
+	
+	<insert id="insertExerciseProgressResult" >
+        insert into coaching_exercise_progress_result_hst
+            (survey_seq
+	       , account_seq
+	       , answer_choice_seq
+           , answer_choice
+	       , ref_val1)
+      select #{surveySeq}
+	       , #{accountSeq}
+	       , answer_choice_seq
+           , answer_choice
+	       , ref_val1 
+	   from coaching_user_answer_info
+	  where account_seq = #{accountSeq}
+	    and category_cd = 'E'
+	    and answer_choice_seq = #{answerChoiceSeq}
+	</insert>
+	
+    <update id="updateAccountBatchSchedule" >
+		update account_batch_schedule
+		   set is_enabled = false
+		      ,updated_at = now()
+		 where schedule_seq in (select seq
+		                        from account_schedule
+		                       where account_seq = #{accountSeq}
+		                         and schedule_type = #{scheduleType}
+		                         and is_enabled = true)
+	</update>
+	
+    <update id="updateAccountSchedule" >
+		update account_schedule
+		   set is_enabled = false
+		      ,updated_at = now()
+		 where account_seq = #{accountSeq}
+		   and schedule_type = #{scheduleType}
+		   and is_enabled = true
+	</update>
+	
+	
+</mapper>

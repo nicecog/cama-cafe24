@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<header class="app-header" th:fragment="header">
+    <div class="app-header__brand">
+        <span class="app-header__icon" aria-hidden="true">&#9877;</span>
+        <span class="app-header__title">CAMA ADMIN <span th:text="${stageName}">(운영)</span></span>
+    </div>
+    <div class="app-header__actions">
+        <button type="button" class="btn btn-ghost" id="btnLogout" title="로그아웃">로그아웃</button>
+        <a th:href="@{/login}" class="btn btn-ghost" id="btnLoginLink" title="로그인">로그인</a>
+    </div>
+</header>
+</body>
+</html>

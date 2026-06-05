@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside class="app-drawer" th:fragment="sidebar">
+    <div class="app-drawer__profile">
+        <div class="app-drawer__role">의사</div>
+        <div class="app-drawer__name" id="sidebarDoctorName">—</div>
+    </div>
+    <nav class="app-nav">
+        <div class="app-nav__group">
+            <div class="app-nav__title">환자 관리</div>
+            <a class="app-nav__link" th:href="@{/patient-management/patient/list}">환자 모니터링</a>
+        </div>
+        <div class="app-nav__group">
+            <div class="app-nav__title">컨텐츠 관리</div>
+            <a class="app-nav__link" th:href="@{/content-management/treatment/done/list}">치료정보<span id="navCountDone" class="nav-count"></span></a>
+            <a class="app-nav__link" th:href="@{/content-management/treatment/disabled/list}">작성중인 치료정보<span id="navCountIng" class="nav-count"></span></a>
+            <a class="app-nav__link" th:href="@{/content-management/article/list}">볼거리</a>
+        </div>
+        <div class="app-nav__group">
+            <div class="app-nav__title">서비스 관리</div>
+            <a class="app-nav__link" th:href="@{/service-management/service/list}">서비스 신청</a>
+        </div>
+    </nav>
+</aside>
+</body>
+</html>

@@ -1,0 +1,17 @@
+.git
+.gitignore
+.gradle
+build
+out
+.idea
+*.iml
+.vscode
+.cursorrules
+terminals
+.firebase
+firebase-debug.log
+firestore-debug.log
+node_modules
+*.md
+docs
+public

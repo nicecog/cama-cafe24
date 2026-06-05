@@ -1,0 +1,269 @@
+
+
+-- 아래 --
+getAccountHospital() {
+
+    /** 내 병원 정보 **/
+
+    return mainApiClient.get<AccountHospitalInfo>(`/api/account/hospital`);
+
+     -> POST.  /api/webview/account/hospital (input 예시 : {"seq": "244"} ) seq는 로그인id로 회원정보 조회하면 결과에 seq 값을 사용
+
+
+
+  },
+
+  getAccountMe() {
+
+    /** 회원정보 **/
+
+    return mainApiClient.get<Account>(`/api/account/me`);
+
+     -> POST.  /api/webview/account/me    (input 예시 : {"loginId": "5PI47M168902O"})  
+
+  },
+
+
+
+  fetchContentsList() {
+
+    /** 치료정보 리스트 **/
+
+    return mainApiClient.get<ContentsInfo[]>(`/api/contents/list?paging=false`);
+
+       -> POST.  /api/webview/contents/list (input 예시 : {"acSeq": "244" } ) 
+
+  },
+
+
+
+  searchContentsList(searchText: string, cancerSelected: string) {
+
+    /** 치료정보 리스트 - 검색 **/
+
+    return mainApiClient.get<ContentsInfo[]>(
+
+      `/api/contents/list?paging=false&searchText=${searchText}&diseaseSeq=${cancerSelected}`,
+
+       -> POST.  /api/webview/contents/list   (input 예시 : {"acSeq": "244" , "searchText": "해조류", "diseaseSeq": “6”})
+
+
+
+    );
+
+  },
+
+
+
+  checkAppliedCareTrackService() {
+
+    /** 암정보 가이드 여정 신청확인 **/
+
+    return mainApiClient.get<boolean>(`/api/track/service/check`);
+
+      -> POST. /api/webview/track/service/check (input 예시 : {“seq": "244" } ) 
+
+  },
+
+
+
+  fetchCareTrackServiceList(dto: CareTrackInfoDto) {
+
+    /** 암정보 가이드 여정 정보 **/
+
+    return mainApiClient.post<ContentsInfo[]>(`/api/track/service/info`, dto);
+
+     -> POST.   /api/webview/track/service/info (input 예시 : {"acSeq": "244" ,"hospitalSeq":"1", "diseaseSeq":"2", "day":"1"} ) 
+
+  },
+
+
+
+  checkDoneCareTrackService(dto: CareTrackInfoDto) {
+
+    /** 암정보 가이드 여정 완료확인 **/
+
+    return mainApiClient.post<CareTrackDoneInfo[]>(
+
+      `/api/track/service/done`,
+
+      dto,
+
+    );
+
+      -> POST. /api/webview/track/service/done (input 예시 : {"acSeq": "244" ,"hospitalSeq":"1", "diseaseSeq":"2", "day":"1"} ) 
+
+  },
+
+
+
+  getCareTrackServiceAppliedInfo() {
+
+    /** 암정보 가이드 여정 신청정보 **/
+
+    return mainApiClient.get<CareTrackAppliedInfo>(`/api/track/service`);
+
+     -> POST. /webview/track/service/request/info (input 예시 : {"acSeq": "244" } ) 
+
+  },
+
+
+
+  fetchCareTrackStepList(dto: StepInfoDto) {
+
+    /** 일자별 걸음 정보 **/
+
+    return mainApiClient.post<StepInfo[]>(`/api/track/service/stepList`, dto);
+
+     -> POST. /api/webview/track/service/stepList (input 예시 : {"accountSeq": "244" } ) 
+
+  },
+
+
+
+  fetchCoachingProgressList(dto: CoachingInfoRequest) {
+
+    /** 건강코칭 카테고리별 진도율 **/
+
+    return mainApiClient.post<CoachingInfoReponse[]>(
+
+      `/api/coaching/service/getCoachingProgressList`,
+
+      dto,
+
+    );
+
+    -> POST. /webview/coaching/service/getCoachingProgressList (input 예시 : {"loginId": "5PI47M168902O"})  
+
+  },
+
+
+
+-- 아래 --
+
+2) 2026.1.2 Webview API 추가 
+
+    /** 회원 탈퇴 **/
+
+    RN => mainApiClient.post<boolean>(`/api/account/withdrawal`);
+
+    Webview => Post  /api/webview/account/withdrawal (input 예시 : {"loginId": "5PI47M168902O"})  
+
+
+
+    /** 병원 질병 리스트 **/
+
+    RN => mainApiClient.get<HospitalDiseaseInfo[]>(`/api/hospital/${hSeq}/disease/list`);
+
+    Webview => Get /api/webview/hospital/{hSeq}/disease/list ( input 예시(1:중앙대학교병원, 7: 미국병원) :https://camaplus.cafe24.com/api/webview/hospital/7/disease/list) 
+
+
+
+    /** 병원 의사 리스트 **/
+
+    RN =>  mainApiClient.get<HospitalDoctorInfo[]>(`/api/hospital/${hospitalSeq}/doctor/list`);
+
+    Webview => Get /api/webview/hospital/{seq}/doctor/list ( input 예시(1:중앙대학교병원, 7: 미국병원) : https://camaplus.cafe24.com/api/webview/hospital/1/doctor/list )
+
+
+
+    /** 병원 리스트 **/
+
+    RN =>  mainApiClient.get<HospitalInfo[]>(`/api/hospital/list`);
+
+    Webview => Get /api/webview/hospital/list
+
+
+
+    /** 병원 서비스 신청 **/
+
+    RN =>  mainApiClient.post<boolean>(`/api/hospital/service/apply`, dto);
+
+    Webview => Post  /api/webview/hospital/service/apply ( input 예시 : {"hospitalSeq": 7,"acSeq":543}) 
+
+
+
+    /** 병원 서비스 신청 확인 **/
+
+    RN =>  mainApiClient.post<HospitalService>(`/api/hospital/service/check`);
+
+    Webview => Post  /api/webview/hospital/service/check  ( input 예시 : {“seq":543}) 
+
+   
+
+    /** 치료정보 상세 **/
+
+    RN =>  mainApiClient.get<ContentsInfo>(`/api/contents/${seq}/view`);
+
+    Webview =>Get /api/webview/contents/{seq}/view ( input 예시 : https://camaplus.cafe24.com/api/webview/contents/883/view )
+
+
+
+    /** 나의 암정보 가이드 즐겨찾기 리스트 **/
+
+    RN =>  mainApiClient.get<ContentsInfo[]>(`/api/contents/favoriteList`);
+
+    Webview => Get /api/webview/contents/favoriteList (input 예시 : https://camaplus.cafe24.com/api/webview/contents/favoriteList?acSeq=542)
+
+
+
+    /** 나의 암정보 가이드 즐겨찾기 저장 **/
+
+    RN => mainApiClient.put<boolean>(`/api/contents/favoriteSave`, dto);
+
+    Webview => Put /api/webview/contents/favoriteSave 
+
+          (추가 예시 : {"accountSeq":542,"type":"C","contentsSeq":888}
+
+          (삭제 예시 : {"accountSeq":542,"type":"D","contentsSeq":888}
+
+    
+
+    /** 암정보 가이드 여정 신청 **/
+
+    RN => mainApiClient.post<boolean>(`/api/track/service`, dto);
+
+    Webview => Post  /api/webview/track/service 
+
+
+
+  
+
+    /** 암정보 가이드 여정 취소 **/
+
+    RN => mainApiClient.post<boolean>(`/api/track/service/cancel`, dto);
+
+    Webview => Post  /api/webview/track/service/cancel
+
+
+
+    /** 암정보 가이드 여정 진도율 업데이트(비회원) **/
+
+    RN => mainApiClient.put<boolean>(`/api/track/service/guest/progress`, dto);
+
+    Webview => Put /api/webview/track/service/guest/progress
+
+
+
+    /** 암정보 가이드 여정 진도율 업데이트(서비스 전) **/
+
+    RN => mainApiClient.put<boolean>(`/api/track/service/off/progress`, dto);
+
+    Webview => Put /api/webview/track/service/off/progress
+
+  
+
+    /** 암정보 가이드 여정 진도율 업데이트 **/
+
+    RN => mainApiClient.put<boolean>(`/api/track/service/progress`, dto);
+
+    Webview => Put /api/webview/track/service/progress
+
+
+
+    /** 질병 리스트 **/
+
+    RN => mainApiClient.get<CommonDiseaseInfo[]>(`/api/common/disease/list`)
+
+    Webview => Get /api/webview/common/disease/list
+

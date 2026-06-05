@@ -1,0 +1,304 @@
+{"success":true,"response":[
+    {
+        "seq":  1,
+        "diseaseSeq":  2,
+        "diseaseName":  "유방암",
+        "diseaseOption":  [
+                              {
+                                  "seq":  39,
+                                  "groupName":  "암 종류",
+                                  "optionName":  "호르몬 양성 유방암"
+                              },
+                              {
+                                  "seq":  28,
+                                  "groupName":  "암 종류",
+                                  "optionName":  "HER2 양성 유방암"
+                              },
+                              {
+                                  "seq":  30,
+                                  "groupName":  "암 종류",
+                                  "optionName":  "삼중음성 유방암"
+                              },
+                              {
+                                  "seq":  29,
+                                  "groupName":  "암 종류",
+                                  "optionName":  "HER2 양성 + 호르몬 양성 유방암"
+                              },
+                              {
+                                  "seq":  31,
+                                  "groupName":  "암 종류",
+                                  "optionName":  "모름"
+                              },
+                              {
+                                  "seq":  47,
+                                  "groupName":  "그 외 고려사항",
+                                  "optionName":  "전이 있음"
+                              },
+                              {
+                                  "seq":  49,
+                                  "groupName":  "그 외 고려사항",
+                                  "optionName":  "유전성 유방암"
+                              },
+                              {
+                                  "seq":  48,
+                                  "groupName":  "그 외 고려사항",
+                                  "optionName":  "남성 유방암"
+                              },
+                              {
+                                  "seq":  69,
+                                  "groupName":  "그 외 고려사항",
+                                  "optionName":  "해당 사항 없음"
+                              }
+                          ],
+        "diseaseTreatment":  [
+                                 {
+                                     "seq":  1,
+                                     "name":  "암 진단",
+                                     "treatmentPeriod":  "14,28"
+                                 },
+                                 {
+                                     "seq":  47,
+                                     "name":  "수술",
+                                     "treatmentPeriod":  "14,28"
+                                 },
+                                 {
+                                     "seq":  3,
+                                     "name":  "항암치료",
+                                     "treatmentPeriod":  "60,90"
+                                 },
+                                 {
+                                     "seq":  12,
+                                     "name":  "방사선 치료",
+                                     "treatmentPeriod":  "30,60"
+                                 },
+                                 {
+                                     "seq":  15,
+                                     "name":  "암치료 종료 후",
+                                     "treatmentPeriod":  "30,90"
+                                 }
+                             ]
+    },
+    {
+        "seq":  2,
+        "diseaseSeq":  4,
+        "diseaseName":  "대장암",
+        "diseaseOption":  [
+                              {
+                                  "seq":  32,
+                                  "groupName":  "암 병기",
+                                  "optionName":  "1기 대장암"
+                              },
+                              {
+                                  "seq":  38,
+                                  "groupName":  "암 병기",
+                                  "optionName":  "2기 대장암"
+                              },
+                              {
+                                  "seq":  25,
+                                  "groupName":  "암 병기",
+                                  "optionName":  "3기 대장암"
+                              },
+                              {
+                                  "seq":  36,
+                                  "groupName":  "암 병기",
+                                  "optionName":  "4기 대장암"
+                              },
+                              {
+                                  "seq":  24,
+                                  "groupName":  "암 병기",
+                                  "optionName":  "모름"
+                              },
+                              {
+                                  "seq":  50,
+                                  "groupName":  "그 외 고려사항",
+                                  "optionName":  "전이 있음"
+                              },
+                              {
+                                  "seq":  51,
+                                  "groupName":  "그 외 고려사항",
+                                  "optionName":  "인공 항문(장루) 있음"
+                              },
+                              {
+                                  "seq":  52,
+                                  "groupName":  "그 외 고려사항",
+                                  "optionName":  "유전성 대장암임"
+                              },
+                              {
+                                  "seq":  53,
+                                  "groupName":  "그 외 고려사항",
+                                  "optionName":  "해당 사항 없음"
+                              }
+                          ],
+        "diseaseTreatment":  [
+                                 {
+                                     "seq":  6,
+                                     "name":  "암 진단",
+                                     "treatmentPeriod":  "14,28"
+                                 },
+                                 {
+                                     "seq":  48,
+                                     "name":  "수술",
+                                     "treatmentPeriod":  "14,28"
+                                 },
+                                 {
+                                     "seq":  9,
+                                     "name":  "항암치료",
+                                     "treatmentPeriod":  "60,90"
+                                 },
+                                 {
+                                     "seq":  10,
+                                     "name":  "방사선 치료",
+                                     "treatmentPeriod":  "30,60"
+                                 },
+                                 {
+                                     "seq":  11,
+                                     "name":  "암치료 종료 후",
+                                     "treatmentPeriod":  "30,90"
+                                 }
+                             ]
+    },
+    {
+        "seq":  3,
+        "diseaseSeq":  3,
+        "diseaseName":  "폐암",
+        "diseaseOption":  [
+                              {
+                                  "seq":  27,
+                                  "groupName":  "암 종류",
+                                  "optionName":  "비소세포폐암"
+                              },
+                              {
+                                  "seq":  70,
+                                  "groupName":  "그 외 고려사항",
+                                  "optionName":  "전이 있음"
+                              },
+                              {
+                                  "seq":  22,
+                                  "groupName":  "암 종류",
+                                  "optionName":  "소세포폐암"
+                              },
+                              {
+                                  "seq":  71,
+                                  "groupName":  "그 외 고려사항",
+                                  "optionName":  "유전자 변이 있음"
+                              },
+                              {
+                                  "seq":  21,
+                                  "groupName":  "암 종류",
+                                  "optionName":  "모름"
+                              },
+                              {
+                                  "seq":  72,
+                                  "groupName":  "그 외 고려사항",
+                                  "optionName":  "해당 사항 없음"
+                              }
+                          ],
+        "diseaseTreatment":  [
+                                 {
+                                     "seq":  16,
+                                     "name":  "암 진단",
+                                     "treatmentPeriod":  "14,28"
+                                 },
+                                 {
+                                     "seq":  49,
+                                     "name":  "수술",
+                                     "treatmentPeriod":  "14,28"
+                                 },
+                                 {
+                                     "seq":  19,
+                                     "name":  "항암치료",
+                                     "treatmentPeriod":  "60,90"
+                                 },
+                                 {
+                                     "seq":  20,
+                                     "name":  "방사선 치료",
+                                     "treatmentPeriod":  "30,60"
+                                 },
+                                 {
+                                     "seq":  21,
+                                     "name":  "암치료 종료 후",
+                                     "treatmentPeriod":  "30,90"
+                                 }
+                             ]
+    },
+    {
+        "seq":  4,
+        "diseaseSeq":  6,
+        "diseaseName":  "갑상선암",
+        "diseaseOption":  [
+                              {
+                                  "seq":  23,
+                                  "groupName":  "암 종류",
+                                  "optionName":  "유두암"
+                              },
+                              {
+                                  "seq":  41,
+                                  "groupName":  "암 종류",
+                                  "optionName":  "여포암"
+                              },
+                              {
+                                  "seq":  42,
+                                  "groupName":  "암 종류",
+                                  "optionName":  "수질암"
+                              },
+                              {
+                                  "seq":  43,
+                                  "groupName":  "암 종류",
+                                  "optionName":  "미분화암"
+                              },
+                              {
+                                  "seq":  44,
+                                  "groupName":  "암 종류",
+                                  "optionName":  "모름"
+                              },
+                              {
+                                  "seq":  73,
+                                  "groupName":  "그 외 고려사항",
+                                  "optionName":  "전이 있음"
+                              },
+                              {
+                                  "seq":  74,
+                                  "groupName":  "그 외 고려사항",
+                                  "optionName":  "능동적 감시 중임"
+                              },
+                              {
+                                  "seq":  75,
+                                  "groupName":  "그 외 고려사항",
+                                  "optionName":  "해당 사항 없음"
+                              }
+                          ],
+        "diseaseTreatment":  [
+                                 {
+                                     "seq":  22,
+                                     "name":  "암 진단",
+                                     "treatmentPeriod":  "14,28"
+                                 },
+                                 {
+                                     "seq":  50,
+                                     "name":  "수술",
+                                     "treatmentPeriod":  "14,28"
+                                 },
+                                 {
+                                     "seq":  25,
+                                     "name":  "방사선 치료",
+                                     "treatmentPeriod":  "28"
+                                 },
+                                 {
+                                     "seq":  51,
+                                     "name":  "방사성 요오드 치료",
+                                     "treatmentPeriod":  "28"
+                                 },
+                                 {
+                                     "seq":  52,
+                                     "name":  "항암치료",
+                                     "treatmentPeriod":  "30,90"
+                                 },
+                                 {
+                                     "seq":  28,
+                                     "name":  "암치료 종료 후",
+                                     "treatmentPeriod":  "30,90"
+                                 }
+                             ]
+    }
+]
+}

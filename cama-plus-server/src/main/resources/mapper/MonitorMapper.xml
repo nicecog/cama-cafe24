@@ -1,0 +1,540 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cama.back.mapper.MonitorMapper">
+
+    <select id="getMonitorPatientListCount" resultType="java.lang.Integer">
+        select
+        count(ac.seq)
+        from track_service ts join account ac on ac.seq = ts.account_seq and ac.is_enabled and ac.is_dropped = false
+        <where>
+            ts.is_enabled and ts.status = 'ACTIVE'
+            and ac.lang = #{lang}
+            and ts.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq})
+            <if test='searchType != null and searchType != ""'>
+                <if test='searchText != null and searchText != ""'>
+                    <if test='searchType == "name"'>
+                        AND ac.name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                </if>
+            </if>
+        </where>
+    </select>
+
+    <select id="getMonitorPatientList" resultType="com.cama.back.dto.monitor.MonitorPatientRsp">
+        select
+        ac.seq,
+        ac.name,
+        ac.login_id,
+        ac.lang,
+        '****-'||substr(ac.birth,6) as birth,
+        ac.gender,
+        ts.disease,
+        ac.user_type_cd,
+        (select val from sys_code_det a where a.code = 'USER_TYPE_CD' and a.cd = ac.user_type_cd and a.use_yn = 'Y') as user_type_nm,
+        (
+            select sum(ccc.progress) / (select sum(json_array_length(x.value::json)) from
+            (SELECT DISTINCT t.value FROM jsonb_each((SELECT ts.data
+            FROM track_service ts
+            where ts.is_enabled
+            and ts.status = 'ACTIVE'
+            AND ts.account_seq = ac.seq
+            and ts.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq}))) as t(key,value)) as x)
+            from cm_contents_check ccc
+            where ccc.contents_seq in (
+            select json_array_elements_text(t.value::json)::bigint as contents
+            from jsonb_each((SELECT ts.data
+            FROM track_service ts
+            where ts.is_enabled
+            and ts.status = 'ACTIVE'
+            AND ts.account_seq = ac.seq
+            and ts.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq}))) as t(key,value))
+            and ccc.account_seq = ac.seq and ccc.is_enabled and ccc.track_service_seq = (SELECT ts.seq
+                FROM track_service ts
+                where ts.is_enabled
+                and ts.status = 'ACTIVE'
+                AND ts.account_seq = ac.seq
+                and ts.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq}))
+        ) as progress,
+        to_char(cast(ts.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
+        from (select * from track_service 
+               where is_enabled and status = 'ACTIVE'
+                 and hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq})
+             ) ts right join (select * from  account where is_enabled and is_dropped = false and lang = #{lang}) ac
+                         on ac.seq = ts.account_seq 
+        <where>
+             <if test='searchType != null and searchType != ""'>
+                <if test='searchText != null and searchText != ""'>
+                    <if test='searchType == "name"'>
+                        AND ac.name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                </if>
+            </if>
+        </where>
+        ORDER BY ac.seq DESC
+        LIMIT #{pagination.endNum} OFFSET #{pagination.startNum}
+    </select>
+
+    <select id="getMonitorPatientDetail" resultType="com.cama.back.dto.monitor.MonitorPatientRsp">
+        select
+        ac.seq,
+        ac.name,
+        ac.birth,
+        ac.gender,
+        ts.disease,
+        (
+            select sum(ccc.progress) / (select sum(json_array_length(x.value::json)) from
+        (SELECT DISTINCT t.value FROM jsonb_each((SELECT ts.data
+            FROM track_service ts
+            where ts.is_enabled
+            and ts.status = 'ACTIVE'
+            AND ts.account_seq = ac.seq
+            and ts.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq}))) as t(key,value)) as x)
+            from cm_contents_check ccc
+            where ccc.contents_seq in (
+            select json_array_elements_text(t.value::json)::bigint as contents
+            from jsonb_each((SELECT ts.data
+            FROM track_service ts
+            where ts.is_enabled
+            and ts.status = 'ACTIVE'
+            AND ts.account_seq = ac.seq
+            and ts.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq}))) as t(key,value))
+            and ccc.account_seq = ac.seq and ccc.is_enabled and ccc.track_service_seq = (SELECT ts.seq
+                FROM track_service ts
+                where ts.is_enabled
+                and ts.status = 'ACTIVE'
+                AND ts.account_seq = ac.seq
+                and ts.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq}))
+        ) as progress,
+        to_char(cast(ts.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
+        from track_service ts join account ac on ac.seq = ts.account_seq and ac.is_enabled and ac.is_dropped = false
+        <where>
+            ts.is_enabled and ts.status = 'ACTIVE'
+            and ts.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq})
+            and ac.seq = #{acSeq}
+        </where>
+    </select>
+
+
+    <select id="getCoachingListCount" resultType="java.lang.Integer">
+        select count(a.seq)
+          from (
+		        <include refid="getCoachingList" />
+		       ) a
+    </select>
+
+    <select id="getCoachingMonitoringList" resultType="com.cama.back.dto.monitor.MonitorCoachingDTO">
+        select a.seq
+	          , a.name
+		      , a.birth
+		      , a.gender
+		      , a.disease_name
+		      , a.disease_treatment
+		      , a.disease
+		      , a.category_cd
+	          , a.category_nm
+	          , a.tot_question_step_day_cnt
+		      , a.tot_answer_step_day_cnt
+		      , case when (a.tot_question_step_day_cnt::decimal = 0)
+		        then 0
+		        else round(a.tot_answer_step_day_cnt::decimal / a.tot_question_step_day_cnt::decimal * 100)
+	            end as progress
+	          , to_char(cast(a.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
+         from (
+		        <include refid="getCoachingList" />
+	          ) a
+        ORDER BY a.seq DESC
+        LIMIT #{pagination.endNum} OFFSET #{pagination.startNum}
+    </select>
+
+    <select id="getCoachingDetailList" resultType="com.cama.back.dto.monitor.MonitorCoachingDTO">
+		select  aa.category_cd
+              , aa.category_nm
+              , aa.step_day_cd
+              , aa.step_day_nm
+              , aa.progress_type_cd
+              , aa.progress_type_nm
+              , aa.contents_info
+              , aa.question
+              , 1 as answer_choice_seq
+              , string_agg(aa.answer_choice,' // ') as answer_choice
+         from (
+	            select  cqi.category_cd
+	                  , (select val from sys_code_det scd where scd.code = 'CATEGORY_CD' and scd.cd = cqi.category_cd) as category_nm
+	                  , cqi.step_day_cd
+	                  , (select val from sys_code_det scd where scd.code = 'STEP_DAY_CD' and scd.cd = cqi.step_day_cd) as step_day_nm
+	                  , cqi.progress_type_cd
+	                  , (select val from sys_code_det scd where scd.code = 'PROGRESS_TYPE_CD' and scd.cd = cqi.progress_type_cd) as progress_type_nm
+	                  , cqi.contents_info 
+	                  , replace(replace(replace(replace(replace(replace(replace(replace(replace(cqi.question_orgl,'#NN','(   )')
+		     	                                                                                            ,'#SS','(   )') 
+		     	                                                                                            ,'#DD','(   )') 
+		        	                                                                                        ,'#NN','(   )') 
+		        	                                                                                        ,'#HH','(   )') 
+		        	                                                                                        ,'#MM','(   )') 
+		        	                                                                                        ,'#UN',#{name}) 
+		        	                                                                                        ,'#BV','(   )') 
+		         	                  	                                                                    ,'#BS','(   )') 
+		                       	                                                                as question
+	                  , cuai.answer_choice_seq
+	                  , cuai.answer_choice
+	              from  coaching_question_info cqi
+		                left join (select * from coaching_user_answer_info where account_seq = #{acSeq}) cuai
+		                on cqi.category_cd = cuai.category_cd 
+		                and cqi.step_day_cd = cuai.step_day_cd 
+		                and cqi.progress_type_cd  = cuai.progress_type_cd
+		         where 1=1
+		           and cqi.category_cd = #{categoryCd}
+		           and cqi.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq})
+		       ) aa
+		  group by aa.category_cd, aa.category_nm, aa.step_day_cd, aa.step_day_nm ,aa.progress_type_cd,aa.progress_type_nm,aa.contents_info,aa.question
+		  order by aa.category_cd, aa.step_day_cd, aa.progress_type_cd
+    </select>
+    
+    <sql id="getCoachingList"> 
+		 select  ac.seq
+		       , ac.name
+		       , ac.birth
+		       , ac.gender
+		       , ts.disease ->> 'name' as disease_name
+		       , ts.disease -> 'diseaseTreatment' -> 0 ->> 'name' as disease_Treatment
+		       , ts.disease
+		       , scd.cd   as category_cd
+		       , scd.val  as category_nm
+		       , (select count(*) 
+		            from coaching_question_info cqi 
+		           where cqi.progress_type_cd in ( 'A1','E01','K01')
+		             and cqi.category_cd = scd.cd) as tot_question_step_day_cnt
+		       , (select count(distinct step_day_cd)
+		            from coaching_user_answer_info cuai
+		           where cuai.account_seq = ac.seq
+		             and cuai.category_cd = scd.cd) as tot_answer_step_day_cnt
+		       , (select max(created_at)
+		            from coaching_user_answer_info cuai
+		           where cuai.account_seq = ac.seq
+		             and cuai.category_cd = scd.cd) as created_at
+		   from  account ac
+		        left join track_service ts on ac.seq = ts.account_seq and ts.status = 'ACTIVE'
+		       , sys_code_det scd
+		       , hospital_service hs
+		  where 1=1
+		    and scd.code = 'CATEGORY_CD'
+		    and scd.use_yn = 'Y'   
+		    and scd.cd in ('A','B','C','D')
+		    and ac.seq = hs.account_seq 
+		    and hs.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq})
+		    and ac.is_enabled
+            <if test='searchType != null and searchType != ""'>
+                <if test='searchText != null and searchText != ""'>
+                    <if test='searchType == "name"'>
+                        and ac.name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                </if>
+            </if>
+          union all 
+	        select  ac.seq
+		       , ac.name
+		       , ac.birth
+		       , ac.gender
+		       , ts.disease ->> 'name' as disease_name
+		       , ts.disease -> 'diseaseTreatment' -> 0 ->> 'name' as disease_Treatment
+		       , ts.disease
+		       , scd.cd   as category_cd
+		       , scd.val  as category_nm
+		       , (select count(*) 
+		            from coaching_user_answer_info cuai 
+                   where cuai.account_seq = ac.seq
+		             and cuai.category_cd = scd.cd) as tot_question_step_day_cnt
+	           , (select count(*)
+	                from coaching_user_answer_info cuai
+		           where cuai.answer_choice = 'Y'
+		             and cuai.account_seq = ac.seq
+		             and cuai.category_cd = scd.cd) as tot_answer_step_day_cnt
+		       , (select max(created_at)
+                    from coaching_user_answer_info cuai
+		           where cuai.account_seq = ac.seq
+                     and cuai.category_cd = scd.cd) as created_at
+		   from  account ac
+		        left join track_service ts on ac.seq = ts.account_seq and ts.status = 'ACTIVE'
+		       , sys_code_det scd
+		       , hospital_service hs
+		  where 1=1
+		    and scd.code = 'CATEGORY_CD'
+		    and scd.use_yn = 'Y'   
+		    and scd.cd in ('E')
+		    and ac.seq = hs.account_seq 
+		    and hs.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq})
+		    and ac.is_enabled
+            <if test='searchType != null and searchType != ""'>
+                <if test='searchText != null and searchText != ""'>
+                    <if test='searchType == "name"'>
+                        and ac.name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                </if>
+            </if>
+     </sql>
+     
+    <select id="getAccountInfo" resultType="String">
+        select name
+          from account at
+         where 1=1
+		   and seq = #{seq}
+    </select> 
+    
+    <delete id="deleteUserAnswerInfo" >
+		delete 
+		  from coaching_user_answer_info
+         where 1=1
+ 		   and account_seq = #{acSeq}
+ 		   and account_seq in (select account_seq
+ 		                        from hospital_service
+ 		                       where hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq})
+ 		                      )
+  		 <if test='categoryCd != null and categoryCd != ""'>
+		  and category_cd = #{categoryCd}
+		 </if>
+  		 <if test='stepDayCd != null and stepDayCd != ""'>
+	      and step_day_cd >= #{stepDayCd}
+		 </if>
+   		 <if test='progressTypeCd != null and progressTypeCd != ""'>
+		  and progress_type_cd = #{progressTypeCd}
+		 </if>
+       
+	</delete> 
+	
+	 <update id="updateAccountInfo" >
+		  update account
+		     set user_type_cd = #{userTypeCd}
+		        , updated_at = now()
+		   where seq = #{seq}
+  	 </update> 	 
+	
+	<select id="getSearchTextList" resultType="com.cama.back.dto.monitor.MonitorSearchDTO">
+ 	    select to_char(a.created_at ,'yyyy-mm-dd HH24:MI:SS') as search_dt
+              ,b.name 
+              ,a.cancer_type 
+              ,(select aa.val from sys_code_det aa where aa.code = 'DISEASE_CD' and aa.cd = a.cancer_type and aa.use_yn = 'Y') as cancer_type_nm
+              ,a.search_text 
+          from account_search_history a
+              ,account b
+         where 1=1
+           and a.account_seq = b.seq
+  		 <if test='yyyymm != null and yyyymm != ""'>
+		  and to_char(a.created_at ,'yyyymm') = #{yyyymm}
+		 </if>
+  		 <if test='name != null and name != ""'>
+		  and b.name = #{name}
+		 </if>
+         order by to_char(a.created_at ,'yyyy-mm-dd HH24:MI:SS') desc	
+	</select>	 
+
+	<select id="getAccountStatList" resultType="com.cama.back.dto.monitor.MonitorAcctStatDTO">
+        select  year_month
+              , case when value2 = 0 then 0 else round((value1 - value2):: decimal/value2:: decimal * 100,2) end as churn_rate
+              , value3 as dau
+              , value4 as mau
+              , case when value4 = 0 then 0 else round(value3:: decimal/value4:: decimal * 100,2) end  as ancrage_rate
+              , value1,value2,value3,value4
+          from account_cnt_statistics
+         where 1=1
+           and year_month <![CDATA[>=]]>   #{frYearMonth}
+           and year_month <![CDATA[<=]]>   #{toYearMonth}
+           and user_type_cd = #{userTypeCd}
+ 	</select>	 
+
+	<select id="getFavoriteStatList" resultType="com.cama.back.dto.monitor.MonitorContentsDTO">
+        select a.contents_seq, cc.title, cc.contents , a.cnt
+          from (
+        		select ccf.contents_seq , count(*) as cnt
+		          from cm_contents_favorite ccf 
+		         group by ccf.contents_seq
+		        ) a
+	          , cm_contents cc 
+         where a.contents_seq  = cc.seq 
+           and cc.lang = #{lang}
+         order by a.cnt desc
+ 	</select>	
+ 	
+ 
+    <select id="getUserCoachingMonitoringList" resultType="com.cama.back.dto.monitor.MonitorCoachingDTO">
+        select  aa.seq
+	          , aa.name
+	          , aa.login_id
+	          , aa.birth
+	          , aa.gender
+	          , aa.disease_name
+	          , aa.disease_Treatment
+	          , aa.user_type_nm
+	          , aa.category_aa -- 수면 
+	          , aa.category_bb -- 식습관 
+	          , aa.category_cc -- 신체활동  
+	          , aa.category_dd -- 심리 
+	          , aa.category_ee -- 운동  
+	          , round((
+                      select sum(ccc.progress) / (select sum(json_array_length(x.value::json)) 
+                                                    from
+                                                         (select distinct t.value 
+                                                            from jsonb_each((select ts.data
+                                                                               from track_service ts
+                                                                              where ts.is_enabled
+                                                                                and ts.status = 'ACTIVE'
+                                                                                and ts.account_seq = aa.seq
+                                                                                and ts.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq})
+                                                                            )) as t(key,value)
+                                                         ) as x
+                                                 )
+                       from cm_contents_check ccc
+                      where ccc.contents_seq in (
+                                                 select json_array_elements_text(t.value::json)::bigint as contents
+                                                   from jsonb_each((select ts.data
+                                                                      from track_service ts
+                                                                     where ts.is_enabled
+                                                                       and ts.status = 'ACTIVE'
+                                                                       and ts.account_seq = aa.seq
+                                                                       and ts.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq})
+                                                                   )) as t(key,value)
+                                                 )
+                        and ccc.account_seq = aa.seq 
+                        and ccc.is_enabled 
+                        and ccc.track_service_seq = (select ts.seq
+                                                       from track_service ts
+                                                      where ts.is_enabled
+                                                        and ts.status = 'ACTIVE'
+                                                        and ts.account_seq = aa.seq
+                                                        and ts.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq})
+                                                    )
+                     ),2) as cancer_progress_rate -- 암정보가이드 진도율 
+              , (select case when count(*) = 0 
+                             then 0
+                             else round(sum(step_num) / count(*))
+                        end 
+                   from account_step_history ash 
+                  where ash.account_seq = aa.seq) as avg_step
+         from (
+               select  a.seq
+	                 , a.name
+	                 , a.login_id
+	                 , a.birth
+	                 , a.gender
+	                 , a.disease_name
+	                 , a.disease_Treatment
+	                 , a.disease
+	                 , a.user_type_cd
+	                 , a.user_type_nm
+	                 , max(case when a.category_cd = 'A' 
+	                            then case when (a.tot_question_step_day_cnt::decimal = 0)
+		                                  then 0
+		                                  else round(a.tot_answer_step_day_cnt::decimal / a.tot_question_step_day_cnt::decimal * 100)
+	                                 end
+	                            else 0
+	                       end) as category_aa -- 수면 
+	                 , max(case when a.category_cd = 'B' 
+	                            then case when (a.tot_question_step_day_cnt::decimal = 0)
+		                                  then 0
+		                                  else round(a.tot_answer_step_day_cnt::decimal / a.tot_question_step_day_cnt::decimal * 100)
+	                                 end
+	                            else 0
+	                       end) as category_bb -- 식습관 
+ 	                 , max(case when a.category_cd = 'C' 
+	                            then case when (a.tot_question_step_day_cnt::decimal = 0)
+		                                  then 0
+		                                  else round(a.tot_answer_step_day_cnt::decimal / a.tot_question_step_day_cnt::decimal * 100)
+	                                 end
+	                            else 0
+	                       end)  as category_cc -- 신체활동  
+	                 , max(case when a.category_cd = 'D' 
+	                            then case when (a.tot_question_step_day_cnt::decimal = 0)
+		                                  then 0
+		                                  else round(a.tot_answer_step_day_cnt::decimal / a.tot_question_step_day_cnt::decimal * 100)
+	                                 end
+	                            else 0
+	                       end)  as category_dd -- 심리 
+	                 , max(case when a.category_cd = 'E' 
+	                            then case when (a.tot_question_step_day_cnt::decimal = 0)
+		                                  then 0
+		                                  else round(a.tot_answer_step_day_cnt::decimal / a.tot_question_step_day_cnt::decimal * 100)
+	                                 end
+	                            else 0
+	                       end) as category_ee -- 운동  
+                from (select  ac.seq
+                            , ac.name
+                            , ac.login_id
+                            , '****-'||substr(ac.birth,6) as birth
+                            , ac.gender
+                            , ts.disease ->> 'name' as disease_name
+		                    , ts.disease -> 'diseaseTreatment' -> 0 ->> 'name' as disease_Treatment
+		                    , ts.disease
+                            , ac.user_type_cd
+                            , (select val from sys_code_det a where a.code = 'USER_TYPE_CD' and a.cd = ac.user_type_cd and a.use_yn = 'Y') as user_type_nm
+		                    , scd.cd   as category_cd
+		                    , scd.val  as category_nm        
+		                    , (select count(*) 
+		                         from coaching_question_info cqi 
+		                        where cqi.progress_type_cd in ( 'A1','E01','K01')
+		                          and cqi.category_cd = scd.cd) as tot_question_step_day_cnt
+		                    , (select count(distinct step_day_cd)
+		                         from coaching_user_answer_info cuai
+		                        where cuai.account_seq = ac.seq
+		                          and cuai.category_cd = scd.cd) as tot_answer_step_day_cnt
+		                from  account ac
+		                      left join track_service ts on ac.seq = ts.account_seq and ts.status = 'ACTIVE'
+		                    , sys_code_det scd
+		                    , hospital_service hs
+		               where  1=1
+		                 and  scd.code = 'CATEGORY_CD'
+		                 and  scd.use_yn = 'Y'   
+		                 and  scd.cd in ('A','B','C','D')
+		                 and  ac.seq = hs.account_seq 
+		                 and  hs.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq})
+		                 and  ac.is_enabled
+                       union all 
+	                  select  ac.seq
+                            , ac.name
+                            , ac.login_id
+                            , '****-'||substr(ac.birth,6) as birth
+                            , ac.gender
+                            , ts.disease ->> 'name' as disease_name
+		                    , ts.disease -> 'diseaseTreatment' -> 0 ->> 'name' as disease_Treatment
+		                    , ts.disease
+                            , ac.user_type_cd
+                            , (select val from sys_code_det a where a.code = 'USER_TYPE_CD' and a.cd = ac.user_type_cd and a.use_yn = 'Y') as user_type_nm
+		                    , scd.cd   as category_cd
+		                    , scd.val  as category_nm
+		                    , (select count(*) 
+		                         from coaching_user_answer_info cuai 
+                                where cuai.account_seq = ac.seq
+		                          and cuai.category_cd = scd.cd) as tot_question_step_day_cnt
+	                        , (select count(*)
+	                             from coaching_user_answer_info cuai
+		                        where cuai.answer_choice = 'Y'
+		                          and cuai.account_seq = ac.seq
+		                          and cuai.category_cd = scd.cd) as tot_answer_step_day_cnt
+		                from  account ac
+		                     left join track_service ts on ac.seq = ts.account_seq and ts.status = 'ACTIVE'
+		                    , sys_code_det scd
+		                    , hospital_service hs
+		               where 1=1
+		                 and scd.code = 'CATEGORY_CD'
+		                 and scd.use_yn = 'Y'   
+		                 and scd.cd in ('E')
+		                 and ac.seq = hs.account_seq 
+		                 and hs.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq})
+		                 and ac.is_enabled
+                  ) a
+                  , account b
+             where  a.seq = b.seq
+               and  b.user_type_cd like #{userTypeCd}
+             group by 
+                    a.seq
+	              , a.name
+	              , a.login_id
+	              , a.birth
+	              , a.gender
+	              , a.disease_name
+	              , a.disease_Treatment
+	              , a.disease
+	              , a.user_type_cd
+	              , a.user_type_nm
+           ) aa
+    </select>
+	    
+</mapper>

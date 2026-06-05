@@ -1,0 +1,38 @@
+{
+  "title": "The Importance of Sleep",
+  "tts": {
+    "step1": "Starting today, let's build one healthy sleep habit at a time. Each day, we'll guide you with a simple question and an easy mission.",
+    "step2": "When sleep deprivation lasts, it can lead to a variety of problems.",
+    "step3": "Think of one good thing that would come from sleeping better."
+  },
+  "step1": {
+    "greeting_title": "Hello",
+    "greeting_subtitle": "Welcome to Cama Plus.",
+    "title": "How is your sleep today?",
+    "option_yes": "Yes",
+    "option_no": "No",
+    "description_001": "Starting today, let's build one healthy sleep habit at a time.",
+    "description_002": "Each day, we'll guide you with a simple question and an easy mission.",
+    "toast": {
+      "select_required": "Please choose an answer."
+    }
+  },
+  "step2": {
+    "title": "The Importance of Sleep",
+    "subtitle_yes": "You are getting enough sleep!",
+    "subtitle_no": "It seems you are not fully satisfied with your sleep.",
+    "body_001": "The World Health Organization recommends that adults get 7 to 9 hours of sleep per day.",
+    "body_002": "Depending on the person, there may be some variation, but sleeping less than 7 hours a day can lead to sleep deprivation.",
+    "body_003": "If sleep deprivation continues for a long time, the following problems may occur.",
+    "body_004": "✔ Physical health: Long-term sleep deprivation can cause serious health problems such as heart disease, high blood pressure, diabetes, and some types of cancer. It can also weaken the immune system, making it easier to catch infections like the common cold.",
+    "body_005": "✔ Mental health: Sleep deprivation can trigger depression, anxiety disorders, and other mental health problems. It can also make you feel stress and anger more easily and cause mood swings.\n\n✔ Memory and concentration: Sleep plays an important role in learning and memory. When you do not get enough sleep, your brain's ability to process and remember new information may decline.\n\n✔ Increased accident risk: When sleep deprivation continues, reaction time slows down. This can be especially dangerous while driving. In fact, drowsy driving has effects similar to drinking alcohol and is one of the major causes of traffic accidents.\n\n✔ Weight gain: Sleep deprivation increases appetite and disrupts the balance of hormones related to fullness. This can lead to overeating and weight gain."
+  },
+  "step3": {
+    "mission": "Think of one good thing about sleeping well",
+    "question": "What would be the best thing if {{name}} slept better?",
+    "input_prefix": "If I slept better than I do now,",
+    "example": "Write just one thing",
+    "placeholder": "Write just one thing",
+    "closing": "(For example: If I sleep better than I do now, I will feel more energetic the next day.)"
+  }
+}

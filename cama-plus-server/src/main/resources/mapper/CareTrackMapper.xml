@@ -1,0 +1,195 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cama.back.mapper.CareTrackMapper">
+
+    <select id="getCareTrackData" resultType="com.cama.back.dto.track.TrackDataRsp">
+        SELECT ts.data ->> CONCAT('', #{day}, '') as jsonData, ts.seq as trackServiceSeq from track_service ts
+        <where>
+            ts.account_seq = #{acSeq} and ts.hospital_seq = #{hSeq} and ts.disease_seq = #{dSeq}
+            AND ts.is_enabled AND ts.status = 'ACTIVE'
+        </where>
+    </select>
+
+    <select id="getCareTrackSize" resultType="java.lang.Integer">
+       select sum(jsonb_array_length(v)) from jsonb_each((select data
+       from track_service
+       <where>
+            seq = #{trackSeq} and account_seq = #{acSeq} and is_enabled)) as x(k,v)
+            AND ts.status = 'ACTIVE'
+       </where>
+    </select>
+
+    <select id="getCareTrackDoneCount" resultType="java.lang.Integer">
+        select count(ccc.*)
+        from cm_contents_check ccc
+        <where>
+            ccc.account_seq = #{acSeq} and ccc.track_service_seq = #{trackSeq} and ccc.progress = 100 and ccc.is_enabled
+        </where>
+    </select>
+
+    <select id="getCareTrackContentsDoneCount" resultType="java.lang.Integer">
+        select count(ccc.*)
+        from cm_contents_check ccc
+        <where>
+            ccc.account_seq = #{acSeq} and ccc.track_service_seq = #{trackSeq}
+        AND ccc.contents_seq = #{cSeq}
+        and ccc.progress = 100 and ccc.is_enabled
+        </where>
+    </select>
+
+    <select id="getApplyCareTrackInfo" resultType="com.cama.back.dto.track.TrackServiceRsp">
+        select ts.seq,
+        cd.seq as diseaseSeq,
+        cd.name as diseaseName,
+        ts.days,
+        ts.interest,
+        ts.data,
+        ts.disease,
+        (
+        select sum(ccc.progress) / (select sum(json_array_length(x.value::json)) from
+        (SELECT DISTINCT t.value
+        FROM jsonb_each((SELECT ts.data
+        FROM track_service ts
+        where ts.is_enabled
+        and ts.status = 'ACTIVE'
+        AND ts.account_seq = #{acSeq}
+        and ts.hospital_seq = #{hSeq})) as t(key,value)) as x)
+        from cm_contents_check ccc
+        where ccc.contents_seq in (
+        select json_array_elements_text(t.value::json)::bigint as contents
+        from jsonb_each((SELECT ts.data
+        FROM track_service ts
+        where ts.is_enabled
+        and ts.status = 'ACTIVE'
+        AND ts.account_seq = #{acSeq}
+        and ts.hospital_seq = #{hSeq})) as t(key,value))
+        and ccc.account_seq = #{acSeq} and ccc.is_enabled and ccc.track_service_seq = (SELECT ts.seq
+            FROM track_service ts
+            where ts.is_enabled
+            and ts.status = 'ACTIVE'
+            AND ts.account_seq = ${acSeq}
+            and ts.hospital_seq = ${hSeq})
+        ) as process,
+        to_char(cast(ts.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as trackCreatedAt
+        from track_service ts
+        left join cm_disease cd on cd.seq = ts.disease_seq
+        <where>
+            ts.is_enabled and ts.status = 'ACTIVE'
+            AND ts.account_seq = #{acSeq} and ts.hospital_seq = #{hSeq}
+        </where>
+    </select>
+    
+    <select id="getCareTrackStepList" resultType="com.cama.back.dto.track.StepRequest">
+		select seq
+		      ,execution_date
+              ,account_seq
+              ,(select name from account aa where aa.seq = a.account_seq ) as account_name
+              ,step_num
+          from account_step_history a
+         <where>
+			 1 = 1
+			 <if test='executionDate != null and executionDate != ""'>
+			   and a.execution_date = #{executionDate}
+			 </if>
+			 <if test='accountSeq != null'>
+			   and a.account_seq = #{accountSeq}
+			 </if>
+		 </where>
+		order by execution_date desc 
+		        ,account_seq
+    </select>
+    
+    <select id="getTrackReqHstList" resultType="com.cama.back.dto.track.TrackReqHst">
+		select  seq 
+              , to_char(created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at -- 생성일시         
+              , disease::json->>'name' as disease_name -- 질환  
+              , ((disease::json->>'diseaseTreatment')::jsonb->0)::json->>'name'  as disease_treatment -- 치료시기 
+              , ((disease::json->>'diseaseOption')::jsonb->0)::json->>'optionName' as disease_type    -- 암종류 
+              , ((disease::json->>'diseaseOption')::jsonb->1)::json->>'optionName' as disease_option  -- 고려사항 
+              , days    -- 암정보가이드 실천일 
+              , interest -- 관심영역    
+              , status  -- 암정보가이드 상태  
+              , case when status = 'CANCEL' then to_char(updated_at, 'YYYY-MM-DD HH24:MI:SS') end as cancel_at
+              , COALESCE(
+                         round((select sum(ccc.progress) / (select sum(json_array_length(x.value::json)) 
+                                                              from (select DISTINCT t.value 
+                                                                      from jsonb_each((select ts.data
+                                                                                         from track_service ts
+                                                                                        where ts.seq = a.seq)) as t(key,value)) as x)
+                                  from cm_contents_check ccc
+                                 where ccc.contents_seq in (
+                                                            select json_array_elements_text(t.value::json)::bigint as contents
+                                                              from jsonb_each((select ts.data
+                                                                                 from track_service ts
+                                                                                where ts.seq = a.seq)) as t(key,value))
+                                   and ccc.account_seq = a.account_seq
+                                   and ccc.is_enabled 
+                                   and ccc.track_service_seq = a.seq),2)
+               ,0) as progress 
+          from track_service a
+         <where>
+			   1=1
+           and a.account_seq = #{accountSeq}
+           and data -> '1' is not null
+         </where>
+          order by a.created_at desc
+    </select>    
+    
+    <update id="saveCareTrackStepInfo" >
+	    with upsert as (update account_step_history
+                           set step_num = #{stepNum}
+                              ,updated_at = now()
+                         where execution_date = #{executionDate}
+                           and account_seq = #{accountSeq}
+                         returning *
+                        )
+        insert into account_step_history(execution_date,account_seq,step_num)
+         select #{executionDate}
+               ,#{accountSeq}
+               ,#{stepNum}
+          where not exists(select * from upsert)
+	</update>
+	
+	<select id="getExerciseSurveyResultList" resultType="com.cama.back.dto.coaching.ExerciseSurveyResult">
+	     select aa.seq
+              , aa.created_at
+              , aa.survey_result_str
+              , aa.cancer_type_cd
+              , aa.cancer_type_nm
+              , aa.difficulty_cd
+              , aa.difficulty_nm
+              , aa.aerobic
+              , aa.therapy_cd
+              , aa.therapy_nm
+		      , case when (aa.tot_question_step_day_cnt::decimal = 0)
+		        then 0
+		        else round(aa.tot_answer_step_day_cnt::decimal / aa.tot_question_step_day_cnt::decimal * 100)
+	            end as progress
+          from (select  seq 
+		              , to_char(created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at -- 생성일시    
+		              , survey_result  survey_result_str   
+		              , cancer_type_cd    
+		              , (select val from sys_code_det scd where scd.code = 'CANCER_TYPE_CD' and scd.cd = a.cancer_type_cd and scd.use_yn = 'Y') cancer_type_nm
+		              , difficulty_cd     
+		              , (select val from sys_code_det scd where scd.code = 'DIFFICULTY_CD' and scd.cd = a.difficulty_cd and scd.use_yn = 'Y') difficulty_nm
+		              , aerobic     
+		              , therapy_cd     
+		              , (select val from sys_code_det scd where scd.code = 'THERAPY_CD' and scd.cd = a.therapy_cd and scd.use_yn = 'Y') therapy_nm
+		              , (select count(*) 
+				           from coaching_exercise_progress_result_hst ceprh
+				          where ceprh.account_seq = a.account_seq
+				            and ceprh.survey_seq = a.seq) as tot_question_step_day_cnt
+				      , (select count(*)
+				           from coaching_exercise_progress_result_hst ceprh
+				          where ceprh.answer_choice = 'Y'
+				            and ceprh.account_seq = a.account_seq
+				            and ceprh.survey_seq = a.seq) as tot_answer_step_day_cnt
+		          from coaching_exercise_survey_result_hst a
+               <where>
+			           1=1
+                   and a.account_seq = #{accountSeq}
+               </where>
+              ) aa
+         order by aa.created_at desc
+    </select>    
+</mapper>

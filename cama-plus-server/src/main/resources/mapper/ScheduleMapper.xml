@@ -1,0 +1,56 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cama.back.mapper.ScheduleMapper">
+
+    <select id="getAccountSchedule" resultType="com.cama.back.dto.schedule.ScheduleRsp">
+        select sd.seq as scheduleSeq,
+        abs.seq as batchSeq,
+        sd.disease_seq,
+        sd.schedule_name,
+        sd.schedule_type,
+        sd.start_date as scStartDate,
+        sd.end_date as scEndDate,
+        abs.start_date,
+        abs.end_date,
+        sd.time,
+        sd.days,
+        sd.repeat,
+        sd.alarm,
+        sd.memo,
+        abs.is_done as done,
+        to_char(cast(sd.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
+        from account_batch_schedule abs left join account_schedule sd on abs.schedule_seq = sd.seq and sd.is_enabled and sd.schedule_type in ('MEDICINE','ETC','HOSPITAL')
+        <where>
+            abs.is_enabled
+            AND abs.start_date = #{d} and sd.account_seq = #{acSeq}
+        </where>
+        order by abs.time,sd.schedule_type
+    </select>
+
+
+    <select id="getAccountScheduleMonthly" resultType="com.cama.back.dto.schedule.ScheduleRsp">
+        select sd.seq as scheduleSeq,
+        abs.seq as batchSeq,
+        sd.disease_seq,
+        sd.schedule_name,
+        sd.schedule_type,
+        sd.start_date as scStartDate,
+        sd.end_date as scEndDate,
+        abs.start_date,
+        abs.end_date,
+        sd.time,
+        sd.days,
+        sd.repeat,
+        sd.alarm,
+        sd.memo,
+        abs.is_done as done,
+        to_char(cast(sd.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
+        from account_batch_schedule abs left join account_schedule sd on abs.schedule_seq = sd.seq and sd.is_enabled and sd.schedule_type in ('MEDICINE','ETC','HOSPITAL')
+        <where>
+            abs.is_enabled
+            AND abs.start_date <![CDATA[>=]]> #{firstDate} and abs.start_date <![CDATA[<=]]> #{lastDate}
+            and sd.account_seq = #{acSeq}
+        </where>
+    </select>
+
+</mapper>

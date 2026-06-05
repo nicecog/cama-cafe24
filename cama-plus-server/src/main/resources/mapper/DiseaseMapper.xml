@@ -1,0 +1,74 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cama.back.mapper.DiseaseMapper">
+
+    <select id="getAdminHpDiseaseListCount" resultType="java.lang.Integer">
+        select count(hd.seq)
+        from hp_disease hd
+        join cm_hospital ch on ch.seq = hd.hospital_seq and ch.is_enabled
+        join cm_disease cd on cd.seq = hd.disease_seq and cd.is_enabled
+        <where>
+            hd.is_enabled
+            <if test='searchType != null and searchType != ""'>
+                <if test='searchText != null and searchText != ""'>
+                    <if test='searchType == "hospitalName"'>
+                        AND ch.name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                </if>
+            </if>
+        </where>
+    </select>
+
+    <select id="getAdminHpDiseaseList" resultType="com.cama.back.dto.disease.AdminDiseaseRsp">
+        select hd.seq, ch.seq as hospitalSeq, ch.name as hospitalName,
+        cd.seq as diseaseSeq, cd.name as diseaseName,
+        (
+        select count(cc.seq)
+        from cm_contents cc
+        join cm_doctor dt on dt.seq = cc.doctor_seq and dt.is_enabled
+        where cc.is_enabled and cc.is_viewed
+        and dt.hospital_seq = ch.seq and cc.disease_seq = cd.seq
+        ) as contentsCount,
+        (select count(*) from hp_disease_treatment where hp_disease_seq = hd.seq and is_enabled) as treatmentCount,
+        to_char(cast(hd.updated_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as updatedAt
+        from hp_disease hd
+        join cm_hospital ch on ch.seq = hd.hospital_seq and ch.is_enabled
+        join cm_disease cd on cd.seq = hd.disease_seq and cd.is_enabled
+        <where>
+            hd.is_enabled
+            <if test='searchType != null and searchType != ""'>
+                <if test='searchText != null and searchText != ""'>
+                    <if test='searchType == "hospitalName"'>
+                        AND ch.name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                </if>
+            </if>
+        </where>
+        ORDER BY hd.seq DESC
+        <if test='paging == true'>
+            LIMIT #{pagination.endNum} OFFSET #{pagination.startNum}
+        </if>
+    </select>
+
+    <select id="getAdminHpDiseaseDetail" resultType="com.cama.back.dto.disease.AdminDiseaseRsp">
+        select hd.seq, ch.seq as hospitalSeq, ch.name as hospitalName,
+        cd.seq as diseaseSeq, cd.name as diseaseName,
+        (
+        select count(cc.seq)
+        from cm_contents cc
+        join cm_doctor dt on dt.seq = cc.doctor_seq and dt.is_enabled
+        where cc.is_enabled and cc.is_viewed
+        and dt.hospital_seq = ch.seq and cc.disease_seq = cd.seq
+        ) as contentsCount,
+        (select count(*) from hp_disease_treatment where hp_disease_seq = hd.seq and is_enabled) as treatmentCount,
+        to_char(cast(hd.updated_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as updatedAt
+        from hp_disease hd
+        join cm_hospital ch on ch.seq = hd.hospital_seq and ch.is_enabled
+        join cm_disease cd on cd.seq = hd.disease_seq and cd.is_enabled
+        <where>
+            hd.is_enabled
+            AND hd.seq = #{seq}
+        </where>
+    </select>
+
+</mapper>

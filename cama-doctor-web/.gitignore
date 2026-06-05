@@ -1,0 +1,18 @@
+HELP.md
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+out/
+.idea
+*.iml
+*.ipr
+*.iws
+.DS_Store
+# Firebase 서비스 계정 (규칙: resources/firebase/*.json 은 커밋 제외)
+src/main/resources/firebase/*.json
+!src/main/resources/firebase/.gitkeep
+.firebase/
+firebase-debug.log
+firestore-debug.log

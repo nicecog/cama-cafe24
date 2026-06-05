@@ -1,0 +1,68 @@
+# 가비아 컨테이너 호스팅 (JDK 17, PostgreSQL 11)
+# 실행: java -jar cama-back-1.0-SNAPSHOT.jar --spring.profiles.active=gabia
+#
+# 필수 환경변수:
+#   DB_URL, DB_USER, DB_PASSWORD
+#   JWT_CLIENT_SECRET, IAMPORT_KEY, IAMPORT_SECRET
+# 선택:
+#   SERVER_PORT (기본 8080)
+# 선택:
+#   FILE_STORAGE_PATH (로컬 이미지 저장 경로, Gabia 웹 볼륨 권장)
+#   AWS_ACCESS_KEY, AWS_SECRET_KEY (storage-type=s3 일 때만)
+#   FIREBASE_CREDENTIALS_PATH (FCM Admin SDK 서비스 계정 JSON, 커밋 금지)
+
+firebase:
+  credentials-path: ${FIREBASE_CREDENTIALS_PATH:}
+
+server:
+  port: ${SERVER_PORT:8080}
+  forward-headers-strategy: framework
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://127.0.0.1:5432/cama}
+    username: ${DB_USER:cama}
+    password: ${DB_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 10000
+      validation-timeout: 5000
+      max-lifetime: 300000
+      idle-timeout: 120000
+      keepalive-time: 30000
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+        format_sql: false
+    show-sql: false
+    open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+
+jwt:
+  token:
+    clientSecret: ${JWT_CLIENT_SECRET:}
+
+aws:
+  access-key: ${AWS_ACCESS_KEY:}
+  secret-key: ${AWS_SECRET_KEY:}
+
+iamport:
+  key: ${IAMPORT_KEY:}
+  secure: ${IAMPORT_SECRET:}
+
+cama:
+  hosting:
+    storage-type: local
+    local-storage-path: ${FILE_STORAGE_PATH:/home/cama/files}
+    image-cdn-base-url: ${IMAGE_CDN_BASE_URL:https://camaplus.cafe24.com/files}
+    cors-allowed-origins:
+      - https://camaplus.cafe24.com

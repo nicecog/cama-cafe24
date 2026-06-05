@@ -1,0 +1,626 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cama.back.mapper.ContentsMapper">
+
+    <select id="getDoneContentsCount" resultType="java.lang.Integer">
+        SELECT COUNT(ct.*)
+        from cm_contents ct left join cm_doctor dc on dc.seq = ct.doctor_seq and dc.is_enabled
+        left join cm_disease cd on cd.seq = ct.disease_seq and cd.is_enabled
+        <where>
+            ct.is_enabled AND ct.is_viewed
+        </where>
+    </select>
+
+    <select id="getIngContentsCount" resultType="java.lang.Integer">
+        SELECT COUNT(ct.*)
+        from cm_contents ct left join cm_doctor dc on dc.seq = ct.doctor_seq and dc.is_enabled
+        left join cm_disease cd on cd.seq = ct.disease_seq and cd.is_enabled
+        <where>
+            ct.is_enabled AND ct.is_viewed = false
+        </where>
+    </select>
+
+    <select id="getPatientContentsCount" resultType="java.lang.Integer">
+        select count(*) from track_service ts
+        <where>
+            ts.is_enabled and ts.status = 'ACTIVE'
+            and ts.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq})
+        </where>
+    </select>
+
+    <select id="getContentsListCount" resultType="java.lang.Integer">
+        SELECT COUNT(ct.*)
+        from cm_contents ct left join cm_doctor dc on dc.seq = ct.doctor_seq and dc.is_enabled
+        left join cm_disease cd on cd.seq = ct.disease_seq and cd.is_enabled
+        <where>
+            ct.is_enabled
+            AND ct.is_viewed
+            AND ct.lang = #{lang}
+            <if test='diseaseSeq != null'>
+                AND ct.disease_seq = #{diseaseSeq}
+            </if>
+            <if test='searchText != null and searchText != ""'>
+                AND (ct.title ILIKE CONCAT('%', #{searchText}, '%') OR ct.contents ILIKE CONCAT('%', #{searchText}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <select id="getContentsList" resultType="com.cama.back.dto.doctor.ContentsRsp">
+        select ct.seq,
+        dc.name as doctorName,
+        dp.name as departmentName,
+        ct.doctor_seq,
+        cd.seq as diseaseSeq,
+        cd.name as diseaseName,
+        ct.title,
+        ct.contents,
+        ct.interest,
+        ct.contents_updated_at,
+        ct.image, ct.disease, ct.view_count, ct.is_viewed as viewed,
+        to_char(cast(ct.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt,
+        to_char(cast(ct.updated_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as updatedAt,
+        case when (cf.contents_seq is not null) then 'Y' else 'N' end as favoriteYn
+        from cm_contents ct left join cm_doctor dc on dc.seq = ct.doctor_seq and dc.is_enabled
+        left join cm_department dp on dp.seq = dc.department_seq and dp.is_enabled
+        left join cm_disease cd on cd.seq = ct.disease_seq and cd.is_enabled
+        left join cm_contents_favorite cf on cf.contents_seq = ct.seq and cf.is_enabled and cf.account_seq = #{acSeq}
+        <where>
+            ct.is_enabled
+            AND ct.is_viewed
+            AND ct.lang = #{lang}
+            <if test='diseaseSeq != null'>
+                AND ct.disease_seq = #{diseaseSeq}
+            </if>
+            <if test='searchText != null and searchText != ""'>
+                AND (ct.title ILIKE CONCAT('%', #{searchText}, '%') OR ct.contents ILIKE CONCAT('%', #{searchText}, '%'))
+            </if>
+        </where>
+        ORDER BY ct.seq DESC
+        <if test='paging == true'>
+            LIMIT #{pagination.endNum} OFFSET #{pagination.startNum}
+        </if>
+    </select>
+
+    <select id="getDoctorContentsListCount" resultType="java.lang.Integer">
+        SELECT COUNT(ct.*)
+        from cm_contents ct left join cm_doctor dc on dc.seq = ct.doctor_seq and dc.is_enabled
+        left join cm_disease cd on cd.seq = ct.disease_seq and cd.is_enabled
+        <where>
+            ct.is_enabled
+            AND ct.is_viewed
+            AND ct.lang = #{lang}
+            <if test='diseaseSeq != null'>
+                AND ct.disease_seq = #{diseaseSeq}
+            </if>
+            <if test='searchType != null and searchType != ""'>
+                <if test='searchText != null and searchText != ""'>
+                    <if test='searchType == "title"'>
+                        AND ct.title ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "contents"'>
+                        AND ct.contents ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "doctorName"'>
+                        AND dc.name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                </if>
+            </if>
+        </where>
+    </select>
+
+    <select id="getDoctorContentsList" resultType="com.cama.back.dto.doctor.ContentsRsp">
+        select ct.seq,
+        dc.name as doctorName,
+        dp.name as departmentName,
+        ct.doctor_seq,
+        cd.seq as diseaseSeq,
+        cd.name as diseaseName,
+        ct.title,
+        ct.contents,
+        ct.interest,
+        ct.contents_updated_at,
+        ct.image, ct.disease, ct.view_count, ct.is_viewed as viewed,
+        to_char(cast(ct.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt,
+        to_char(cast(ct.updated_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as updatedAt
+        from cm_contents ct left join cm_doctor dc on dc.seq = ct.doctor_seq and dc.is_enabled
+        left join cm_department dp on dp.seq = dc.department_seq and dp.is_enabled
+        left join cm_disease cd on cd.seq = ct.disease_seq and cd.is_enabled
+        <where>
+            ct.is_enabled
+            AND ct.is_viewed
+            AND ct.lang = #{lang}
+            <if test='diseaseSeq != null'>
+                AND ct.disease_seq = #{diseaseSeq}
+            </if>
+            <if test='searchType != null and searchType != ""'>
+                <if test='searchText != null and searchText != ""'>
+                    <if test='searchType == "title"'>
+                        AND ct.title ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "contents"'>
+                        AND ct.contents ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "doctorName"'>
+                        AND dc.name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                </if>
+            </if>
+        </where>
+        ORDER BY ct.seq DESC
+        <if test='paging == true'>
+            LIMIT #{pagination.endNum} OFFSET #{pagination.startNum}
+        </if>
+    </select>
+
+    <select id="getContentDisablesListCount" resultType="java.lang.Integer">
+        SELECT COUNT(ct.*)
+        from cm_contents ct left join cm_doctor dc on dc.seq = ct.doctor_seq and dc.is_enabled
+        left join cm_disease cd on cd.seq = ct.disease_seq and cd.is_enabled
+        <where>
+            ct.is_enabled
+            AND ct.is_viewed = false
+            AND ct.lang = #{lang}
+            <if test='diseaseSeq != null'>
+                AND ct.disease_seq = #{diseaseSeq}
+            </if>
+            <if test='searchType != null and searchType != ""'>
+                <if test='searchText != null and searchText != ""'>
+                    <if test='searchType == "title"'>
+                        AND ct.title ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "contents"'>
+                        AND ct.contents ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "doctorName"'>
+                        AND dc.name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                </if>
+            </if>
+        </where>
+    </select>
+
+    <select id="getContentDisablesList" resultType="com.cama.back.dto.doctor.ContentsRsp">
+        select ct.seq,
+        dc.name as doctorName,
+        dp.name as departmentName,
+        ct.doctor_seq,
+        cd.seq as diseaseSeq,
+        cd.name as diseaseName,
+        ct.title,
+        ct.contents,
+        ct.interest,
+        ct.contents_updated_at,
+        ct.image, ct.disease, ct.view_count, ct.is_viewed as viewed,
+        to_char(cast(ct.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt,
+        to_char(cast(ct.updated_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as updatedAt
+        from cm_contents ct left join cm_doctor dc on dc.seq = ct.doctor_seq and dc.is_enabled
+        left join cm_department dp on dp.seq = dc.department_seq and dp.is_enabled
+        left join cm_disease cd on cd.seq = ct.disease_seq and cd.is_enabled
+        <where>
+            ct.is_enabled
+            AND ct.is_viewed = false
+            AND ct.lang = #{lang}
+            <if test='diseaseSeq != null'>
+                AND ct.disease_seq = #{diseaseSeq}
+            </if>
+            <if test='searchType != null and searchType != ""'>
+                <if test='searchText != null and searchText != ""'>
+                    <if test='searchType == "title"'>
+                        AND ct.title ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "contents"'>
+                        AND ct.contents ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "doctorName"'>
+                        AND dc.name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                </if>
+            </if>
+        </where>
+        ORDER BY ct.seq DESC
+        <if test='paging == true'>
+            LIMIT #{pagination.endNum} OFFSET #{pagination.startNum}
+        </if>
+    </select>
+
+    <select id="getContentsDetail" resultType="com.cama.back.dto.doctor.ContentsRsp">
+        select ct.seq,
+        dc.name as doctorName,
+        dp.name as departmentName,
+        ct.doctor_seq,
+        cd.seq as diseaseSeq,
+        cd.name as diseaseName,
+        ct.title,
+        ct.contents,
+        ct.interest,
+        ct.contents_updated_at,
+        ct.image, ct.disease, ct.view_count, ct.is_viewed as viewed,
+        to_char(cast(ct.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt,
+        to_char(cast(ct.updated_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as updatedAt
+        from cm_contents ct left join cm_doctor dc on dc.seq = ct.doctor_seq and dc.is_enabled
+        left join cm_department dp on dp.seq = dc.department_seq and dp.is_enabled
+        left join cm_disease cd on cd.seq = ct.disease_seq and cd.is_enabled
+        <where>
+            ct.is_enabled
+            AND ct.is_viewed
+            AND ct.seq = #{seq}
+        </where>
+    </select>
+
+    <select id="getDoctorContentsDetail" resultType="com.cama.back.dto.doctor.ContentsRsp">
+        select ct.seq,
+        dc.name as doctorName,
+        dp.name as departmentName,
+        ct.doctor_seq,
+        cd.seq as diseaseSeq,
+        cd.name as diseaseName,
+        ct.title,
+        ct.contents,
+        ct.interest,
+        ct.contents_updated_at,
+        ct.image, ct.disease, ct.view_count, ct.is_viewed as viewed,
+        ct.priority,
+        to_char(cast(ct.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt,
+        to_char(cast(ct.updated_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as updatedAt
+        from cm_contents ct left join cm_doctor dc on dc.seq = ct.doctor_seq and dc.is_enabled
+        left join cm_department dp on dp.seq = dc.department_seq and dp.is_enabled
+        left join cm_disease cd on cd.seq = ct.disease_seq and cd.is_enabled
+        <where>
+            ct.is_enabled
+            AND ct.seq = #{seq}
+        </where>
+    </select>
+
+    <select id="getTrackContentsDetail" resultType="com.cama.back.dto.doctor.ContentsRsp">
+        select ct.seq,
+        dc.name as doctorName,
+        dp.name as departmentName,
+        ct.doctor_seq,
+        cd.seq as diseaseSeq,
+        cd.name as diseaseName,
+        ct.title,
+        ct.contents,
+        ct.interest,
+        ct.contents_updated_at,
+        ct.image, ct.disease, ct.view_count, ct.is_viewed as viewed,
+        coalesce((select progress from cm_contents_check ccc where ccc.contents_seq = ct.seq and
+                                              ccc.account_seq = #{acSeq} and ccc.track_service_seq = #{trackSeq} ),0) as progress,
+        to_char(cast(ct.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt,
+        to_char(cast(ct.updated_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as updatedAt
+        from cm_contents ct left join cm_doctor dc on dc.seq = ct.doctor_seq and dc.is_enabled
+        left join cm_department dp on dp.seq = dc.department_seq and dp.is_enabled
+        left join cm_disease cd on cd.seq = ct.disease_seq and cd.is_enabled
+        <where>
+            ct.is_enabled
+            AND ct.is_viewed
+            AND ct.seq = #{seq}
+        </where>
+    </select>
+
+    <select id="getTrackContentsNatureDetail" resultType="com.cama.back.dto.doctor.ContentsRsp">
+        select ct.seq,
+        dc.name as doctorName,
+        dp.name as departmentName,
+        ct.doctor_seq,
+        cd.seq as diseaseSeq,
+        cd.name as diseaseName,
+        ct.title,
+        ct.contents,
+        ct.interest,
+        ct.contents_updated_at,
+        ct.image, ct.disease, ct.view_count, ct.is_viewed as viewed, ct.is_enabled as enabled,
+        coalesce((select progress from cm_contents_check ccc where ccc.contents_seq = ct.seq and
+        ccc.account_seq = #{acSeq} and ccc.track_service_seq = #{trackSeq} ),0) as progress,
+        to_char(cast(ct.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt,
+        to_char(cast(ct.updated_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as updatedAt,
+        case when (cf.contents_seq is not null) then 'Y' else 'N' end as favoriteYn,
+        ct.priority
+        from cm_contents ct left join cm_doctor dc on dc.seq = ct.doctor_seq and dc.is_enabled
+        left join cm_department dp on dp.seq = dc.department_seq and dp.is_enabled
+        left join cm_disease cd on cd.seq = ct.disease_seq and cd.is_enabled
+        left join cm_contents_favorite cf on cf.contents_seq = ct.seq and cf.is_enabled and cf.account_seq = #{acSeq}
+        <where>
+            AND ct.seq = #{seq}
+        </where>
+    </select>
+
+
+    <select id="getCmVideoInfoList" resultType="com.cama.back.domain.contents.CmContentsVideo">
+         select seq
+              , priority
+              , video_type_cd
+              , url
+              , use_yn
+              , detail_desc 
+              , to_char(created_at,'YYYY_MM_DD HH24:MI:SS') created_at
+              , to_char(updated_at,'YYYY_MM_DD HH24:MI:SS') updated_at
+              , lang
+           from public.cm_contents_video
+          where 1=1
+         <if test='videoTypeCd != null and videoTypeCd != ""'>
+			and video_type_cd = #{videoTypeCd}
+	     </if>
+         <if test='useYn != null and useYn != ""'>
+			and use_yn = #{useYn}
+	     </if>
+	        and lang = #{lang}
+	      order by seq, video_type_cd, priority
+    </select>
+
+    <select id="getCmVideoInfoMobileList" resultType="com.cama.back.domain.contents.CmContentsVideo">
+         select seq
+              , priority
+              , video_type_cd
+              , url
+              , use_yn
+              , detail_desc 
+              , to_char(created_at,'YYYY_MM_DD HH24:MI:SS') created_at
+              , to_char(updated_at,'YYYY_MM_DD HH24:MI:SS') updated_at
+           from public.cm_contents_video
+          where 1=1
+         <if test='videoTypeCd != null and videoTypeCd != ""'>
+			and video_type_cd = #{videoTypeCd}
+	     </if>
+         <if test='useYn != null and useYn != ""'>
+			and use_yn = #{useYn}
+	     </if>
+	        and lang = (select lang from public.account where login_id = #{loginId} and is_enabled = true and is_dropped = false))
+	      order by seq, video_type_cd, priority
+    </select>
+    
+    <select id="getCmVideoCnt" resultType="int">
+        select count(*) as videoCnt
+          from public.cm_contents_video ccv
+         where 1=1
+		   and seq = #{seq}
+    </select>   
+    
+    <update id="updateCmVideo" >
+		update public.cm_contents_video
+		   set priority      = coalesce(#{priority},priority)
+		      ,video_type_cd = coalesce(#{videoTypeCd},video_type_cd)
+		      ,url           = coalesce(#{url},url)
+              ,use_yn        = coalesce(#{useYn},use_yn)
+              ,detail_desc   = coalesce(#{detailDesc},detail_desc)
+		      ,updated_at    = now()
+		 where seq = #{seq}
+	</update>   
+	   
+    <insert id="insertCmVideo" >
+		insert into public.cm_contents_video  
+		    (   priority
+              , video_type_cd
+              , url
+              , use_yn
+              , detail_desc
+              , lang
+		    )
+	    values
+	        (   #{priority}
+              , #{videoTypeCd}
+              , #{url}
+              , #{useYn}
+              , #{detailDesc}
+              , #{lang}
+	        )
+		
+	</insert>   
+	
+    <select id="getCareTrackContentsList" resultType="com.cama.back.dto.doctor.ContentsRsp">
+		select ct.seq,
+		       ct.doctor_seq,
+		       ct.title,
+               ct.contents,
+               ct.interest,
+               ct.image, 
+               ct.disease, 
+               ct.view_count, 
+               ct.priority,
+               ct.is_viewed as viewed
+		  from cm_contents ct
+		 where disease_seq = #{disease} 
+           and is_enabled  = True 
+           and is_viewed   = True 
+           and EXISTS (
+                          SELECT 1 
+                          FROM jsonb_array_elements(disease->'diseaseTreatment') treatment
+                          WHERE (treatment->>'seq')::int = #{diseaseTreatmentSeq} 
+                       )
+
+    </select>
+    
+    <select id="getCareTrackGeneralCancerContentsList" resultType="com.cama.back.dto.doctor.ContentsRsp">
+		select ct.seq,
+		       ct.doctor_seq,
+		       ct.title,
+               ct.contents,
+               ct.interest,
+               ct.image, 
+               ct.disease, 
+               ct.view_count, 
+               ct.priority,
+               ct.is_viewed as viewed
+		  from cm_contents ct
+		 where disease_seq = 8
+           and is_enabled  = True 
+           and is_viewed   = True 
+         order by ct.priority , ct.created_at desc 
+    </select>
+    
+    <select id="getCareTrackContentsInterList" resultType="com.cama.back.dto.doctor.ContentsRsp">
+		select ct.seq,
+		       ct.doctor_seq,
+		       ct.title,
+               ct.contents,
+               ct.interest,
+               ct.image, 
+               ct.disease, 
+               ct.view_count, 
+               ct.priority,
+               ct.is_viewed as viewed
+		  from cm_contents ct
+		 where disease_seq = #{disease} 
+           and is_enabled  = True 
+           and is_viewed   = True 
+           and EXISTS (
+                          SELECT 1 
+                          FROM jsonb_array_elements(disease->'diseaseTreatment') treatment
+                          WHERE (treatment->>'seq')::int = #{diseaseTreatmentSeq} 
+                       )
+           and EXISTS (
+                          SELECT 1 
+                          FROM jsonb_array_elements(interest) as interests 
+                          WHERE interests in 
+                           <foreach item="arr" index="index" collection="interest"
+                             open="(" separator="," close=")" >
+                             ${arr}
+                           </foreach>
+                       )
+    </select>
+    
+    
+    <select id="getFavoriteList" resultType="com.cama.back.dto.doctor.ContentsRsp">
+        select ct.seq,
+               dc.name as doctorName,
+               dp.name as departmentName,
+               ct.doctor_seq,
+               cd.seq as diseaseSeq,
+               cd.name as diseaseName,
+               ct.title,
+               ct.contents,
+               ct.interest,
+               ct.contents_updated_at,
+               ct.image, ct.disease, ct.view_count, ct.is_viewed as viewed,
+               to_char(cast(ct.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt,
+               to_char(cast(ct.updated_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as updatedAt,
+               'Y' as favoriteYn
+          from cm_contents ct left join cm_doctor dc on dc.seq = ct.doctor_seq and dc.is_enabled
+               left join cm_department dp on dp.seq = dc.department_seq and dp.is_enabled
+               left join cm_disease cd on cd.seq = ct.disease_seq and cd.is_enabled
+               inner join cm_contents_favorite cf on cf.contents_seq = ct.seq and cf.is_enabled and cf.account_seq = #{acSeq}
+         where 
+               ct.is_enabled        
+         order by ct.seq desc
+    </select>
+
+    <update id="updateFavorite" >
+		update public.cm_contents_favorite
+		   set is_enabled   = false
+		      ,updated_at   = now()
+		 where account_seq  = #{accountSeq}
+		   and contents_seq = #{contentsSeq}
+	</update>   
+	   
+    <insert id="insertFavorite" >
+		insert into public.cm_contents_favorite  
+		    (   account_seq
+              , contents_seq
+              , is_enabled
+              , created_at
+              , updated_at
+		    )
+	    values
+	        (   #{accountSeq}
+              , #{contentsSeq}
+              , true
+              , now()
+              , now()
+	        )
+		
+	</insert>   
+
+    <select id="getWellbeingResourceListCount" resultType="java.lang.Integer">
+        SELECT COUNT(a.*)
+        from cm_wellbeing_resources a
+        <where>
+            a.is_enabled
+            and lang = #{lang}
+            <if test='wellbeingCategoryCd != null and wellbeingCategoryCd != ""'>
+               AND a.wellbeing_category_cd ILIKE CONCAT('%', #{wellbeingCategoryCd}, '%')
+            </if>
+            <if test='searchType != null and searchType != ""'>
+                <if test='searchText != null and searchText != ""'>
+                    <if test='searchType == "companyName"'>
+                        AND a.company_name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "title"'>
+                        AND a.title ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "contents"'>
+                        AND a.contents ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                </if>
+            </if>
+        </where>
+    </select>
+
+    <select id="getWellbeingResourceList" resultType="com.cama.back.dto.wellbeing.WellbeingResource">
+    select seq 
+          ,wellbeing_category_cd
+          ,(select val from sys_code_det b where b.code = 'WELLBEING_CATEGORY_CD' and b.cd = a.wellbeing_category_cd) wellbeing_category_nm 
+          ,company_name
+          ,company_description
+          ,title
+          ,thumbnail
+          ,contents
+          ,address
+          ,phone_number
+          ,homepage
+          ,sns
+          ,is_enabled
+          ,priority
+          ,to_char(cast(a.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
+          ,to_char(cast(a.updated_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as updatedAt
+      from (select *
+              from cm_wellbeing_resources 
+             order by priority , created_at 
+            ) a
+        <where>
+            a.is_enabled
+            and lang = #{lang}
+            <if test='wellbeingCategoryCd != null and wellbeingCategoryCd != ""'>
+               AND a.wellbeing_category_cd ILIKE CONCAT('%', #{wellbeingCategoryCd}, '%')
+            </if>
+            <if test='searchType != null and searchType != ""'>
+                <if test='searchText != null and searchText != ""'>
+                    <if test='searchType == "companyName"'>
+                        AND a.company_name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "title"'>
+                        AND a.title ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "contents"'>
+                        AND a.contents ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                </if>
+            </if>
+        </where>
+        <if test='paging == true'>
+            LIMIT #{pagination.endNum} OFFSET #{pagination.startNum}
+        </if>
+    </select>
+    
+    <select id="getWellbeingResourceDetail" resultType="com.cama.back.dto.wellbeing.WellbeingResource">
+    select seq 
+          ,wellbeing_category_cd
+          ,(select val from sys_code_det b where b.code = 'WELLBEING_CATEGORY_CD' and b.cd = a.wellbeing_category_cd) wellbeing_category_nm 
+          ,company_name
+          ,company_description
+          ,title
+          ,thumbnail
+          ,contents
+          ,address
+          ,phone_number
+          ,homepage
+          ,sns
+          ,is_enabled
+          ,priority
+          ,to_char(cast(a.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
+          ,to_char(cast(a.updated_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as updatedAt
+      from cm_wellbeing_resources a
+        <where>
+            a.is_enabled
+            AND a.seq = #{seq}
+        </where>
+    </select>
+</mapper>

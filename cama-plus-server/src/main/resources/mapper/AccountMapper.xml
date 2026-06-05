@@ -1,0 +1,184 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cama.back.mapper.AccountMapper">
+
+    <select id="getAdminAccountListCount" resultType="java.lang.Integer">
+        SELECT COUNT(ac.*) FROM account ac left join account_roles ar on ar.account_seq = ac.seq
+        <where>
+            ar.roles != 'ADMIN' AND ac.is_enabled
+        </where>
+    </select>
+
+    <select id="getAdminAccountList" resultType="com.cama.back.dto.admin.AdminAccountRsp">
+        select
+        ac.seq,
+        ac.email,
+        ac.nick_name,
+        ac.name,
+        ac.phone,
+        ac.birth,
+        ac.gender,
+        ac.sign_type,
+        ac.is_dropped as dropped,
+        ac.dropped_out_date,
+        ac.drop_reason,
+        (select count(*) from account_design_register where account_seq = ac.seq and is_enabled) as registerCount,
+        to_char(cast(ac.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
+        from account ac left join account_roles ar on ar.account_seq = ac.seq
+        <where>
+            ar.roles != 'ADMIN' AND
+            ac.is_enabled
+        </where>
+        ORDER BY ac.seq DESC
+        LIMIT #{pagination.endNum} OFFSET #{pagination.startNum}
+    </select>
+
+    <select id="getAdminAccountView" resultType="com.cama.back.dto.admin.AdminAccountRsp">
+        select
+        ac.seq,
+        ac.email,
+        ac.nick_name,
+        ac.name,
+        ac.phone,
+        ac.birth,
+        ac.gender,
+        ac.sign_type,
+        ac.is_dropped as dropped,
+        ac.dropped_out_date,
+        ac.drop_reason,
+        (select count(*) from account_design_register where account_seq = ac.seq and is_enabled) as registerCount,
+        to_char(cast(ac.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
+        from account ac
+        <where>
+            ac.seq = #{seq}
+            AND ac.is_enabled
+        </where>
+    </select>
+
+    <select id="getAdminMemberListCount" resultType="java.lang.Integer">
+        SELECT COUNT(ac.*) FROM account ac left join account_roles ar on ar.account_seq = ac.seq
+        <where>
+            ar.roles = 'ADMIN' AND ac.is_enabled
+        </where>
+    </select>
+
+    <select id="getAdminMemberList" resultType="com.cama.back.dto.admin.AdminAccountRsp">
+        select
+        ac.seq,
+        ac.email,
+        ac.nick_name,
+        ac.name,
+        ac.phone,
+        ac.birth,
+        ac.gender,
+        ac.sign_type,
+        ac.is_dropped as dropped,
+        ac.dropped_out_date,
+        ac.drop_reason,
+        (select count(*) from account_design_register where account_seq = ac.seq and is_enabled) as registerCount,
+        to_char(cast(ac.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
+        from account ac left join account_roles ar on ar.account_seq = ac.seq
+        <where>
+            ar.roles = 'ADMIN' AND
+            ac.is_enabled
+        </where>
+        ORDER BY ac.seq DESC
+        LIMIT #{pagination.endNum} OFFSET #{pagination.startNum}
+    </select>
+
+    <select id="getDiseaseNameList" resultType="com.cama.back.dto.disease.DiseaseNameRsp">
+        select ad.disease_seq, ad.disease_name
+        from account_disease ad left join hospital_service hs on hs.seq = ad.service_seq AND hs.is_enabled
+        <where>
+            ad.account_seq = #{acSeq} AND hs.hospital_seq = #{hSeq} and ad.is_enabled
+        </where>
+        group by ad.disease_seq, ad.disease_name
+    </select>
+
+    <select id="getDiseaseNameAllList" resultType="com.cama.back.dto.disease.DiseaseAllNameRsp">
+        select ad.disease_seq, ad.disease_name, ad.doctor_seq, cd.name as doctorName,
+        (select name from cm_department where seq = cd.department_seq) as departmentName,
+        coalesce((select days from track_service ts where ts.disease_seq = ad.disease_seq and ts.account_seq = #{acSeq} and ts.hospital_seq = hs.hospital_seq and ts.is_enabled),0) as days,
+        to_char(cast((select ts.created_at from track_service ts where ts.disease_seq = ad.disease_seq and ts.account_seq = #{acSeq} and ts.hospital_seq = hs.hospital_seq and ts.is_enabled) at time zone 'kst' AS timestamp), 'YYYY-MM-DD') as trackCreatedAt
+        from account_disease ad left join hospital_service hs on hs.seq = ad.service_seq AND hs.is_enabled
+        left join cm_doctor cd on cd.seq = ad.doctor_seq and cd.is_enabled
+        <where>
+            ad.account_seq = #{acSeq} AND hs.hospital_seq = #{hSeq} and ad.is_enabled
+        </where>
+    </select>
+
+    <select id="getDiseaseList" resultType="com.cama.back.dto.disease.DiseaseRsp">
+        select ad.disease_seq, ad.disease_name, ad.disease_detail_seq, ad.disease_detail_name
+        from account_disease ad left join hospital_service hs on hs.seq = ad.service_seq AND hs.is_enabled
+        <where>
+            ad.account_seq = #{acSeq} AND hs.hospital_seq = #{hSeq} and ad.is_enabled
+        </where>
+    </select>
+
+    <select id="getRecentNotificationCount" resultType="java.lang.Integer">
+        SELECT COUNT(rece.*) from account_recent_notification rece
+        <where>
+            rece.is_enabled
+            AND rece.account_seq = #{acSeq}
+        </where>
+    </select>
+
+    <select id="getRecentNotification" resultType="com.cama.back.dto.account.RecentNotificationRsp">
+        select
+        rece.seq,
+        rece.message,
+        to_char(cast(rece.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
+        from account_recent_notification rece
+        <where>
+            rece.is_enabled
+            AND rece.account_seq = #{acSeq}
+        </where>
+        ORDER BY rece.seq DESC
+        LIMIT #{pagination.endNum} OFFSET #{pagination.startNum}
+    </select>
+
+    <select id="getActiveHospital" resultType="com.cama.back.dto.account.ActiveHospitalRsp">
+        select ch.seq, ch.name
+        from hospital_service hs
+        left join cm_hospital ch on ch.seq = hs.hospital_seq and ch.is_enabled
+        left join account ac on ac.seq = hs.account_seq and ac.is_enabled
+        <where>
+            hs.is_enabled and hs.account_seq = #{acSeq}
+        </where>
+    </select>
+
+    <insert id="insertAccountSearchHst" >
+		insert into public.account_search_history  
+		    (   account_seq
+              , cancer_type
+              , search_text
+		    )
+	    values
+	        (   #{acSeq}
+              , #{diseaseSeq}
+              , #{searchText}
+	        )		
+	</insert>   
+	
+    <insert id="insertAccountLoginHst" >
+		insert into public.account_login_history  
+		    (   account_seq
+              , login_at
+		    )
+	    values
+	        (   #{acSeq}
+              , now()
+	        )		
+	</insert>   
+	
+    <insert id="insertAccountLogoutHst" >
+		insert into public.account_login_history  
+		    (   account_seq
+              , logout_at
+		    )
+	    values
+	        (   #{acSeq}
+              , now()
+	        )		
+	</insert>   
+</mapper>

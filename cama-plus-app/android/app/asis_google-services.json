@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "895675147444",
+    "project_id": "cama-plus",
+    "storage_bucket": "cama-plus.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:895675147444:android:34d6f6b3ad3a65170aa3e1",
+        "android_client_info": {
+          "package_name": "com.camaplus.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCk-q4eYGGdHPYoUFrwaqCxGWUPlP2tVE8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

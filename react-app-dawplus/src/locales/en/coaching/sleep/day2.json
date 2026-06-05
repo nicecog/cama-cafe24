@@ -1,0 +1,44 @@
+{
+  "msg_001": "Current Sleep Time Check",
+  "tts": {
+    "msg_001": "Let's check your current sleep time today.",
+    "msg_002": "Review the feedback based on the sleep time you chose.",
+    "msg_003": "Decide on the right sleep time for you."
+  },
+  "step1": {
+    "msg_001": "Let's first check how much you've been sleeping.",
+    "msg_003": "On average, how many hours did you sleep per day over the last week?",
+    "msg_004": "Less than 5 hours",
+    "msg_005": "5 to 6 hours",
+    "msg_006": "6 to 7 hours",
+    "msg_007": "7 to 8 hours",
+    "msg_008": "9 hours or more"
+  },
+  "step2": {
+    "msg_001": "Feedback by Sleep Time",
+    "msg_002": "Selected sleep time",
+    "msg_003": "Try the following methods to sleep better.",
+    "msg_004": "Check your pre-bedtime habits.",
+    "msg_005": "Reduce caffeine.",
+    "msg_006": "Reduce smartphone or TV use.",
+    "msg_007": "Work to create a comfortable sleep environment.",
+    "msg_008": "About 30 minutes before bed, it is good to use gentle relaxation so your body can prepare for sleep.",
+    "msg_009": "You may not be getting enough sleep. You may be somewhat recovered from fatigue, but it may be hard to keep your best condition while awake.",
+    "msg_010": "Your sleep time looks generally appropriate. Still, because 7 or more hours of sleep is usually recommended, if you can sleep a little longer, we suggest adding 30 minutes to 1 hour.",
+    "msg_011": "Even if you are sleeping enough, too much sleep can be unhealthy. If you spend most of the day lying down and sleeping, your immunity may drop and fatigue can increase. Try to spend more time active outside bed.",
+    "msg_012": "You said you usually sleep about {{choice}}.",
+    "msg_013": "You may not be getting enough sleep. You may be somewhat recovered from fatigue, but it may be hard to keep your best condition while awake.",
+    "msg_014": "You seem to be getting adequate sleep. Even so, if your fatigue does not recover or you feel sleepy during the day, consider the possibility that your sleep quality is reduced.",
+    "msg_015": "Review the feedback based on the sleep time you chose."
+  },
+  "step3": {
+    "msg_001": "Choose my ideal sleep time",
+    "msg_002": "The right amount of sleep can vary from person to person.",
+    "msg_003": "Considering your health and treatment process, decide on an appropriate sleep time for {{name}}.",
+    "msg_004": "I will sleep about (___) hours on average.",
+    "msg_005": "Select",
+    "msg_006": "Please select a time.",
+    "msg_007": "Saved.",
+    "msg_008": "Please enter a number."
+  }
+}

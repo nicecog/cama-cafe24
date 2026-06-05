@@ -1,0 +1,10 @@
+<svg id="step2_on" xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 42 42">
+  <g id="basic">
+    <g id="그룹_2924" data-name="그룹 2924">
+      <rect id="사각형_647" data-name="사각형 647" width="42" height="42" fill="#fff" opacity="0"/>
+      <path id="선_78" data-name="선 78" d="M42,1H0V-1H42Z" transform="translate(0 21)" fill="#feba00"/>
+    </g>
+    <rect id="사각형_23" data-name="사각형 23" width="24" height="24" rx="12" transform="translate(9 9)" fill="#feba00"/>
+  </g>
+  <text id="_2" data-name="2" transform="translate(21 25)" fill="#fff" font-size="12" font-family="NotoSans-Bold, Noto Sans" font-weight="700" letter-spacing="-0.02em"><tspan x="-3.432" y="0">2</tspan></text>
+</svg>

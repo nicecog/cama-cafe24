@@ -1,0 +1,170 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cama.back.mapper.DoctorMapper">
+
+    <select id="getAdminDoctorListCount" resultType="java.lang.Integer">
+        select count(cd.seq)
+        from cm_doctor cd join cm_hospital ch on ch.seq = cd.hospital_seq and ch.is_enabled
+        join cm_department dep on dep.seq = cd.department_seq and dep.is_enabled
+        <where>
+            cd.is_enabled
+            <if test='searchType != null and searchType != ""'>
+                <if test='searchText != null and searchText != ""'>
+                    <if test='searchType == "name"'>
+                        AND cd.name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "phone"'>
+                        AND cd.phone ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "hospitalName"'>
+                        AND ch.name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "departmentName"'>
+                        AND dep.name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                </if>
+            </if>
+        </where>
+    </select>
+
+    <select id="getAdminDoctorList" resultType="com.cama.back.dto.doctor.DoctorRsp">
+        select cd.seq,
+        cd.login_id,
+        cd.name,
+        cd.nick,
+        cd.profile_image,
+        cd.profile_link,
+        cd.phone,
+        ch.seq as hospitalSeq,
+        ch.name as hospitalName,
+        dep.seq as departmentSeq,
+        dep.name as departmentName,
+        (select count(cc.seq) from cm_contents cc where cc.doctor_seq = cd.seq AND cc.is_enabled and cc.is_viewed) as contentsCount,
+        to_char(cast(cd.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
+        from cm_doctor cd join cm_hospital ch on ch.seq = cd.hospital_seq and ch.is_enabled
+        join cm_department dep on dep.seq = cd.department_seq and dep.is_enabled
+        <where>
+            cd.is_enabled
+            <if test='searchType != null and searchType != ""'>
+                <if test='searchText != null and searchText != ""'>
+                    <if test='searchType == "name"'>
+                        AND cd.name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "phone"'>
+                        AND cd.phone ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "hospitalName"'>
+                        AND ch.name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "departmentName"'>
+                        AND dep.name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                </if>
+            </if>
+        </where>
+        ORDER BY cd.seq DESC
+        <if test='paging == true'>
+            LIMIT #{pagination.endNum} OFFSET #{pagination.startNum}
+        </if>
+    </select>
+
+    <select id="getDoctorDetail" resultType="com.cama.back.dto.doctor.DoctorRsp">
+        select cd.seq,
+        cd.login_id,
+        cd.name,
+        cd.nick,
+        cd.profile_image,
+        cd.profile_link,
+        cd.phone,
+        ch.seq as hospitalSeq,
+        ch.name as hospitalName,
+        dep.seq as departmentSeq,
+        dep.name as departmentName,
+        (select count(cc.seq) from cm_contents cc where cc.doctor_seq = cd.seq AND cc.is_enabled and cc.is_viewed) as contentsCount,
+        to_char(cast(cd.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
+        from cm_doctor cd join cm_hospital ch on ch.seq = cd.hospital_seq and ch.is_enabled
+        join cm_department dep on dep.seq = cd.department_seq and dep.is_enabled
+        <where>
+            cd.is_enabled
+            AND cd.seq = #{seq}
+        </where>
+    </select>
+
+    <select id="getServiceListCount" resultType="java.lang.Integer">
+        select count(hs.seq)
+        from hospital_service hs
+        join account ac on ac.seq = hs.account_seq and ac.is_enabled
+        <where>
+            hs.is_enabled
+            <if test='hospitalSeq != null'>
+                AND hs.hospital_seq = #{hospitalSeq}
+            </if>
+        </where>
+    </select>
+
+    <select id="getServiceList" resultType="com.cama.back.dto.doctor.ServiceRsp">
+        select hs.seq as serviceSeq,
+        ac.name,
+        ac.seq as accountSeq,
+        ch.seq as hospitalSeq,
+        ch.name as hospitalName,
+        CASE
+            WHEN EXISTS (
+                SELECT 1 FROM account_disease ad
+                WHERE ad.service_seq = hs.seq AND ad.is_enabled
+            ) THEN 'APPROVE'
+            ELSE 'REQUEST'
+        END as status,
+        (
+            SELECT to_char(min(ad.created_at) at time zone 'kst', 'YYYY-MM-DD HH24:MI:SS')
+            FROM account_disease ad
+            WHERE ad.service_seq = hs.seq AND ad.is_enabled
+        ) as approveDate,
+        to_char(cast(hs.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
+        from hospital_service hs
+        join cm_hospital ch on ch.seq = hs.hospital_seq and ch.is_enabled
+        join account ac on ac.seq = hs.account_seq and ac.is_enabled
+        <where>
+            hs.is_enabled
+            <if test='hospitalSeq != null'>
+                AND hs.hospital_seq = #{hospitalSeq}
+            </if>
+        </where>
+        ORDER BY hs.seq DESC
+        <if test='paging == true'>
+            LIMIT #{pagination.endNum} OFFSET #{pagination.startNum}
+        </if>
+    </select>
+
+    <select id="getServiceDetail" resultType="com.cama.back.dto.doctor.ServiceRsp">
+        select hs.seq as serviceSeq,
+        ac.name,
+        ac.seq as accountSeq,
+        ch.seq as hospitalSeq,
+        ch.name as hospitalName,
+        CASE
+            WHEN EXISTS (
+                SELECT 1 FROM account_disease ad
+                WHERE ad.service_seq = hs.seq AND ad.is_enabled
+            ) THEN 'APPROVE'
+            ELSE 'REQUEST'
+        END as status,
+        (
+            SELECT to_char(min(ad.created_at) at time zone 'kst', 'YYYY-MM-DD HH24:MI:SS')
+            FROM account_disease ad
+            WHERE ad.service_seq = hs.seq AND ad.is_enabled
+        ) as approveDate,
+        to_char(cast(hs.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
+        from hospital_service hs
+        join cm_hospital ch on ch.seq = hs.hospital_seq and ch.is_enabled
+        join account ac on ac.seq = hs.account_seq and ac.is_enabled
+        <where>
+            hs.is_enabled
+            AND hs.seq = #{seq}
+            <if test='hospitalSeq != null'>
+                AND hs.hospital_seq = #{hospitalSeq}
+            </if>
+        </where>
+    </select>
+
+</mapper>

@@ -1,0 +1,49 @@
+{
+  "account_name": "회원",
+  "greeting_title": "안녕하세요!",
+  "greeting_subtitle": "Cama+ 에 오신걸 환영 합니다.",
+  "questions1": "당신의 삶에서 ",
+  "questions2": "가장 중요한 것은 ",
+  "questions3": "무엇입니까?",
+  "step_visual_alt": "코칭 가이드 이미지",
+  "today_mission_badge": "오늘의 미션",
+  "exercise_selector": {
+    "type_label": "운동 종류",
+    "time_label": "운동 시간",
+    "time_unit": "분",
+    "types": ["유산소 운동만", "근력운동만", "유산소운동과 근력운동을 함께"]
+  },
+  "exercise_plan_summary": {
+    "eyebrow": "선택한 운동 계획",
+    "prefix": "자 그럼 오늘은",
+    "suffix": "동안 해볼까요?"
+  },
+  "toast": {
+    "action_required": "내용을 입력해 주세요.",
+    "select_required": "항목을 선택해 주세요.",
+    "saved": "저장되었습니다.",
+    "error": "오류가 발생했습니다. 다시 시도해 주세요."
+  },
+  "options": {
+    "msg_001": "가족의 행복",
+    "msg_002": "경제적 안정",
+    "msg_003": "활력있는 삶",
+    "msg_004": "심리적 안정",
+    "msg_005": "건강",
+    "msg_006": "사회적 성공과 성취",
+    "msg_007": "기타"
+  },
+  "slider": {
+    "min_label": "전혀 안 중요함",
+    "max_label": "매우 중요함",
+    "helper_text": "슬라이더를 움직여 선택해 주세요",
+    "current_label": "현재 선택값",
+    "percent_suffix": "%"
+  },
+  "step_flow": {
+    "start": "시작하기",
+    "prev": "이전",
+    "next": "다음",
+    "complete": "완료"
+  }
+}

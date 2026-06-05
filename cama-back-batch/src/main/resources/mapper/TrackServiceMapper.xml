@@ -1,0 +1,19 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cama.batch.mapper.TrackServiceMapper">
+
+    <select id="getTrackActiveServiceList" resultType="com.cama.batch.dto.track.TrackServiceRsp">
+        SELECT
+        ts.seq,
+        to_char(cast(ts.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt,
+        to_char(cast(ts.created_at at time zone 'kst' AS timestamp) + CAST(ts.days||' DAYS' AS INTERVAL), 'YYYY-MM-DD HH24:MI:SS') as afterAt,
+        ts.days
+        FROM
+        track_service ts
+        <where>
+            ts.is_enabled AND ts.status = 'ACTIVE'
+            and CAST (ts.created_at as date) + CAST (ts.days AS INTEGER) <![CDATA[<=]]> current_date
+        </where>
+    </select>
+
+</mapper>

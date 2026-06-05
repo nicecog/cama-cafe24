@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>작성중인 치료정보</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+</head>
+<body class="has-drawer" data-require-auth="true">
+<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+<main class="app-main">
+    <div class="card">
+        <h1 class="card__title">작성중인 치료정보</h1>
+        <div class="toolbar">
+            <div class="field">
+                <label for="searchType">검색 구분</label>
+                <select id="searchType">
+                    <option value="title">제목</option>
+                    <option value="contents">내용</option>
+                    <option value="doctorName">작성자</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="searchText">검색어</label>
+                <input id="searchText" type="search" placeholder="검색어 (비우면 전체)"/>
+            </div>
+            <button type="button" class="btn btn-primary" id="btnSearch">검색</button>
+        </div>
+        <div class="table-wrap">
+            <table class="data">
+                <thead>
+                <tr>
+                    <th>seq</th>
+                    <th>제목</th>
+                    <th>작성자</th>
+                    <th>진료과</th>
+                    <th>등록일</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+        <div class="pager">
+            <button type="button" class="btn" id="btnPrev">이전</button>
+            <span id="pageInfo"></span>
+            <button type="button" class="btn" id="btnNext">다음</button>
+        </div>
+    </div>
+</main>
+<script th:src="@{/js/cama-api.js}"></script>
+<script th:src="@{/js/app-shell.js}"></script>
+<script th:src="@{/js/treatment-disabled-list.js}"></script>
+</body>
+</html>

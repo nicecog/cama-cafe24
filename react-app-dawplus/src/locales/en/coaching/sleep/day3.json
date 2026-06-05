@@ -1,0 +1,26 @@
+{
+  "msg_001": "Day 3 - Regular Sleep Goal",
+  "step1": {
+    "msg_001": "Shall we set a target sleep time for a regular sleep routine starting today?",
+    "msg_002": "Target bedtime",
+    "msg_003": "Target wake-up time",
+    "msg_004": "Select",
+    "msg_005": "hour",
+    "msg_006": "minute",
+    "msg_007": "Please select all times."
+  },
+  "step2": {
+    "msg_001": "{{name}} set",
+    "msg_002": "bedtime",
+    "msg_003": "wake-up time",
+    "msg_004": "worth of",
+    "msg_005": "sleep is possible",
+    "msg_006": "There is no sleep time."
+  },
+  "step3": {
+    "msg_001": "\"Sleep and wake up at the planned time\"",
+    "msg_002": "My target bedtime",
+    "msg_003": "My target wake-up time",
+    "msg_004": "{{name}} will go to bed at the planned bedtime and wake up at the planned wake-up time. Even if you did not sleep well the night before, waking up at the planned time is important."
+  }
+}

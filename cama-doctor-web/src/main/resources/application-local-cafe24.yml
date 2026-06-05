@@ -1,0 +1,30 @@
+# 로컬 PC — Cafe24 스택 (JDK 21, PG :55432, Billive API :8080)
+# 실행: scripts/run-local-cafe24.ps1
+
+server:
+  port: ${DOCTOR_WEB_PORT:8081}
+
+spring:
+  datasource:
+    url: ${DOCTOR_DB_URL:jdbc:postgresql://127.0.0.1:55432/cama_doctor}
+    username: ${DOCTOR_DB_USER:cama}
+    password: ${DOCTOR_DB_PASSWORD:cama_local_dev}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+
+cama:
+  billive:
+    base-url: ${CAMA_BILLIVE_BASE_URL:http://127.0.0.1:8080}
+  firebase:
+    enabled: false
+
+logging:
+  level:
+    root: INFO
+    com.cama.doctorweb: DEBUG

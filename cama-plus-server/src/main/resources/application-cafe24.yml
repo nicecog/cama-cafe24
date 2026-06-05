@@ -1,0 +1,61 @@
+# Cafe24 VPS 운영 프로필 (환경 변수로 주입)
+# --spring.profiles.active=cafe24
+
+server:
+  port: ${SERVER_PORT:8080}
+  forward-headers-strategy: framework
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 10000
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  mail:
+    host: ${SPRING_MAIL_HOST:}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+jwt:
+  token:
+    clientSecret: ${JWT_CLIENT_SECRET}
+
+iamport:
+  key: ${IAMPORT_KEY}
+  secure: ${IAMPORT_SECRET}
+
+cama:
+  mail:
+    enabled: ${CAMA_MAIL_ENABLED:false}
+    from: ${CAMA_MAIL_FROM:noreply@camaplus.com}
+    provider: ${CAMA_MAIL_PROVIDER:smtp}
+    sender-name: ${CAMA_MAIL_SENDER_NAME:CAMA Plus}
+    brevo-api-key: ${BREVO_API_KEY:}
+  hosting:
+    storage-type: ${CAMA_STORAGE_TYPE:local}
+    local-storage-path: ${FILE_STORAGE_PATH:/opt/cama/data/files}
+    image-cdn-base-url: ${IMAGE_CDN_BASE_URL}
+    cors-allowed-origins: ${CAMA_CORS_ORIGINS:}
+
+logging:
+  level:
+    root: INFO
+    com.cama.back: INFO

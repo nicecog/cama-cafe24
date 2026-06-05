@@ -1,0 +1,56 @@
+# 가비아 컨테이너 호스팅 + MySQL 8.0 (PostgreSQL 대신 MySQL 선택 시)
+# 실행: java -jar cama-back-1.0-SNAPSHOT.jar --spring.profiles.active=gabia-mysql
+#
+# MyBatis SQL 이 Postgres 전제인 경우 일부 쿼리 수정이 필요할 수 있습니다.
+# greenfield 이면 Flyway 로 MySQL 스키마를 새로 올리는 것을 권장합니다.
+
+server:
+  port: ${SERVER_PORT:8080}
+  forward-headers-strategy: framework
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://127.0.0.1:3306/cama?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&allowPublicKeyRetrieval=true}
+    username: ${DB_USER:cama}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 10000
+      validation-timeout: 5000
+      max-lifetime: 300000
+      idle-timeout: 120000
+      keepalive-time: 30000
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    properties:
+      hibernate:
+        format_sql: false
+    show-sql: false
+    open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+
+jwt:
+  token:
+    clientSecret: ${JWT_CLIENT_SECRET:}
+
+aws:
+  access-key: ${AWS_ACCESS_KEY:}
+  secret-key: ${AWS_SECRET_KEY:}
+
+iamport:
+  key: ${IAMPORT_KEY:}
+  secure: ${IAMPORT_SECRET:}
+
+cama:
+  hosting:
+    storage-type: local
+    local-storage-path: ${FILE_STORAGE_PATH:/home/cama/files}
+    image-cdn-base-url: ${IMAGE_CDN_BASE_URL:https://api.cama.ai.kr/files}
+    cors-allowed-origins:
+      - https://admin.cama.ai.kr
+      - https://cama.ai.kr

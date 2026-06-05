@@ -1,0 +1,256 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cama.batch.mapper.ScheduleMapper">
+
+    <select id="getScheduleBatchList" resultType="com.cama.batch.dto.batch.BatchRsp">
+        select bs.seq,
+        bs.schedule_seq,
+        bs.start_date,
+        bs.end_date,
+        bs.time,
+        bs.account_seq,
+        sch.schedule_type,
+        tk.token,
+        tk.platform 
+        from account_batch_schedule bs join account_schedule sch on sch.seq = bs.schedule_seq
+        join firebase_token tk on tk.account_seq = bs.account_seq and tk.is_enabled
+        <where>
+            bs.is_enabled and sch.is_enabled and sch.alarm and bs.start_date = to_char(NOW() at time zone 'kst','YYYY-MM-DD')
+            and bs.time = to_char(now() at time zone 'kst','HH24:MI:00')
+            and sch.schedule_type in ('MEDICINE','ETC','HOSPITAL','MENTALITY')
+        </where>
+    </select>
+
+    <select id="getScheduleBatchList2" resultType="com.cama.batch.dto.batch.BatchRsp">
+        select bs.seq,
+        bs.schedule_seq,
+        bs.start_date,
+        bs.end_date,
+        bs.time,
+        bs.account_seq,
+        sch.schedule_type,
+        tk.token,
+        tk.platform 
+        from account_batch_schedule bs join account_schedule sch on sch.seq = bs.schedule_seq
+        join firebase_token tk on tk.account_seq = bs.account_seq and tk.is_enabled
+        <where>
+            bs.is_enabled and sch.is_enabled and sch.alarm and bs.start_date = to_char((NOW()+ interval '1 days' ) at time zone 'kst','YYYY-MM-DD' )
+            and bs.time = to_char(now() at time zone 'kst','HH24:MI:00')
+            and sch.schedule_type in ('HOSPITAL')
+        </where>
+    </select>
+
+    <select id="getScheduleBatchList3" resultType="com.cama.batch.dto.batch.BatchRsp">
+        select bs.seq,
+        bs.schedule_seq,
+        bs.start_date,
+        bs.end_date,
+        bs.time,
+        bs.account_seq,
+        sch.schedule_type,
+        tk.token,
+        tk.platform 
+        from account_batch_schedule bs join account_schedule sch on sch.seq = bs.schedule_seq
+        join firebase_token tk on tk.account_seq = bs.account_seq and tk.is_enabled
+        <where>
+            bs.is_enabled and sch.is_enabled and sch.alarm and bs.start_date = to_char(NOW() at time zone 'kst','YYYY-MM-DD')
+            and bs.time = to_char((NOW()+ interval '1 hours' ) at time zone 'kst','HH24:MI:00')
+            and sch.schedule_type in ('HOSPITAL','MEDICINE')
+        </where>
+    </select>
+
+    <select id="getScheduleBatchList4" resultType="com.cama.batch.dto.batch.BatchRsp">
+         select ts.account_seq 
+               ,ft.token
+               ,ft.platform 
+           from track_service ts 
+               ,firebase_token ft
+         <where>
+	            ts.is_enabled 
+            and ts.status = 'ACTIVE'
+            and ts.account_seq = ft.account_seq 
+            and ft.is_enabled 
+        </where>
+    </select>
+
+    <select id="getScheduleBatchList5" resultType="com.cama.batch.dto.batch.BatchRsp">
+         select ts.account_seq 
+               ,ft.token
+               ,ft.platform 
+           from track_service ts 
+               ,firebase_token ft
+         <where>
+	            ts.is_enabled 
+            and ts.status = 'ACTIVE'
+            and ts.account_seq = ft.account_seq 
+            and ft.is_enabled 
+            and to_char(cast(ts.created_at at time zone 'kst' AS timestamp) + (interval '1 days' * ts.days)+ (interval '-3 days'), 'YYYY-MM-DD')
+                = to_char((NOW() ) at time zone 'kst','YYYY-MM-DD' )
+        </where>
+    </select>  
+    
+    <select id="getScheduleBatchList6" resultType="com.cama.batch.dto.batch.BatchRsp">
+         select ts.account_seq 
+               ,ft.token
+               ,ft.platform 
+           from track_service ts 
+               ,firebase_token ft
+         <where>
+	            ts.is_enabled 
+            and ts.status = 'ACTIVE'
+            and ts.account_seq = ft.account_seq 
+            and ft.is_enabled 
+            and to_char(cast(ts.created_at at time zone 'kst' AS timestamp) + (interval '1 days' * ts.days)+ (interval '-1 days'), 'YYYY-MM-DD')
+                = to_char((NOW() ) at time zone 'kst','YYYY-MM-DD' )
+        </where>
+    </select>  
+    
+    <select id="getScheduleBatchList11" resultType="com.cama.batch.dto.batch.BatchRsp">
+	  select account_seq
+	        ,token 
+	        ,platform
+	        ,progress 
+	    from (
+			 select ts1.account_seq 
+	               ,ft1.token
+	               ,ft1.platform 
+	               ,(select  case when (a.tot_question_step_day_cnt::decimal = 0)
+			                      then 0
+			                      else round(a.tot_answer_step_day_cnt::decimal / a.tot_question_step_day_cnt::decimal * 100)
+		                      end as progress
+	                  from (
+					        select  ac.seq
+					              , scd.cd as category_cd
+					              , (select count(*) 
+					                   from coaching_question_info cqi 
+					                  where cqi.progress_type_cd in ( 'A1','E01','K01')
+					                    and cqi.category_cd = scd.cd) as tot_question_step_day_cnt
+					              , (select count(distinct step_day_cd)
+					                   from coaching_user_answer_info cuai
+					                  where cuai.account_seq = ac.seq
+					                    and cuai.category_cd = scd.cd) as tot_answer_step_day_cnt
+					               , (select max(created_at)
+					                    from coaching_user_answer_info cuai
+					                   where cuai.account_seq = ac.seq
+					                     and cuai.category_cd = scd.cd) as created_at
+					           from  account ac
+					                 left join track_service ts on ac.seq = ts.account_seq and ts.status = 'ACTIVE'
+					               , sys_code_det scd
+					          where 1=1 
+					            and scd.code = 'CATEGORY_CD'
+					            and scd.use_yn = 'Y'    
+					            and ac.is_enabled
+					            and scd.cd in ('A','B','C','D')
+					       union all 
+				            select  ac.seq
+					              , scd.cd as category_cd
+					              , (select count(*) 
+					                   from coaching_user_answer_info cuai 
+					                  where cuai.account_seq = ac.seq
+					                    and cuai.category_cd = scd.cd) as tot_question_step_day_cnt
+					              , (select count(*)
+					                   from coaching_user_answer_info cuai
+					                  where cuai.answer_choice = 'Y'
+					                    and cuai.account_seq = ac.seq
+					                    and cuai.category_cd = scd.cd) as tot_answer_step_day_cnt
+					               , (select max(created_at)
+					                    from coaching_user_answer_info cuai
+					                   where cuai.account_seq = ac.seq
+					                     and cuai.category_cd = scd.cd) as created_at
+					           from  account ac
+					                 left join track_service ts on ac.seq = ts.account_seq and ts.status = 'ACTIVE'
+					               , sys_code_det scd
+					          where 1=1 
+					            and scd.code = 'CATEGORY_CD'
+					            and scd.use_yn = 'Y'    
+					            and ac.is_enabled
+					            and scd.cd = 'E'
+			          ) a
+			         where a.seq = ts1.account_seq 
+			           and a.category_cd = #{categoryCd}
+	               ) as progress
+	           from track_service ts1 
+	               ,firebase_token ft1
+	        where 
+		            ts1.is_enabled 
+	            and ts1.status = 'ACTIVE'
+	            and ts1.account_seq = ft1.account_seq 
+	            and ft1.is_enabled 
+	       ) aa
+     where  aa.progress > 0
+    </select>  
+    
+    <select id="getExistStatistics" resultType="java.lang.Integer">
+        select count(*)
+          from public.account_cnt_statistics
+         where year_month = to_char(now(),'yyyymm') 
+           and user_type_cd = #{userTypeCd}
+    </select>
+   
+    <select id="getUserCnt" resultType="java.lang.Integer">
+        select count(*)
+          from public.account a 
+         where is_enabled = true 
+           and is_dropped = false
+           and user_type_cd like #{userTypeCd}||'%'
+    </select>
+   
+    <select id="getDayEnableCnt" resultType="java.lang.Integer">
+     select COALESCE(
+       (select round(sum(userCnt)/NULLIF(count(*), 0))
+       from (
+		     select to_char(a.login_at,'yyyymmdd'), count(distinct a.account_seq) as userCnt
+		       from public.account_login_history a 
+		           ,public.account b
+		      where to_char(a.login_at,'yyyymm') = to_char(now(),'yyyymm')
+		        and a.account_seq = b.seq
+		        and b.user_type_cd like #{userTypeCd}||'%'
+		      group by to_char(a.login_at,'yyyymmdd')
+            ) a),
+       0)
+    </select>
+    
+    <select id="getMonthEnableCnt" resultType="java.lang.Integer">
+     select count(distinct a.account_seq)
+       from public.account_login_history a 
+           ,public.account b
+      where to_char(a.login_at,'yyyymm') = to_char(now(),'yyyymm')
+        and a.account_seq = b.seq
+        and b.user_type_cd like #{userTypeCd}||'%'
+    </select>
+    
+    <insert id="insertAcctStatistics" >
+		insert into public.account_cnt_statistics  
+		    (   year_month
+              , user_type_cd
+              , value1
+              , value2
+              , value3
+              , value4
+              , created_at
+              , updated_at
+		    )
+	    values
+	        (   to_char(now(),'yyyymm')
+              , case when #{userTypeCd} = '' then '99' else #{userTypeCd} end 
+              , case when to_char(now(),'yyyymmdd') = to_char(now(),'yyyymm')||'01' then #{userCnt} else null end 
+              , #{userCnt}
+              , #{dayEnableCnt}
+              , #{monthEnableCnt}
+              , now()
+              , now()
+	        )
+		
+	</insert>   
+	
+	<update id="updateAcctStatistics" >  
+		 update public.account_cnt_statistics 
+		    set value1 = case when to_char(now(),'yyyymmdd') = to_char(now(),'yyyymm')||'01' then #{userCnt} else value1 end 
+		       ,value2 = #{userCnt}
+		       ,value3 = #{dayEnableCnt}
+		       ,value4 = #{monthEnableCnt}
+		       ,updated_at = now()
+		  where year_month = to_char(now(),'yyyymm')
+		    and user_type_cd = case when #{userTypeCd} = '' then '99' else #{userTypeCd} end 
+	</update>    
+ </mapper>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>치료정보 수정</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+    <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet"/>
+</head>
+<body class="has-drawer" data-require-auth="true">
+<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+<main class="app-main">
+    <div class="card">
+        <p class="breadcrumb"><a th:href="@{/content-management/treatment/done/list}">&larr; 치료정보 목록</a></p>
+        <h1 class="card__title">치료정보 수정/삭제</h1>
+
+        <div class="form-grid treatment-form">
+            <div class="form-grid__label">제목</div>
+            <div><input id="tfTitle" class="input-full" type="text" placeholder="제목을 입력하세요." autocomplete="off"/></div>
+
+            <div class="form-grid__label">내용</div>
+            <div class="editor-wrap">
+                <div id="tfEditor"></div>
+            </div>
+
+            <div class="form-grid__label">질환</div>
+            <div>
+                <select id="tfDisease" class="input-full"></select>
+            </div>
+
+            <div class="form-grid__label">시기</div>
+            <div id="tfSteps" class="checkbox-stack"></div>
+
+            <div class="form-grid__label full-row">속성</div>
+            <div id="tfAttributes" class="attr-stack full-row"></div>
+
+            <div class="form-grid__label">관심영역</div>
+            <div id="tfInterest" class="checkbox-stack"></div>
+
+            <div class="form-grid__label">Featured Image</div>
+            <div>
+                <div id="tfDropzone" class="dropzone-box" role="button" tabindex="0">클릭하여 이미지 선택 (JPEG/PNG)</div>
+                <input type="file" id="tfFile" accept="image/jpeg,image/png,image/jpg" style="display:none"/>
+                <div class="thumb-wrap">
+                    <img id="tfThumb" alt="썸네일" style="display:none;max-width:240px;border-radius:8px;margin-top:8px;"/>
+                </div>
+            </div>
+
+            <div class="form-grid__label">지금 공개할까요?</div>
+            <div id="tfViewed" class="radio-stack">
+                <label class="radio-label"><input type="radio" name="tfViewed" value="YES"/> 네. 공개합니다.</label>
+                <label class="radio-label"><input type="radio" name="tfViewed" value="NO"/> 아니오. 공개하지 않습니다. 작성중 입니다.</label>
+            </div>
+        </div>
+
+        <div class="form-actions-row three">
+            <button type="button" class="btn btn-danger-outline" id="tfBtnCancelReload">취소</button>
+            <button type="button" class="btn btn-danger-fill" id="tfBtnDelete">삭제</button>
+            <button type="button" class="btn btn-success" id="tfBtnUpdate">수정</button>
+        </div>
+    </div>
+</main>
+<script th:src="@{/js/cama-api.js}"></script>
+<script th:src="@{/js/ui-modal.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+<script th:src="@{/js/treatment-form.js}"></script>
+<script th:inline="javascript">
+    window.__TF_CONFIG__ = { mode: 'edit', seq: /*[[${seq}]]*/ '' };
+    window.TreatmentForm.init();
+</script>
+<script th:src="@{/js/app-shell.js}"></script>
+</body>
+</html>

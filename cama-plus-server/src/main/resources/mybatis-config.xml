@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <settings>
+        <!-- CamelCase 적용 기본값은 false -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+
+    <typeAliases>
+        <package name="com.cama.back.mapper"/>
+    </typeAliases>
+
+    <mappers>
+        <mapper resource="mapper/AccountMapper.xml"/>
+        <mapper resource="mapper/ContentsMapper.xml"/>
+        <mapper resource="mapper/HospitalMapper.xml"/>
+        <mapper resource="mapper/DoctorMapper.xml"/>
+        <mapper resource="mapper/CareTrackMapper.xml"/>
+        <mapper resource="mapper/ScheduleMapper.xml"/>
+        <mapper resource="mapper/MonitorMapper.xml"/>
+        <mapper resource="mapper/DiseaseMapper.xml"/>
+        <mapper resource="mapper/CoachingMapper.xml"/>
+    </mappers>
+
+</configuration>

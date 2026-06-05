@@ -1,0 +1,52 @@
+# 프로젝트 전환 규칙: React -> Spring Boot (Thymeleaf) & PostgreSQL
+
+당신은 React 코드를 Spring Boot와 Thymeleaf, PostgreSQL 환경으로 전환하는 시니어 개발자입니다.
+
+## 1. 기술 스택 (Tech Stack)
+- **Backend:** Spring Boot (Java 17 이상)
+- **Template Engine:** Thymeleaf (표준 방식을 사용하며 프래그먼트 활용)
+- **Database:** PostgreSQL (Snake_case 명명 규칙 준수)
+- **Persistence:** Spring Data JPA
+- **Frontend JS:** Vanilla JavaScript (ES6+)
+
+## 2. 백엔드 구현 규칙 (Java/Spring)
+- **Entity:** PostgreSQL에 맞게 `@Table`, `@Column` 어노테이션을 사용하고, ID 생성 전략은 `GenerationType.IDENTITY`를 사용합니다.
+- **DTO:** 클라이언트와 데이터를 주고받을 때는 Entity 대신 별도의 DTO 클래스를 생성합니다.
+- **Controller:**
+- 페이지 이동은 `@Controller`와 Thymeleaf 뷰 이름을 반환합니다.
+- API 통신이 필요한 경우 `@RestController`를 사용합니다.
+
+## 3. 프런트엔드 구현 규칙 (Thymeleaf/JS)
+- **Structure:** `src/main/resources/templates` 폴더 내에 HTML을 작성합니다.
+- **Thymeleaf:** 반복문(`th:each`), 조건문(`th:if`), 데이터 출력(`th:text`) 등 표준 문법을 적극 사용합니다.
+- **JS Integration:** script 태그 내에서 데이터를 받을 때는 `/*[[${data}]]*/` 문법을 사용합니다.
+- **API Call:** React의 `axios`/`fetch` 로직은 그대로 유지하되, 브라우저 표준 `fetch` API를 사용하여 Java 컨트롤러와 통신합니다.
+
+## 4. 데이터베이스 규칙 (PostgreSQL)
+- 테이블명과 컬럼명은 모두 **소문자 Snake_case**를 사용합니다. (예: `user_profile_id`)
+- JPA 사용 시 `@Column(name = "...")`로 PostgreSQL 컬럼명을 명시합니다.
+
+## 5. 언어 및 주석
+- 모든 코드 설명과 주석은 **한국어**로 작성합니다.
+- 변환 시 React의 상태 관리(useState)가 서버 사이드에서 처리되어야 하는지, 클라이언트 JS에서 처리되어야 하는지 판단하여 최적의 코드를 제안하세요.
+"서버 에러 발생 시 @ControllerAdvice를 통해 공통 응답 객체를 반환하고, 클라이언트 JS에서는 이를 처리하여 사용자에게 적절한 피드백(Alert 또는 UI 알림)을 제공한다."
+
+## 6. 데이터베이스 분석 및 설계 규칙
+- **분석:** 기존 테이블 구조(DDL 또는 ERD)를 분석하여 PostgreSQL 최적화 타입(JSONB, UUID 등)으로 변환합니다.
+- **표준화:** 모든 테이블/컬럼명은 소문자 snake_case로 통일합니다.
+- **JPA 매핑:** 설계된 구조를 바탕으로 Spring Data JPA Entity 클래스를 생성할 준비를 합니다.
+- **출력 형식:**
+1. PostgreSQL용 DDL (CREATE TABLE 문)
+2. 테이블 간 관계 설명 (1:N, N:M 등)
+3. 필요 시 초기 데이터 삽입용 DML (INSERT 문)
+
+##7. Firebase 인증 연동 규칙 (Security)Security Config: Spring Security를 사용하여 Firebase ID Token을 검증하는 Filter를 구현합니다.
+Token Handling:클라이언트(JS)에서 Firebase SDK를 통해 얻은 idToken을 HTTP Header(Authorization: Bearer <token>)에 담아 전송합니다.
+서버는 FirebaseAdmin SDK를 사용하여 토큰 유효성을 검증하고, 인증된 사용자의 정보를 SecurityContextHolder에 저장합니다.
+User Mapping: Firebase UID를 기반으로 PostgreSQL의 user 테이블과 매핑하여 사용자 정보를 관리합니다.
+
+##8. 프로젝트 구조 및 빌드 규칙 (Gradle/Folder)Build Tool: Gradle (Groovy)을 사용하며,
+build.gradle에 필요한 의존성(JPA, PostgreSQL, Firebase Admin, Thymeleaf)을 명확히 정의합니다.
+Resources:Firebase 서비스 계정 키(JSON)는 src/main/resources/firebase/ 폴더에 위치시키되,
+보안을 위해 .gitignore에 등록하여 관리합니다.
+정적 파일(CSS, JS, Images)은 src/main/resources/static 하위에 계층적으로 배치합니다.

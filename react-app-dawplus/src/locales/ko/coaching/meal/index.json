@@ -1,0 +1,13 @@
+{
+  "title": "식습관코칭 시작하기",
+  "header_description": "카마코치와 함께 건강한 식습관을 만들어 보세요.",
+  "journey_title": "식습관코칭 여정",
+  "progress_label": "식습관 코칭 진행도",
+  "cta_start": "식습관코칭 시작하기",
+  "cta_view": "내가 했던 답변 보기",
+  "confirm_title_prefix": "어제의 미션,",
+  "confirm_title_suffix": "잘 실천하셨나요?",
+  "confirm_body": "작은 실천이 모여 건강한 식습관을 만들어요.",
+  "confirm_complete": "미션을 완료했어요!",
+  "confirm_retry": "오늘 다시도전"
+}

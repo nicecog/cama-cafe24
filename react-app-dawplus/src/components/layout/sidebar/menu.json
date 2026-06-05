@@ -1,0 +1,63 @@
+[
+  {
+    "id": 1,
+    "menuNm": "상위메뉴 1",
+    "url": "",
+    "children": [
+      {
+        "id": 2,
+        "menuNm": "게시판",
+        "url": "/notice"
+      },
+      {
+        "id": 10,
+        "menuNm": "Reporting",
+        "url": "/reporting"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "menuNm": "상위메뉴 2",
+    "url": "",
+    "children": [
+      {
+        "id": 4,
+        "menuNm": "UI Components",
+        "url": "/ui"
+      },
+      {
+        "id": 4,
+        "menuNm": "Excel",
+        "url": "/excel"
+      },
+      {
+        "id": 5,
+        "menuNm": "Table",
+        "url": "/table"
+      },
+      {
+        "id": 6,
+        "menuNm": "Form",
+        "url": "/form"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "menuNm": "상위메뉴 3",
+    "url": "",
+    "children": [
+      {
+        "id": 8,
+        "menuNm": "CNT",
+        "url": "/cnt"
+      },
+      {
+        "id": 8,
+        "menuNm": "하위메뉴 3-2",
+        "url": "/7"
+      }
+    ]
+  }
+]

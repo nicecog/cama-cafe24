@@ -1,0 +1,32 @@
+{
+  "title": "Sleep Habit Guide",
+  "tts": {
+    "step1": "What matters most to you to live a more fulfilling life?",
+    "step2": "Healthy sleep is the foundation of a fulfilling life. Good sleep habits help you live well and make it easier to enjoy precious family time, financial breathing room, an energetic daily routine, emotional stability, and physical health.",
+    "step3": "Take a moment to reaffirm your commitment to healthy sleep habits. Answer how important sleep habits are, and write one small action you can take today."
+  },
+  "step1": {
+    "description_001": "For the next 16 days, we will continue the 'Build Healthy Sleep Habits' project.",
+    "description_002": "To build healthy sleep habits, you first need to think about the values and goals that matter most in your life."
+  },
+  "step2": {
+    "title": "Hello, I am your sleep coach.",
+    "subtitle": "Healthy sleep becomes the <1>foundation of a fulfilling life</1>.",
+    "body": "Good sleep habits help you live a healthy life and make it easier to realize many important values in life, such as time with family, financial flexibility, an active daily routine, emotional stability, and physical health."
+  },
+  "step3": {
+    "mission": "Revisit your values and commit to building healthy sleep habits",
+    "value_text": "The life value that matters to {{name}} is",
+    "value_suffix": ".",
+    "slider_label": "How important is sleep habit for the life you want, {{name}}?",
+    "question": "What can you do today to change your sleep habits?",
+    "example": "(e.g. cut down on coffee)",
+    "placeholder": "Write one small action you can take today",
+    "closing": "If you start with a small action you can do right now, in 16 days you’ll find yourself with healthier sleep habits.",
+    "toast": {
+      "select_required": "Please select an answer or enter text.",
+      "action_required": "Please enter one action you can do today.",
+      "saved": "Saved."
+    }
+  }
+}

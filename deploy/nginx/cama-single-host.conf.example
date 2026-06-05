@@ -1,0 +1,56 @@
+# /etc/nginx/sites-available/cama
+# server_name 을 실제 무료도메인으로 변경 (예: happycog.mycafe24.com)
+
+server {
+    listen 80;
+    server_name camaplus.cafe24.com;
+    # Billive JWT 헤더(api_key) — nginx 기본값은 underscore 헤더 무시
+    underscores_in_headers on;
+    client_max_body_size 40m;
+
+    # 카페24 무료도메인 HTTPS가 프론트에서 처리되는 경우 80만 쓸 수 있음.
+    # VPS에서 직접 TLS 종료 시 listen 443 ssl; 블록 추가 (certbot).
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /files/ {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /proxy/ {
+        proxy_pass http://127.0.0.1:8081;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header api_key $proxy_api_key;
+        proxy_set_header Authorization $http_authorization;
+        client_max_body_size 40m;
+    }
+
+    location /actuator/ {
+        proxy_pass http://127.0.0.1:8081;
+        proxy_set_header Host $host;
+    }
+
+    # ── react-app-dawplus — deploy/nginx/cama-patient-spa-locations.conf (전체 블록 복사) ──
+
+    location / {
+        proxy_pass http://127.0.0.1:8081;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

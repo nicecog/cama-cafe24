@@ -1,0 +1,22 @@
+# 로컬 Gabia-like 개발용 PostgreSQL (운영 RDS PG 15와 호환)
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: cama-local-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cama
+      POSTGRES_PASSWORD: cama_local_dev
+      POSTGRES_DB: cama
+    ports:
+      - "55432:5432"
+    volumes:
+      - cama_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cama -d cama"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  cama_pg_data:

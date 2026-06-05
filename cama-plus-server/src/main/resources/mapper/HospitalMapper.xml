@@ -1,0 +1,141 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cama.back.mapper.HospitalMapper">
+
+    <select id="getAdminHospitalListCount" resultType="java.lang.Integer">
+        SELECT COUNT(ch.*) from cm_hospital ch
+        <where>
+            ch.is_enabled
+            <if test='searchText != null and searchText != ""'>
+                AND (ch.name ILIKE CONCAT('%', #{searchText}, '%') OR ch.name ILIKE CONCAT('%', #{searchText}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <select id="getAdminHospitalList" resultType="com.cama.back.dto.hospital.HospitalRsp">
+        select ch.seq,
+        ch.name,
+        ch.address,
+        ch.corp_number,
+        ch.homepage,
+        ch.prof_name,
+        ch.prof_email,
+        ch.prof_major,
+        ch.prof_phone,
+        to_char(cast(ch.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
+        from cm_hospital ch
+        <where>
+            ch.is_enabled
+            <if test='searchText != null and searchText != ""'>
+                AND (ch.name ILIKE CONCAT('%', #{searchText}, '%') OR ch.name ILIKE CONCAT('%', #{searchText}, '%'))
+            </if>
+        </where>
+        ORDER BY ch.seq DESC
+        <if test='paging == true'>
+            LIMIT #{pagination.endNum} OFFSET #{pagination.startNum}
+        </if>
+    </select>
+
+    <select id="getHospitalListCount" resultType="java.lang.Integer">
+        SELECT COUNT(ch.*) from cm_hospital ch
+        <where>
+            ch.is_enabled
+        </where>
+    </select>
+
+    <select id="getHospitalList" resultType="com.cama.back.dto.hospital.HospitalRsp">
+        select ch.seq,
+        ch.name,
+        ch.address,
+        ch.corp_number,
+        ch.homepage,
+        ch.prof_name,
+        ch.prof_email,
+        ch.prof_major,
+        ch.prof_phone,
+        to_char(cast(ch.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
+        from cm_hospital ch
+        <where>
+            ch.is_enabled
+        </where>
+        ORDER BY ch.seq DESC
+        <if test='paging == true'>
+            LIMIT #{pagination.endNum} OFFSET #{pagination.startNum}
+        </if>
+    </select>
+
+    <select id="getHospitalDetail" resultType="com.cama.back.dto.hospital.HospitalRsp">
+        select ch.seq,
+        ch.name,
+        ch.address,
+        ch.corp_number,
+        ch.homepage,
+        ch.prof_name,
+        ch.prof_email,
+        ch.prof_major,
+        ch.prof_phone,
+        to_char(cast(ch.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
+        from cm_hospital ch
+        <where>
+            ch.is_enabled
+            AND ch.seq = #{seq}
+        </where>
+    </select>
+
+    <select id="getHospitalDoctorList" resultType="com.cama.back.dto.hospital.HospitalDoctorRsp">
+        select dt.seq as doctorSeq,
+        dt.name as doctorName,
+        ch.seq as hospitalSeq,
+        ch.name as hospitalName,
+        dp.seq as departmentSeq,
+        dp.name as departmentName
+        from
+        cm_doctor dt left join cm_hospital ch on ch.seq = dt.hospital_seq and ch.is_enabled
+        left join cm_department dp on dp.seq = dt.department_seq and dp.is_enabled
+        <where>
+            dt.is_enabled
+            AND ch.seq = #{seq}
+        </where>
+        ORDER BY dt.seq DESC
+    </select>
+
+    <select id="getMyHospitalInfo" resultType="com.cama.back.dto.account.AccountHospitalRsp">
+        SELECT hs.hospital_seq, ch.name as hospitalName
+               from hospital_service hs left join cm_hospital ch on ch.seq = hs.hospital_seq
+        <where>
+            hs.account_seq = #{acSeq} AND hs.is_enabled
+        </where>
+        group by hs.hospital_seq, ch.name
+    </select>
+
+    <select id="getHospitalDiseaseList" resultType="com.cama.back.dto.hospital.HpDiseaseRsp">
+        SELECT hd.seq, hd.disease_seq, cd.name as diseaseName
+            from hp_disease hd join cm_disease cd on cd.seq = hd.disease_seq and cd.is_enabled
+        <where>
+            hd.hospital_seq = #{hSeq} AND hd.is_enabled
+        </where>
+        <if test='type != "A"'>
+			AND hd.disease_seq != 8
+		</if>
+        order by hd.seq
+    </select>
+
+    <select id="getHospitalDiseaseOptionList" resultType="com.cama.back.dto.hospital.HpDiseaseOptionRsp">
+        SELECT op.seq, op.group_name, op.option_name
+        from hp_disease_option op
+        <where>
+            op.hp_disease_seq = #{seq} AND op.is_enabled
+        </where>
+        order by op.sort
+    </select>
+
+    <select id="getHospitalDiseaseTreatmentList" resultType="com.cama.back.dto.hospital.HpTreatmentRsp">
+        SELECT mm.seq, mm.name, mm.treatment_period
+        from hp_disease_treatment mm
+        <where>
+            mm.hp_disease_seq = #{seq} AND mm.is_enabled
+        </where>
+        order by mm.sort
+    </select>
+
+</mapper>

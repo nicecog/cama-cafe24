@@ -1,0 +1,1 @@
+# SPRING_PROFILES_ACTIVE=cloudrun — application.yml 의 profiles.group.cloudrun → production

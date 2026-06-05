@@ -1,0 +1,30 @@
+{
+  "msg_001": "Day 4 - Worries and Stress",
+  "tts": {
+    "msg_001": "Starting today, let's build habits that help your sleep.",
+    "msg_002": "Set your worries and thoughts aside for a moment.",
+    "msg_003": "Try focusing on your breathing while in bed."
+  },
+  "step1": {
+    "msg_001": "Starting today, let's build habits that help your sleep.",
+    "msg_002": "How many hours did you sleep yesterday?",
+    "msg_003": "Please record your sleep time first.",
+    "msg_004": "How was your sleep quality yesterday?",
+    "msg_005": "Choose a score from 0 to 10."
+  },
+  "step2": {
+    "msg_001": "Worries and Thoughts",
+    "msg_002": "You may be dealing with stress from treatment and worries about the future.",
+    "msg_003": "When you lie down, those thoughts may rush in even more.",
+    "msg_004": "But getting lost in those thoughts in bed can interfere with sleep a lot.",
+    "msg_005": "If thoughts come up when you are trying to sleep, focus on your breathing.",
+    "msg_006": "Simply paying attention to your breath can reduce unnecessary thoughts and help you fall asleep more easily.",
+    "msg_007": "If there is an important worry you need to think through, jot it down at a desk 2 to 3 hours before bedtime."
+  },
+  "step3": {
+    "msg_001": "Lie down and focus on your breathing",
+    "msg_002": "When thoughts come up in bed,",
+    "msg_003": "pay attention to your inhale and exhale.",
+    "msg_004": "As you focus on your breathing, your thoughts will gradually fade and your mind will feel calmer. Before long, sleep will come naturally."
+  }
+}

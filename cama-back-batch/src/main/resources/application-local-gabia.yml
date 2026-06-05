@@ -1,0 +1,40 @@
+# 로컬 PC — cama-plus-server local-gabia 와 동일 Docker PostgreSQL
+# 실행: scripts/run-local-gabia.ps1
+
+server:
+  port: ${SERVER_PORT:8082}
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://127.0.0.1:55432/cama}
+    username: ${DB_USER:cama}
+    password: ${DB_PASSWORD:cama_local_dev}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 3
+      minimum-idle: 1
+      connection-timeout: 10000
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    show-sql: false
+    open-in-view: false
+
+firebase:
+  credentials-path: ${FIREBASE_CREDENTIALS_PATH:}
+
+cama:
+  batch:
+    slack:
+      enabled: false
+    fcm:
+      dry-run: true
+
+logging:
+  level:
+    root: INFO
+    com.cama.batch: DEBUG
