@@ -5,6 +5,7 @@ import {
   readStoredWebviewSession,
   setAuthSessionAtom,
 } from "@/atoms/authSessionAtom";
+import { isDevAuthBypassEnabled } from "@/lib/devAuth";
 import { getTokenEncryptedStorage } from "@/lib/encryptedStorage";
 import { isReactNativeWebView } from "@/lib/webview/rnBridge";
 
@@ -49,10 +50,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const isAuthReady = hasToken !== null;
   const inNativeWebView = isReactNativeWebView();
+  const devAuthBypassEnabled = isDevAuthBypassEnabled();
   const isAuthenticated =
     isAuthReady &&
     !!session?.loginId &&
-    (!!hasToken || inNativeWebView);
+    (!!hasToken || inNativeWebView || devAuthBypassEnabled);
 
   const logout = React.useCallback(async () => {
     const { removeTokenEncryptedStorage } = await import(

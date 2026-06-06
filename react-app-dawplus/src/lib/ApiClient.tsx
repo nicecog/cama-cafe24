@@ -6,10 +6,13 @@ import { currentStage, resolveApiBaseUrl } from "@/config/stage";
 // Jotai store
 const store = getDefaultStore();
 
+const API_BASE_URL = import.meta.env.DEV
+  ? window.location.origin
+  : import.meta.env.VITE_API_SERVER || resolveApiBaseUrl(currentStage);
+
 // Ky 기본 설정
 const defaultConfig: Options = {
-  prefixUrl:
-    import.meta.env.VITE_API_SERVER || resolveApiBaseUrl(currentStage),
+  prefixUrl: API_BASE_URL,
   headers: {
     accept: "application/json",
     "Content-Type": "application/json",

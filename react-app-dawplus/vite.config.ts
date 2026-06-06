@@ -21,7 +21,11 @@ export default ({ mode }: { mode: string }): UserConfig => {
             target: env.VITE_API_SERVER,
             changeOrigin: true,
             secure: false,
-            rewrite: (path: string) => path.replace(/^\/api/, ""),
+            configure: (proxy) => {
+              proxy.on("proxyReq", (proxyReq) => {
+                proxyReq.removeHeader("origin");
+              });
+            },
           },
         }
       : {}; // dev 모드가 아닐 때는 프록시 설정을 빈 객체로 둠

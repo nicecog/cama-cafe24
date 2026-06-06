@@ -29,12 +29,6 @@ function RouteComponent() {
     errorMessage: "저장 중 오류가 발생했습니다.",
   });
   const { mutateAsync: saveCoachingStep } = useSaveCoachingStep();
-  const exerciseTypes = [
-    pt("MSG_015"),
-    pt("MSG_016"),
-    pt("MSG_017"),
-    pt("MSG_018"),
-  ];
 
   const [step1, setStep1] = useState({
     type: "",
@@ -126,12 +120,8 @@ function RouteComponent() {
         }
         showFooter
       >
-        <Day8Step1
-          step1={step1}
-          setStep1={setStep1}
-          exerciseTypes={exerciseTypes}
-        />
-        <Day8Step2 />
+        <Day8Step1 step1={step1} setStep1={setStep1} />
+        <Day8Step2 step1={step1} />
         <Day8Step3 />
       </DayStepFlow>
       <StepCountPopup

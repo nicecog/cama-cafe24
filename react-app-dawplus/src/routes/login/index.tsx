@@ -2,19 +2,33 @@ import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { Eye, EyeClosed } from "lucide-react";
 import * as React from "react";
 import { z } from "zod";
-import { useAuth } from "@/auth";
 import { readStoredWebviewSession } from "@/atoms/authSessionAtom";
-import { isReactNativeWebView } from "@/lib/webview/rnBridge";
+import { useAuth } from "@/auth";
 import SplitText from "@/components/SplitText";
 import { Input } from "@/components/ui/Input";
 import { usePatientSession } from "@/hooks/auth/usePatientSession";
 import { useToast } from "@/hooks/use-toast";
+import { getDevAuthBypassLoginId, isDevAuthBypassEnabled } from "@/lib/devAuth";
+import { bootstrapWebviewSession } from "@/lib/webview/bootstrapSession";
+import { isReactNativeWebView } from "@/lib/webview/rnBridge";
 
 export const Route = createFileRoute("/login/")({
   validateSearch: z.object({
     redirect: z.string().optional().catch(""),
   }),
-  beforeLoad: ({ context, search }) => {
+  beforeLoad: async ({ context, search }) => {
+    const devBypassLoginId = getDevAuthBypassLoginId();
+    if (devBypassLoginId) {
+      await bootstrapWebviewSession(devBypassLoginId);
+      throw redirect({
+        to: search.redirect || import.meta.env.VITE_DEFAULT_PAGE,
+      });
+    }
+    if (isDevAuthBypassEnabled()) {
+      throw redirect({
+        to: search.redirect || import.meta.env.VITE_DEFAULT_PAGE,
+      });
+    }
     if (context.auth.isAuthenticated) {
       throw redirect({
         to: search.redirect || import.meta.env.VITE_DEFAULT_PAGE,
@@ -121,7 +135,10 @@ function LoginComponent() {
             textAlign="center"
           />
         </div>
-        <form className="flex flex-col space-y-5 sm:space-y-5 mt-8" onSubmit={onFormSubmit}>
+        <form
+          className="flex flex-col space-y-5 sm:space-y-5 mt-8"
+          onSubmit={onFormSubmit}
+        >
           <div className="relative">
             <Input
               autoComplete="username"

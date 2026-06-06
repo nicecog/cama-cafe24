@@ -1,0 +1,441 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "oneMobile";
+  src: url("./assets/font/ONEMobilePOP.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "scDream";
+  src: url("./assets/font/SCDream4.otf") format("truetype");
+}
+@font-face {
+  font-family: "notoR";
+  src: url("./assets/font/NotoSansKR-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "notoB";
+  src: url("./assets/font/NotoSans-Bold.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "gmarket";
+  src: url("./assets/font/GmarketSansTTFMedium.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+html {
+  font-family: "scDream";
+}
+* {
+  letter-spacing: -0.36pt;
+}
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+.messageTitle {
+  @apply text-[26px] font-bold text-camaBlueLight mt-4 text-center;
+}
+
+/* BUTTON CSS */
+
+.buttons.default {
+  @apply focus:outline-none text-white bg-[#3c8dbc] hover:bg-[#367fa9] font-bold rounded inline-flex items-center text-xs px-4 py-1.5 me-1;
+}
+.buttons.default.disabled {
+  @apply bg-[#3c8dbc]/80 cursor-not-allowed;
+}
+.buttons.green {
+  @apply focus:outline-none text-white bg-[#57b157] hover:bg-[#408f3c] font-bold rounded inline-flex items-center text-xs px-4 py-1.5 me-1;
+}
+.buttons.green.disabled {
+  @apply bg-[#57b157]/80 cursor-not-allowed opacity-80;
+}
+.buttons.red {
+  @apply focus:outline-none text-white bg-red-700 hover:bg-red-800  font-bold rounded inline-flex items-center text-xs px-4 py-1.5 me-1;
+}
+.buttons.red.disabled {
+  @apply bg-red-300 cursor-not-allowed;
+}
+.buttons.yellow {
+  @apply focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500  font-bold rounded inline-flex items-center text-xs px-4 py-2 me-1;
+}
+.buttons.yellow.disabled {
+  @apply bg-yellow-300 cursor-not-allowed;
+}
+.buttons.gray {
+  @apply focus:outline-none text-white bg-[#666] hover:bg-[#555] font-bold rounded inline-flex items-center text-xs px-4 py-1.5 me-1;
+}
+.buttons.gray.disabled {
+  @apply bg-[#666]/80 cursor-not-allowed opacity-80;
+}
+.buttons.dark {
+  @apply focus:outline-none text-white bg-[#333] hover:bg-[#000] font-bold rounded inline-flex items-center text-xs px-3 py-1.5 me-1;
+}
+.buttons.dark.disabled {
+  @apply bg-[#333]/80 cursor-not-allowed opacity-80;
+}
+
+/* AGGRID CSS */
+
+.ag-center-cols-viewport {
+  min-height: unset !important;
+}
+
+.ag-cell-label-container {
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.ag-header-cell-label {
+  font-family: "scDream";
+  justify-content: center;
+}
+.ag-paging-page-size {
+  position: absolute;
+  left: 10px;
+  margin-left: 0px !important;
+}
+.ag-paging-panel {
+  justify-content: center !important;
+}
+.ag-cell-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.ag-paging-row-summary-panel {
+  position: absolute;
+  right: 20px;
+  margin-right: 0px !important;
+}
+
+.ag-body {
+  font-family: "scDream";
+  font-size: 12.5px;
+  position: relative !important;
+  top: auto !important;
+  height: auto !important;
+}
+
+.ag-header {
+  position: relative !important;
+}
+
+.ag-floating-top {
+  position: relative !important;
+  top: auto !important;
+}
+
+.ag-floating-bottom {
+  position: relative !important;
+  top: auto !important;
+}
+
+& > div,
+.ag-bl-normal-east,
+.ag-bl-normal,
+.ag-bl-normal-center,
+.ag-bl-normal-center-row,
+.ag-bl-full-height,
+.ag-bl-full-height-center,
+.ag-pinned-left-cols-viewport,
+.ag-pinned-right-cols-viewport,
+.ag-body-viewport-wrapper,
+.ag-body-viewport {
+  height: auto !important;
+}
+.ag-header-cell {
+  /* padding: 0px !important; */
+}
+
+/* DATEPICKER CSS */
+
+/* .datepickerCustom {
+  @apply relative duration-300 py-1.5 pl-3 pr-8 w-full border-gray-300 rounded-sm text-xs placeholder-gray-400 bg-white disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20;
+} */
+
+/* SCROLLBAR CSS */
+
+@keyframes move {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+}
+
+.animate-blob {
+  animation: move 8s ease-in-out infinite;
+}
+
+div.hideToolbar div.ql-container.ql-snow {
+  border: 0px;
+}
+div.hideToolbar div.ql-toolbar {
+  display: none;
+}
+
+div.xs .ql-editor {
+  padding: 20px;
+  font-size: 14px;
+}
+div.sm .ql-editor {
+  padding: 20px;
+  font-size: 16px;
+}
+div.md .ql-editor {
+  padding: 20px;
+  font-size: 18px;
+}
+div.lg .ql-editor {
+  padding: 20px;
+  font-size: 20px;
+}
+div.xl .ql-editor {
+  padding: 20px;
+  font-size: 22px;
+}
+div.xxl .ql-editor {
+  padding: 20px;
+  font-size: 24px;
+}
+div.xxxl .ql-editor {
+  padding: 20px;
+  font-size: 26px;
+}
+div.xxxxl .ql-editor {
+  padding: 20px;
+  font-size: 28px;
+}
+
+.example-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.grid-wrapper {
+  flex: 1 1 0px;
+  width: 100%;
+}
+
+#myGrid {
+  height: 100%;
+}
+.range {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 100%;
+  margin: auto;
+  display: block;
+  margin-top: 35px;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
+  border-radius: 10px;
+
+  background: linear-gradient(to right, #feba00, #fe8825);
+  height: 7.5px;
+}
+
+input[type="range"]::-moz-range-track {
+  -moz-appearance: none;
+  background: linear-gradient(to right, #feba00, #fe8825);
+  height: 2.5px;
+}
+
+input[type="range"]:focus {
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  border: 2px solid;
+  border-radius: 50%;
+  height: 18px;
+  width: 18px;
+  max-width: 80px;
+  position: relative;
+  bottom: 5px;
+  background-color: white;
+  cursor: -webkit-grab;
+  -webkit-transition: border 1000ms ease;
+  transition: border 1000ms ease;
+}
+
+input[type="range"]::-moz-range-thumb {
+  -moz-appearance: none;
+  border: 2px solid;
+  border-radius: 50%;
+  height: 25px;
+  width: 25px;
+  max-width: 80px;
+  position: relative;
+  bottom: 11px;
+  background-color: white;
+  cursor: -moz-grab;
+  -moz-transition: border 1000ms ease;
+  transition: border 1000ms ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+  cursor: -webkit-grabbing;
+}
+
+input[type="range"]::-moz-range-thumb:active {
+  cursor: -moz-grabbing;
+}
+
+.bubble {
+  position: relative;
+  line-height: 24px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 24px;
+  color: #555555;
+}
+
+.bubble-bottom-right:before {
+  content: "";
+  width: 0px;
+  height: 0px;
+  position: absolute;
+  border-left: 24px solid #fff;
+  border-right: 12px solid transparent;
+  border-top: 12px solid #fff;
+  border-bottom: 20px solid transparent;
+  right: 52px;
+  bottom: -24px;
+}
+
+.bubble2 {
+  position: relative;
+  line-height: 24px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 15px 20px 15px 20px;
+  color: #555555;
+}
+.bubble-bottom-right2:before {
+  content: "";
+  width: 0px;
+  height: 0px;
+  position: absolute;
+  border-left: 20px solid #fff;
+  border-right: 12px solid transparent;
+  border-top: 12px solid #fff;
+  border-bottom: 17px solid transparent;
+  right: 5px;
+  bottom: -15px;
+}
+
+/* .hidden-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hidden-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hidden-scrollbar::-webkit-scrollbar {
+  display: none;
+} */
+
+/* 기본 스크롤바 스타일 */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+::-webkit-scrollbar-button {
+  background: #ccc;
+  display: none;
+}
+
+::-webkit-scrollbar-track-piece {
+  background: #efefef;
+  border-radius: 100px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #999;
+  border-radius: 100px;
+}
+.scrollbar {
+  overflow-y: scroll; /* 스크롤이 필요할 때만 나타나도록 설정 */
+}
+
+.scrollbar::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  background-color: rgba(200, 200, 200, 0.5); /* 더 연한 회색 배경 */
+  opacity: 0; /* 기본적으로 숨기기 */
+  transition: opacity 0.3s; /* 서서히 나타나는 효과 */
+}
+
+.scrollbar:hover::-webkit-scrollbar {
+  opacity: 1; /* 스크롤바를 보여줌 */
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background: #e9eff4;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  width: 5px;
+  height: 5px;
+  background: #caced8;
+  border-radius: 100px;
+  border: 4px solid rgba(233, 239, 244, 1);
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #caced8;
+}
+
+/* 
+* {
+  scrollbar-width: none; 
+  -ms-overflow-style: none; 
+}
+
+*::-webkit-scrollbar {
+  display: none; 
+}
+
+
+* :hover {
+  scrollbar-width: thin; 
+}
+
+* :hover::-webkit-scrollbar {
+  display: block; 
+} */
+.react-datepicker-popper {
+  z-index: 2 !important;
+}

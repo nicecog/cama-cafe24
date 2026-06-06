@@ -1,0 +1,523 @@
+[
+  {
+    "name": "1. bracing exercise",
+    "korName": "브레이싱 호흡",
+    "exe": "10회 3세트",
+    "url": "https://www.youtube.com/shorts/19SBsTf5v30",
+    "type": "E1",
+    "difficulty": "A1"
+  },
+  {
+    "name": "2. open arm breathing",
+    "korName": "팔 벌리며 숨쉬기",
+    "exe": "10회 3세트",
+    "url": "https://www.youtube.com/shorts/GhP1mMzMiK0",
+    "type": "E1",
+    "difficulty": "A1"
+  },
+  {
+    "name": "3. supine knee flexion & extension",
+    "korName": "누워서 무릎 세우기",
+    "exe": "양쪽 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/zznF2BR8r7Q",
+    "type": "E1",
+    "difficulty": "A1"
+  },
+  {
+    "name": "4. supine knee fall out",
+    "korName": "누워서 무릎 세우고 다리 벌렸다 오므리기",
+    "exe": "10회 3세트",
+    "url": "https://www.youtube.com/shorts/tBSs93EHnAw",
+    "type": "E1",
+    "difficulty": "A1"
+  },
+
+  {
+    "name": "1. bridge hold",
+    "korName": "누워서 엉덩이 들고 버티기",
+    "exe": "10초 3세트",
+    "url": "https://www.youtube.com/shorts/yihgEqnLEYk",
+    "type": "E1",
+    "difficulty": "A2"
+  },
+  {
+    "name": "2. side lying clamshell hold",
+    "korName": "옆으로 누워 무릎 들고 버티기",
+    "exe": "양쪽 각 10초 3세트",
+    "url": "https://www.youtube.com/shorts/YUnkM8BhLxo",
+    "type": "E1",
+    "difficulty": "A2"
+  },
+  {
+    "name": "3. wall push hold",
+    "korName": "벽에서 양 손바닥 대고 버티기",
+    "exe": "10초 3세트",
+    "url": "https://www.youtube.com/shorts/M_hWh6TD4uE",
+    "type": "E1",
+    "difficulty": "A2"
+  },
+  {
+    "name": "4. wall sit",
+    "korName": "벽 기대고 앉기",
+    "exe": "10초 3세트",
+    "url": "https://www.youtube.com/shorts/kOnT_SF19VA",
+    "type": "E1",
+    "difficulty": "A2"
+  },
+
+  {
+    "name": "1. bridge exercise",
+    "korName": "브릿지 운동",
+    "exe": "10회 3세트",
+    "url": "https://www.youtube.com/shorts/p0svpWW90go",
+    "type": "E1",
+    "difficulty": "A3"
+  },
+  {
+    "name": "2. side lying leg lift",
+    "korName": "옆으로 누워 다리 들기",
+    "exe": "양쪽 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/Zz35cJyki4w",
+    "type": "E1",
+    "difficulty": "A3"
+  },
+  {
+    "name": "3. wall push hiphinge",
+    "korName": "벽에 손바닥 대고 힙힌지 하기",
+    "exe": "10회 3세트",
+    "url": "https://www.youtube.com/shorts/hT47l82aAwQ",
+    "type": "E1",
+    "difficulty": "A3"
+  },
+  {
+    "name": "4. chair assisted squat",
+    "korName": "의자보조 스쿼트",
+    "exe": "10회 3세트",
+    "url": "https://www.youtube.com/shorts/2eN3ev_ju_E",
+    "type": "E1",
+    "difficulty": "A3"
+  },
+
+  {
+    "name": "1. abdominal breathing",
+    "korName": "복식호흡 하기",
+    "exe": "10회 3세트",
+    "url": "https://www.youtube.com/shorts/rNeeJgt5oEs",
+    "type": "E2",
+    "difficulty": "A1"
+  },
+  {
+    "name": "2. bend down breathing",
+    "korName": "허리 숙여 호흡",
+    "exe": "10회 3세트",
+    "url": "https://www.youtube.com/shorts/j9pud4KQBIo",
+    "type": "E2",
+    "difficulty": "A1"
+  },
+  {
+    "name": "3. front arm raise",
+    "korName": "정면으로 팔 들기",
+    "exe": "10회 3세트",
+    "url": "https://www.youtube.com/shorts/iS74CWUo1Yw",
+    "type": "E2",
+    "difficulty": "A1"
+  },
+  {
+    "name": "4. side arm raise",
+    "korName": "양옆으로 팔 벌려 들기",
+    "exe": "양쪽 각 10회 3세트 또는 10회 3세트",
+    "url": "https://www.youtube.com/shorts/BKRFfnO_Qps",
+    "type": "E2",
+    "difficulty": "A1"
+  },
+
+  {
+    "name": "1. sphinx pose",
+    "korName": "스핑크스 자세",
+    "exe": "10초 3세트",
+    "url": "https://www.youtube.com/shorts/aKHFOjl4lBE",
+    "type": "E2",
+    "difficulty": "A2"
+  },
+  {
+    "name": "2. shoulder elevation",
+    "korName": "어깨 으쓱하기",
+    "exe": "10초 3세트",
+    "url": "https://www.youtube.com/shorts/FurpZJ4K6P4",
+    "type": "E2",
+    "difficulty": "A2"
+  },
+  {
+    "name": "3. sit chest stretch",
+    "korName": "앉아서 손 짚고 가슴 펴기",
+    "exe": "10초 3세트",
+    "url": "https://www.youtube.com/shorts/VdYrenHEHdk",
+    "type": "E2",
+    "difficulty": "A2"
+  },
+  {
+    "name": "4. bent knee half sitting thoracic rotation",
+    "korName": "앉아서 흉추 회전하기",
+    "exe": "양쪽 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/eO-MSJXIhEk",
+    "type": "E2",
+    "difficulty": "A2"
+  },
+
+  {
+    "name": "1. shoulder external rotation",
+    "korName": "어깨 외회전하기",
+    "exe": "10회 3세트",
+    "url": "https://www.youtube.com/shorts/fb37UPHbqbo",
+    "type": "E2",
+    "difficulty": "A3"
+  },
+  {
+    "name": "2. shoulder rolls",
+    "korName": "어깨 앞뒤로 돌리기",
+    "exe": "앞뒤 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/paJDu5byAGc",
+    "type": "E2",
+    "difficulty": "A3"
+  },
+  {
+    "name": "3. I/Y/T raise",
+    "korName": "I/Y/T 방향으로 팔 들기",
+    "exe": "각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/P1yFAVlplNM",
+    "type": "E2",
+    "difficulty": "A3"
+  },
+  {
+    "name": "4. trunk twist",
+    "korName": "몸통 돌리기",
+    "exe": "10회 3세트",
+    "url": "https://www.youtube.com/shorts/w4DS6Exq9lk",
+    "type": "E2",
+    "difficulty": "A3"
+  },
+
+  {
+    "name": "1. neck rotation",
+    "korName": "목 좌우 회전",
+    "exe": "양쪽 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/19Mlit31bck",
+    "type": "E3",
+    "difficulty": "A1"
+  },
+  {
+    "name": "2. neck side bend",
+    "korName": "목 옆으로 구부리기",
+    "exe": "양쪽 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/GrN7jSIAQUQ",
+    "type": "E3",
+    "difficulty": "A1"
+  },
+  {
+    "name": "3. finger wall walk",
+    "korName": "손가락으로 벽 걸어 팔 올리기",
+    "exe": "양쪽 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/LQstvGU1WNo",
+    "type": "E3",
+    "difficulty": "A1"
+  },
+  {
+    "name": "4. side bend",
+    "korName": "몸통 옆으로 구부리기",
+    "exe": "양쪽 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/6qanE6E_6wI",
+    "type": "E3",
+    "difficulty": "A1"
+  },
+
+  {
+    "name": "1. clasp hands front raise",
+    "korName": "깍지끼고 손 앞으로 들기",
+    "exe": "10초 3세트",
+    "url": "https://www.youtube.com/shorts/7KQveSPljaU",
+    "type": "E3",
+    "difficulty": "A2"
+  },
+  {
+    "name": "2. clasp hands behind back arm",
+    "korName": "손 뒤로 깍지끼기",
+    "exe": "10초 3세트",
+    "url": "https://www.youtube.com/shorts/3hi05-Jdejk",
+    "type": "E3",
+    "difficulty": "A2"
+  },
+  {
+    "name": "3. clasp behind head chest open",
+    "korName": "머리 뒤로 깍지 끼고 가슴 열기",
+    "exe": "10초 3세트",
+    "url": "https://www.youtube.com/shorts/V-Pd8xkJimE",
+    "type": "E3",
+    "difficulty": "A2"
+  },
+  {
+    "name": "4. isometric wall push",
+    "korName": "벽 밀며 버티기",
+    "exe": "10초 3세트",
+    "url": "https://www.youtube.com/shorts/8ULECcrep7c",
+    "type": "E3",
+    "difficulty": "A2"
+  },
+
+  {
+    "name": "1. front raise",
+    "korName": "팔 앞으로 들기",
+    "exe": "10회 3세트",
+    "url": "https://www.youtube.com/shorts/qzb9qAfxDgg",
+    "type": "E3",
+    "difficulty": "A3"
+  },
+  {
+    "name": "2. side lateral raise",
+    "korName": "팔 옆으로 들기",
+    "exe": "10회 3세트",
+    "url": "https://www.youtube.com/shorts/0X0FaZ5h7sc",
+    "type": "E3",
+    "difficulty": "A3"
+  },
+  {
+    "name": "3. arm circles",
+    "korName": "팔 옆으로 들어 돌리기",
+    "exe": "앞뒤 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/oQFJe0HnA24",
+    "type": "E3",
+    "difficulty": "A3"
+  },
+  {
+    "name": "4. wall push up",
+    "korName": "벽 손짚고 팔굽혀 펴기",
+    "exe": "10회 3세트",
+    "url": "https://www.youtube.com/shorts/cU4CV5f80ZA",
+    "type": "E3",
+    "difficulty": "A3"
+  },
+
+  {
+    "name": "1. shoulder pendulum",
+    "korName": "어깨 늘어뜨려 회전하기",
+    "exe": "양쪽 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/DXGa8qL7Ib0",
+    "type": "E4",
+    "difficulty": "A1"
+  },
+  {
+    "name": "2. shoulder elevation & depression",
+    "korName": "어깨 올렸다 내렸다 하기",
+    "exe": "10회 3세트",
+    "url": "https://www.youtube.com/shorts/X2ERBp0RS8I",
+    "type": "E4",
+    "difficulty": "A1"
+  },
+  {
+    "name": "3. wall scapular push-up",
+    "korName": "벽에 손짚고 견갑골 전인/후인 하기",
+    "exe": "10회 3세트",
+    "url": "https://www.youtube.com/shorts/eQFUtcg6kyk",
+    "type": "E4",
+    "difficulty": "A1"
+  },
+  {
+    "name": "4. chest reverse fly",
+    "korName": "가슴 열어주기",
+    "exe": "10회 3세트",
+    "url": "https://www.youtube.com/shorts/SPMdSGR2_T0",
+    "type": "E4",
+    "difficulty": "A1"
+  },
+
+  {
+    "name": "1. isometric neck flexion",
+    "korName": "손바닥으로 머리 막고 목 숙이기",
+    "exe": "10초 3세트",
+    "url": "https://www.youtube.com/shorts/WWydIfK4-fk",
+    "type": "E4",
+    "difficulty": "A2"
+  },
+  {
+    "name": "2. isometric neck extension",
+    "korName": "손바닥으로 머리 막고 목 들기",
+    "exe": "10초 3세트",
+    "url": "https://www.youtube.com/shorts/7mUKp6jsGRg",
+    "type": "E4",
+    "difficulty": "A2"
+  },
+  {
+    "name": "3. isometric neck side flexion",
+    "korName": "손바닥으로 머리 막고 목 옆으로 구부리기",
+    "exe": "양쪽 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/C-OmIL0LLDQ",
+    "type": "E4",
+    "difficulty": "A2"
+  },
+  {
+    "name": "4. isometric neck rotation",
+    "korName": "손바닥으로 머리 막고 목 회전하기",
+    "exe": "양쪽 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/idKK2nUDLhQ",
+    "type": "E4",
+    "difficulty": "A2"
+  },
+
+  {
+    "name": "1. scm stretch",
+    "korName": "목빗근 스트레칭",
+    "exe": "양쪽 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/XH1lQw7c540",
+    "type": "E4",
+    "difficulty": "A3"
+  },
+  {
+    "name": "2. neck extension with rotation",
+    "korName": "고개 들어 좌우 회전",
+    "exe": "양쪽 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/aykJwVYpNUE",
+    "type": "E4",
+    "difficulty": "A3"
+  },
+  {
+    "name": "3. neck flexion with rotation",
+    "korName": "고개 숙여 좌우 회전",
+    "exe": "양쪽 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/a8t_K8PRTjo",
+    "type": "E4",
+    "difficulty": "A3"
+  },
+  {
+    "name": "4. neck circles",
+    "korName": "목 돌리기",
+    "exe": "양쪽 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/knx21fnVnok",
+    "type": "E4",
+    "difficulty": "A3"
+  },
+
+  {
+    "name": "1. lying one arm raise",
+    "korName": "누워서 한 팔씩 들기",
+    "exe": "양쪽 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/5BPH377Erro",
+    "type": "E5",
+    "difficulty": "A1"
+  },
+  {
+    "name": "2. lying single leg raise",
+    "korName": "누워서 한 다리씩 구부린 채 들기",
+    "exe": "양쪽 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/8bWB94-yO7Y",
+    "type": "E5",
+    "difficulty": "A1"
+  },
+
+  {
+    "name": "1. deadbug position",
+    "korName": "누워서 팔다리 들고 버티기",
+    "exe": "10초 3세트",
+    "url": "https://www.youtube.com/shorts/G8qmM2Y6mmM",
+    "type": "E5",
+    "difficulty": "A2"
+  },
+  {
+    "name": "2. deadbug knee press",
+    "korName": "누워서 손바닥으로 무릎 밀기",
+    "exe": "10초 3세트",
+    "url": "https://www.youtube.com/shorts/0m4lngYkNzI",
+    "type": "E5",
+    "difficulty": "A2"
+  },
+
+  {
+    "name": "1. elbow to knee crunch",
+    "korName": "무릎 들어 반대 팔꿈치 터치하기",
+    "exe": "양쪽 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/7q-1JpVrkjY",
+    "type": "E5",
+    "difficulty": "A3"
+  },
+  {
+    "name": "2. side knee crunch",
+    "korName": "옆으로 무릎 들어 팔꿈치 터치하기",
+    "exe": "양쪽 각 10회 3세트",
+    "url": "https://www.youtube.com/shorts/eBIlnLq7VZQ",
+    "type": "E5",
+    "difficulty": "A3"
+  },
+
+  {
+    "name": "1. walking on place",
+    "korName": "제자리 걷기",
+    "exe": "60초 3세트",
+    "url": "https://www.youtube.com/shorts/8WfkYdXJDYA",
+    "type": "E6",
+    "difficulty": "A1"
+  },
+  {
+    "name": "2. side step",
+    "korName": "옆으로 걷기",
+    "exe": "60초 3세트",
+    "url": "https://www.youtube.com/shorts/eG-YHPBgJtw",
+    "type": "E6",
+    "difficulty": "A1"
+  },
+
+  {
+    "name": "1. walking on place - fast",
+    "korName": "제자리 빨리 걷기",
+    "exe": "60초 3세트",
+    "url": "https://www.youtube.com/shorts/f5DtZqjjM74",
+    "type": "E6",
+    "difficulty": "A2"
+  },
+  {
+    "name": "2. high knee walk on place",
+    "korName": "골반 높이까지 무릎 들며 걷기",
+    "exe": "60초 3세트",
+    "url": "https://www.youtube.com/shorts/bsoXrE04gow",
+    "type": "E6",
+    "difficulty": "A2"
+  },
+
+  {
+    "name": "1. running in place",
+    "korName": "제자리 달리기",
+    "exe": "60초 3세트",
+    "url": "https://www.youtube.com/shorts/aGzw59v8ASc",
+    "type": "E6",
+    "difficulty": "A3"
+  },
+  {
+    "name": "2. lateral shuffle",
+    "korName": "옆으로 뛰기",
+    "exe": "60초 3세트",
+    "url": "https://www.youtube.com/shorts/PIZIidWBDzU",
+    "type": "E6",
+    "difficulty": "A3"
+  },
+  {
+    "name": "breathing exercise",
+    "korName": "호흡운동",
+    "exe": "호흡운동",
+    "url": "https://youtu.be/XaEEpZdL2GE?si=GI_SJY98h8niJKXH",
+    "type": "E7",
+    "difficulty": "A1"
+  },
+  {
+    "name": "voice therapy",
+    "korName": "음성치료",
+    "exe": "음성치료",
+    "url": "https://youtu.be/D4ODa9NcXZo?si=GJLemRHjbJAUAE9n",
+    "type": "E8",
+    "difficulty": "A1"
+  },
+  {
+    "name": "Lymphedema Massage",
+    "korName": "음성치료",
+    "exe": "음성치료",
+    "url": "https://youtu.be/nOTHTgU91Jk?si=5Xy5u3o2mIjg580R",
+    "type": "E9",
+    "difficulty": "A1"
+  }
+]

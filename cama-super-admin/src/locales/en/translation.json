@@ -1,0 +1,384 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "welcomeMessage": " Welcome",
+    "login": "Login",
+    "logout": "Logout",
+    "logoutComment" : "Are you sure you want to logout?",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "confirm": "Confirm",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Successfully processed",
+    "korean": "Korean",
+    "english": "English",
+    "sidebar": {
+      "title": "CAMA DOCTOR Manager"
+    },
+    "idRequired" : "Please enter your ID",
+    "passwordRequired" : "Please enter your Password",
+    "welcomeText" : "Cama Doctor Manager"
+  },
+  "pagination": {
+    "itemRange": " ~ No",
+    "itemSuffix": "",
+    "itemPrefix": "No",
+    "first": "First",
+    "previous": "Previous",
+    "next": "Next",
+    "last": "Last",
+    "totalCount": "(Total {{count}} items)"
+  },
+  "menu": {
+    "patientManagement": "Patient Management",
+    "patientMonitoring": "Patient Monitoring",
+    "contentManagement": "Content Management",
+    "treatmentInfo": "Treatment Information",
+    "draftTreatment": "Draft Treatment",
+    "videoManagement": "Video Management",
+    "wellbeingResources": "Wellbeing Resources",
+    "bookmarkStats": "Bookmark Statistics",
+    "laboratory": "Laboratory",
+    "monitoring": "Monitoring",
+    "monthlyMetrics": "Monthly Metrics",
+    "userSearchLog": "User Search Log",
+    "coachingProgress": "Coaching Progress"
+  },
+  "coachingProgress": {
+    "excelDownload": "Excel Download",
+    "userTypes": {
+      "all": "All",
+      "participant": "Research Participant",
+      "nonParticipant": "Non-Participant"
+    },
+    "columns": {
+      "detail": "Detail",
+      "name": "Name",
+      "birth": "Birth Date",
+      "gender": "Gender",
+      "disease": "Disease",
+      "period": "Period",
+      "userType": "User Type",
+      "sleep": "Sleep",
+      "diet": "Diet",
+      "physicalActivity": "Physical Activity",
+      "mental": "Mental",
+      "exercise": "Exercise",
+      "cancerProgressRate": "Cancer Guide Progress Rate",
+      "avgSteps": "Avg Steps"
+    },
+    "report": {
+      "title": "Coaching Progress Average",
+      "totalPeople": "Total People",
+      "people": "people",
+      "avgSteps": "Average Steps",
+      "steps": "steps",
+      "categoryAverage": "Category Average",
+      "unit": "Unit"
+    }
+  },
+  "userSearch": {
+    "loading": "Loading...",
+    "searchPeriod": "Search Period",
+    "userName": "User Name",
+    "search": "Search",
+    "excelDownload": "Excel Download",
+    "all": "All",
+    "columns": {
+      "no": "No",
+      "searchDate": "Search Date",
+      "userName": "User Name",
+      "cancerType": "Cancer Type",
+      "searchText": "Search Text"
+    }
+  },
+  "monthlyMonitoring": {
+    "loading": "Loading...",
+    "searchPeriod": "Search Period",
+    "userType": "User Type",
+    "all": "All",
+    "excelDownload": "Excel Download",
+    "columns": {
+      "yearMonth": "Year/Month",
+      "churnRate": "Churn Rate(%)",
+      "dau": "DAU",
+      "mau": "MAU",
+      "anchorageRate": "Anchorage Rate(%)"
+    },
+    "charts": {
+      "churnRate": "Churn Rate",
+      "anchorageRate": "Anchorage Rate",
+      "dau": "DAU",
+      "mau": "MAU"
+    }
+  },
+  "contentForm": {
+    "title": "Title",
+    "disease": "Disease",
+    "period": "Period",
+    "selectDisease": "Please select a disease",
+    "interestArea": "Interest Area",
+    "thumbnail": "Thumbnail",
+    "priority": "Priority",
+    "publicStatus": "Public Status",
+    "publicYes": "Yes, make it public.",
+    "publicNo": "No, keep it private. Work in progress.",
+    "select": "Select",
+    "interests": {
+      "healthyLifestyle": "Healthy Lifestyle and Exercise",
+      "otherInfo": "Other Helpful Information",
+      "mentalCare": "Mental Care",
+      "caregiverTips": "Tips for Caregivers",
+      "sideEffects": "Side Effects and Management",
+      "riskManagement": "Risk Factors and Management",
+      "symptoms": "Understanding Symptoms",
+      "treatmentProcess": "Treatment Process"
+    }
+  },
+  "contentCreate": {
+    "selectDisease": "Please select a disease.",
+    "confirmRegister": "Do you want to register?",
+    "registered": "Successfully registered.",
+    "confirmBackToList": "Do you want to go back to the list?",
+    "list": "List",
+    "save": "Save"
+  },
+  "wellbeing": {
+    "searchTypes": {
+      "title": "Title",
+      "companyName": "Company Name"
+    },
+    "searchButton": "Search",
+    "newRegistration": "New Registration",
+    "noData": "No data found.",
+    "createdDate": "Created",
+    "modified": "Modified",
+    "companyName": "Company Name",
+    "introduction": "Introduction",
+    "address": "Address",
+    "contact": "Contact",
+    "homepage": "Homepage",
+    "form": {
+      "category": "Category",
+      "title": "Title",
+      "priority": "Priority",
+      "companyName": "Company Name",
+      "companyDescription": "Company Description",
+      "address": "Address",
+      "phoneNumber": "Phone Number",
+      "homepage": "Homepage",
+      "sns": "SNS",
+      "thumbnail": "Thumbnail"
+    }
+  },
+  "videoMng": {
+    "doubleClickInfo": "📌 Double click to view information.",
+    "edit": "Edit",
+    "newRegistration": "New Registration",
+    "selectVideoToEdit": "Please select a video to edit",
+    "videoType": "Video Type",
+    "useStatus": "Use Status",
+    "inUse": "In Use",
+    "notInUse": "Not In Use",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "url": "URL",
+    "detailDesc": "Detail Description",
+    "selectVideoPlaceholder": "Select a video to view preview",
+    "modal": {
+      "updateTitle": "Update",
+      "update": "Update",
+      "close": "Close",
+      "check": "Check",
+      "priority": "Priority",
+      "checkUrlFirst": "Please check the URL first",
+      "confirmUpdate": "Do you want to update?",
+      "updated": "Successfully updated.",
+      "validYoutubeUrl": "Valid YouTube URL format.",
+      "invalidYoutubeUrl": "Invalid YouTube URL format. Please check",
+      "register": "Register",
+      "confirmRegister": "Do you want to register?",
+      "registered": "Successfully registered."
+    }
+  },
+  "statistics": {
+    "title": "Top 3 Most Bookmarked Posts",
+    "bookmarkCount": "Bookmarks",
+    "columns": {
+      "number": "No",
+      "contentName": "Content Name",
+      "bookmarkCount": "Bookmark Count"
+    }
+  },
+  "wellbeing_create": {
+    "confirmCancel": "Cancel registration and return to list.",
+    "confirmRegister": "Do you want to register?",
+    "registered": "Registration completed successfully",
+    "cancel": "Cancel",
+    "register": "Register",
+    "languageWarningTitle": "Cannot Change Language While Writing",
+    "currentLanguage": "Currently writing {{lang}} content.",
+    "languageChangeGuide": "To change language, please save and write again."
+  },
+  "wellbeing_edit": {
+    "confirmCancel": "Cancel editing and return to list.",
+    "confirmDelete": "Do you want to delete?",
+    "confirmUpdate": "Do you want to update?",
+    "deleted": "Deletion completed successfully",
+    "updated": "Update completed successfully",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "update": "Update",
+    "editingLanguage": "Editing Language",
+    "noChange": "Do Not Change",
+    "languageWarningTitle": "Warning: Cannot Change Language",
+    "currentLanguage": "Currently editing {{lang}} content.",
+    "languageChangeWarning": "Changing language may save in wrong language<br/>and cause serious content exposure issues.",
+    "useNewRegistration": "To register in another language, please use <strong>New Registration</strong>."
+  },
+  "treatmentInfo": {
+    "searchTypes": {
+      "title": "Title",
+      "content": "Content",
+      "author": "Author"
+    },
+    "searchButton": "Search",
+    "resetButton": "Reset",
+    "newRegistration": "New Registration",
+    "noData": "No data found.",
+    "totalCountPrefix": "Total",
+    "totalCountSuffix": "items",
+    "author": "Author",
+    "modified": "Modified"
+  },
+  "disabledTreatmentModal": {
+    "detailTitle": "Treatment Information in Progress",
+    "newTitle": "New Treatment Information Registration",
+    "selectDisease": "Please select a disease.",
+    "confirmDelete": "Are you sure you want to delete?",
+    "deleted": "Deleted successfully.",
+    "confirmUpdate": "Are you sure you want to update?",
+    "updated": "Updated successfully.",
+    "confirmRegister": "Are you sure you want to register?",
+    "registered": "Registered successfully.",
+    "deleteButton": "Delete",
+    "updateButton": "Update",
+    "registerButton": "Register",
+    "closeButton": "Close"
+  },
+  "patientMonitoring": {
+    "searchPlaceholder": "Search by name",
+    "searchButton": "Search",
+    "resetButton": "Reset",
+    "userTypeChangeTitle": "Change User Type",
+    "userTypeChangeMessage": "Do you want to change to",
+    "userTypeChanged": "User type has been changed",
+    "researchParticipant": "Research Participant",
+    "nonParticipant": "Non-Participant",
+    "columns": {
+      "name": "Name",
+      "birth": "Date of Birth",
+      "gender": "Gender",
+      "disease": "Disease",
+      "treatment": "Treatment Stage",
+      "progress": "Cancer Info Guide Progress",
+      "lastUsed": "Last Used",
+      "userType": "User Type",
+      "changeUserType": "Change User Type",
+      "patientDetail": "Patient Details"
+    }
+  },
+  "patientMng_coachingMonitoring": {
+    "tabs": {
+      "coachingMonitoring": "Coaching Monitoring",
+      "trackReqHistory": "Cancer Guide Request History",
+      "surveyHistory": "Exercise Assessment Change History"
+    },
+    "coaching": {
+      "title": "'s Coaching Monitoring Information",
+      "categories": {
+        "sleep": "Sleep",
+        "diet": "Diet",
+        "physicalActivity": "Physical Activity",
+        "mental": "Mental"
+      },
+      "splitView": "Split View",
+      "fullScreen": "Full Screen",
+      "excelDownload": "Excel Download",
+      "resetCoaching": "Reset Coaching",
+      "noData": "No coaching information found.",
+      "confirmDelete": "Do you want to delete all coaching information?",
+      "deleted": "Deleted successfully.",
+      "delete": "Delete",
+      "columns": {
+        "coaching": "Coaching",
+        "day": "Day",
+        "cardType": "Card Type",
+        "question": "Question",
+        "answerSeq": "Answer SEQ",
+        "answer": "Answer"
+      },
+      "stepChart": {
+        "title": "View Steps",
+        "open": "[Open]",
+        "close": "[Close]",
+        "steps": "steps",
+        "stepCount": "Step Count"
+      }
+    },
+    "trackReqHst": {
+      "doubleClickInfo": "Double-click a row to view details.",
+      "detailView": "Detail View",
+      "close": "Close",
+      "columns": {
+        "disease": "Disease",
+        "treatmentPeriod": "Treatment Period",
+        "cancerType": "Cancer Type",
+        "considerations": "Considerations",
+        "progressDays": "Progress Days",
+        "interestArea": "Interest Area",
+        "progress": "Progress",
+        "status": "Status",
+        "createdAt": "Created At",
+        "cancelAt": "Canceled At"
+      }
+    },
+    "surveyHistory": {
+      "doubleClickInfo": "Double-click a row to view details.",
+      "detailList": "Exercise Assessment Details",
+      "close": "Close",
+      "noDetailData": "No detail data available.",
+      "yes": "Yes",
+      "no": "No",
+      "aerobicRequired": "Aerobic Required",
+      "columns": {
+        "cancerType": "Cancer Type",
+        "difficulty": "Difficulty",
+        "aerobic": "Aerobic",
+        "specialTherapy": "Special Therapy",
+        "assessmentDate": "Assessment Date",
+        "progress": "Progress",
+        "question": "Question",
+        "answer": "Answer"
+      }
+    }
+  },
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "profile": "Profile"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Invalid email address",
+    "invalidPassword": "Password must be at least 8 characters"
+  }
+}

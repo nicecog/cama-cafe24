@@ -2,8 +2,9 @@ import ky, { type KyInstance } from "ky";
 import { currentStage, resolveApiBaseUrl } from "@/config/stage";
 import { setupInterceptors } from "./interceptors";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_SERVER || resolveApiBaseUrl(currentStage);
+const API_BASE_URL = import.meta.env.DEV
+  ? window.location.origin
+  : import.meta.env.VITE_API_SERVER || resolveApiBaseUrl(currentStage);
 
 /**
  * 기본 ky 인스턴스

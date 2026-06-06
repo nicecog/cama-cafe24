@@ -571,7 +571,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 18;
-				DEVELOPMENT_TEAM = ZU7WK2A5CS;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = CamaApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = CamaApp;
@@ -605,7 +605,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 18;
-				DEVELOPMENT_TEAM = ZU7WK2A5CS;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = CamaApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = CamaApp;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.medical";

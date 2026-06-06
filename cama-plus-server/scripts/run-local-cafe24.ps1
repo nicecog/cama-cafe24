@@ -6,7 +6,7 @@
 $ErrorActionPreference = 'Stop'
 $Root = Split-Path $PSScriptRoot -Parent
 $EnvFile = Join-Path $PSScriptRoot 'local-cafe24.env'
-$Jar = Join-Path $Root 'target\cama-back-1.0-SNAPSHOT.jar'
+$Jar = Join-Path $Root 'target/cama-back-1.0-SNAPSHOT.jar'
 
 function Find-Jdk {
     foreach ($pattern in @('jdk-21*', 'jdk-17*')) {
@@ -14,13 +14,27 @@ function Find-Jdk {
             Sort-Object Name -Descending | Select-Object -First 1
         if ($hit) { return $hit.FullName }
     }
-    if ($env:JAVA_HOME -and (Test-Path (Join-Path $env:JAVA_HOME 'bin\java.exe'))) { return $env:JAVA_HOME }
+    if ($env:JAVA_HOME -and (
+        (Test-Path (Join-Path $env:JAVA_HOME 'bin\java.exe')) -or
+        (Test-Path (Join-Path $env:JAVA_HOME 'bin/java'))
+    )) { return $env:JAVA_HOME }
     return $null
+}
+
+function Get-JavaCommand([string]$JdkHome) {
+    $windowsJava = Join-Path $JdkHome 'bin\java.exe'
+    if (Test-Path $windowsJava) { return $windowsJava }
+
+    $unixJava = Join-Path $JdkHome 'bin/java'
+    if (Test-Path $unixJava) { return $unixJava }
+
+    throw "java executable not found under $JdkHome"
 }
 
 $jdk = Find-Jdk
 if (-not $jdk) { throw 'JDK 17+ required.' }
 $env:JAVA_HOME = $jdk
+$javaCmd = Get-JavaCommand $jdk
 
 if (-not (Test-Path $Jar)) {
     Push-Location $Root
@@ -53,7 +67,7 @@ Write-Host "Starting cama-back (profile=local-cafe24, JDK=$jdk)..." -ForegroundC
 Write-Host "  http://localhost:$port/" -ForegroundColor Yellow
 Write-Host "  http://localhost:$port/swagger-ui.html" -ForegroundColor Yellow
 
-& "$jdk\bin\java.exe" `
+& $javaCmd `
     -Xms256m -Xmx1024m `
     -jar $Jar `
     --spring.profiles.active=local-cafe24 `

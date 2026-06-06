@@ -7,8 +7,8 @@ export function Day8Step3() {
   return (
     <div className="flex flex-col gap-4">
       <TodayMission text={pt("MSG_012")} />
-      <Textbox className="text-center">{pt("MSG_013")}</Textbox>
-      <Textbox className="text-center">{pt("MSG_014")}</Textbox>
+      <Textbox className="text-center font-semibold">{pt("MSG_013")}</Textbox>
+      <Textbox className="text-center font-semibold">{pt("MSG_014")}</Textbox>
     </div>
   );
 }

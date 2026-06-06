@@ -6,7 +6,7 @@
 #>
 $ErrorActionPreference = 'Stop'
 $Root = Split-Path $PSScriptRoot -Parent
-$Jar = Join-Path $Root 'build\libs\cama-doctor-web-0.0.1-SNAPSHOT.jar'
+$Jar = Join-Path $Root 'build/libs/cama-doctor-web-0.0.1-SNAPSHOT.jar'
 
 function Find-Jdk {
     foreach ($pattern in @('jdk-21*', 'jdk-17*')) {
@@ -18,19 +18,35 @@ function Find-Jdk {
         }
         if ($hit) { return $hit.FullName }
     }
-    if ($env:JAVA_HOME -and (Test-Path (Join-Path $env:JAVA_HOME 'bin\java.exe'))) { return $env:JAVA_HOME }
+    if ($env:JAVA_HOME -and (
+        (Test-Path (Join-Path $env:JAVA_HOME 'bin\java.exe')) -or
+        (Test-Path (Join-Path $env:JAVA_HOME 'bin/java'))
+    )) { return $env:JAVA_HOME }
     return $null
+}
+
+function Get-JavaCommand([string]$JdkHome) {
+    $windowsJava = Join-Path $JdkHome 'bin\java.exe'
+    if (Test-Path $windowsJava) { return $windowsJava }
+
+    $unixJava = Join-Path $JdkHome 'bin/java'
+    if (Test-Path $unixJava) { return $unixJava }
+
+    throw "java executable not found under $JdkHome"
 }
 
 $jdk = Find-Jdk
 if (-not $jdk) { throw 'JDK 21+ required.' }
 $env:JAVA_HOME = $jdk
+$javaCmd = Get-JavaCommand $jdk
 
 & (Join-Path $PSScriptRoot 'ensure-doctor-db.ps1')
 
 if (-not (Test-Path $Jar)) {
     Push-Location $Root
-    if (Test-Path '.\gradlew.bat') {
+    if (Test-Path './gradlew') {
+        & ./gradlew bootJar -x test --no-daemon
+    } elseif ($IsWindows -and (Test-Path '.\gradlew.bat')) {
         & .\gradlew.bat bootJar -x test --no-daemon
     } else {
         & gradle bootJar -x test --no-daemon
@@ -50,7 +66,7 @@ Write-Host "Starting cama-doctor-web (profile=local-cafe24, JDK=$jdk)..." -Foreg
 Write-Host "  http://localhost:$port/login" -ForegroundColor Yellow
 Write-Host "  Billive proxy -> $env:CAMA_BILLIVE_BASE_URL" -ForegroundColor Yellow
 
-& "$jdk\bin\java.exe" `
+& $javaCmd `
     -Xms128m -Xmx512m `
     -jar $Jar `
     --spring.profiles.active=local-cafe24 `

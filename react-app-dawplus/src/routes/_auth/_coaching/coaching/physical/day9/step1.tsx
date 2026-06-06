@@ -11,7 +11,7 @@ export function Day9Step1(props: any) {
     <div className="flex flex-col gap-5">
       <ChallengeStart type="physical">
         {pt("MSG_005", { name: accountName })}
-        <br />
+
         {pt("MSG_006")}
       </ChallengeStart>
       <ChallengeQuestion

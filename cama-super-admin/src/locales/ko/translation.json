@@ -1,0 +1,384 @@
+{
+  "common": {
+    "welcome": "환영합니다",
+    "welcomeMessage": "님 환영합니다",
+    "login": "로그인",
+    "logout": "로그아웃",
+    "logoutComment": "로그아웃 하시겠습니까? ",
+    "save": "저장",
+    "cancel": "취소",
+    "delete": "삭제",
+    "edit": "수정",
+    "search": "검색",
+    "confirm": "확인",
+    "close": "닫기",
+    "yes": "예",
+    "no": "아니오",
+    "loading": "로딩 중...",
+    "error": "오류가 발생했습니다",
+    "success": "성공적으로 처리되었습니다",
+    "korean": "한국어",
+    "english": "영어",
+     "sidebar": {
+      "title": "CAMA DOCTOR 관리자"
+    },
+    "idRequired" : "ID를 입력하세요",
+    "passwordRequired" : "Password를 입력하세요",
+    "welcomeText" : "Cama Doctor 관리자"
+  },
+  "pagination": {
+    "itemRange": "번  ~ ",
+    "itemSuffix": "번",
+    "itemPrefix": "",
+    "first": "처음으로",
+    "previous": "이전",
+    "next": "다음",
+    "last": "마지막",
+    "totalCount": "(총 {{count}}건)"
+  },
+  "menu": {
+    "patientManagement": "환자관리",
+    "patientMonitoring": "환자모니터링",
+    "contentManagement": "컨텐츠관리",
+    "treatmentInfo": "치료정보",
+    "draftTreatment": "작성중인치료정보",
+    "videoManagement": "비디오관리",
+    "wellbeingResources": "웰빙자원관리",
+    "bookmarkStats": "즐겨찾기 통계",
+    "laboratory": "실험실",
+    "monitoring": "모니터링",
+    "monthlyMetrics": "월평가지표",
+    "userSearchLog": "사용자별 검색어 로그",
+    "coachingProgress": "건강코칭 진행률"
+  },
+  "coachingProgress": {
+    "excelDownload": "엑셀 다운로드",
+    "userTypes": {
+      "all": "전체",
+      "participant": "연구참여자",
+      "nonParticipant": "연구미참여자"
+    },
+    "columns": {
+      "detail": "상세",
+      "name": "이름",
+      "birth": "생년월일",
+      "gender": "성별",
+      "disease": "질환",
+      "period": "시기",
+      "userType": "사용자유형명",
+      "sleep": "수면",
+      "diet": "식습관",
+      "physicalActivity": "신체활동",
+      "mental": "심리",
+      "exercise": "운동",
+      "cancerProgressRate": "건강 뉴스레터 진도율",
+      "avgSteps": "걸음수평균"
+    },
+    "report": {
+      "title": "건강코칭 진행률 평균",
+      "totalPeople": "총인원",
+      "people": "명",
+      "avgSteps": "평균 걸음수",
+      "steps": "걸음",
+      "categoryAverage": "항목별 평균",
+      "unit": "단위"
+    }
+  },
+  "userSearch": {
+    "loading": "로딩 중...",
+    "searchPeriod": "조회년월",
+    "userName": "사용자명",
+    "search": "검색",
+    "excelDownload": "엑셀 다운로드",
+    "all": "전체",
+    "columns": {
+      "no": "No",
+      "searchDate": "검색일",
+      "userName": "사용자명",
+      "cancerType": "암종류",
+      "searchText": "검색어"
+    }
+  },
+  "monthlyMonitoring": {
+    "loading": "로딩 중...",
+    "searchPeriod": "조회년월",
+    "userType": "사용자유형",
+    "all": "전체",
+    "excelDownload": "엑셀 다운로드",
+    "columns": {
+      "yearMonth": "년월",
+      "churnRate": "이탈율(%)",
+      "dau": "DAU",
+      "mau": "MAU",
+      "anchorageRate": "고착도(%)"
+    },
+    "charts": {
+      "churnRate": "이탈율",
+      "anchorageRate": "고착도",
+      "dau": "DAU",
+      "mau": "MAU"
+    }
+  },
+  "contentForm": {
+    "title": "제목",
+    "disease": "질환",
+    "period": "시기",
+    "selectDisease": "질환을 선택해주세요",
+    "interestArea": "관심영역",
+    "thumbnail": "Thumbnail",
+    "priority": "우선순위",
+    "publicStatus": "공개여부",
+    "publicYes": "네, 공개합니다.",
+    "publicNo": "아니오. 공개하지 않습니다. 작성중 입니다.",
+    "select": "선택",
+    "interests": {
+      "healthyLifestyle": "건강한 식생활과 운동",
+      "otherInfo": "그외 도움되는 정보",
+      "mentalCare": "마음 돌보기",
+      "caregiverTips": "보호자를 위한 팁",
+      "sideEffects": "부작용과 대처",
+      "riskManagement": "위험요소와 관리법",
+      "symptoms": "증상 알아보기",
+      "treatmentProcess": "치료과정"
+    }
+  },
+  "contentCreate": {
+    "selectDisease": "질환을 선택해 주세요.",
+    "confirmRegister": "등록 하시겠습니까? ",
+    "registered": "등록 되었습니다.",
+    "confirmBackToList": "목록으로 돌아 가시겠습니까?",
+    "list": "목록",
+    "save": "저장"
+  },
+  "wellbeing": {
+    "searchTypes": {
+      "title": "제목",
+      "companyName": "회사명"
+    },
+    "searchButton": "검색",
+    "newRegistration": "신규등록",
+    "noData": "조회된 데이터가 없습니다.",
+    "createdDate": "작성일",
+    "modified": "수정",
+    "companyName": "회사명",
+    "introduction": "소개",
+    "address": "주소",
+    "contact": "연락처",
+    "homepage": "홈페이지",
+    "form": {
+      "category": "카테고리",
+      "title": "제목",
+      "priority": "우선순위",
+      "companyName": "회사명",
+      "companyDescription": "회사설명",
+      "address": "주소",
+      "phoneNumber": "전화번호",
+      "homepage": "홈페이지",
+      "sns": "SNS",
+      "thumbnail": "Thumbnail"
+    }
+  },
+  "videoMng": {
+    "doubleClickInfo": "📌 더블 클릭하면 정보를 확인하실 수 있습니다.",
+    "edit": "수정",
+    "newRegistration": "신규등록",
+    "selectVideoToEdit": "수정할 동영상을 선택해 주세요",
+    "videoType": "영상유형",
+    "useStatus": "사용여부",
+    "inUse": "사용중",
+    "notInUse": "미사용",
+    "createdAt": "생성일시",
+    "updatedAt": "변경일시",
+    "url": "URL",
+    "detailDesc": "상세설명",
+    "selectVideoPlaceholder": "비디오를 선택하면 미리보기가 표시됩니다",
+    "modal": {
+      "updateTitle": "수정",
+      "update": "수정",
+      "close": "닫기",
+      "check": "체크",
+      "priority": "우선순위",
+      "checkUrlFirst": "URL 여부를 체크해주세요",
+      "confirmUpdate": "수정 하시겠습니까?",
+      "updated": "수정 되었습니다.",
+      "validYoutubeUrl": "정상적인 Youtube URL 형식입니다.",
+      "invalidYoutubeUrl": "비정상 Youtube URL 형식입니다. 확인해주세요",
+      "register": "등록",
+      "confirmRegister": "등록하시겠습니까?",
+      "registered": "등록 되었습니다."
+    }
+  },
+  "statistics": {
+    "title": "즐겨찾기가 높은 게시글 Top 3",
+    "bookmarkCount": "즐겨찾기수",
+    "columns": {
+      "number": "순번",
+      "contentName": "컨텐츠명",
+      "bookmarkCount": "즐겨찾기수"
+    }
+  },
+  "wellbeing_create": {
+    "confirmCancel": "등록을 취소하고 목록으로 돌아갑니다.",
+    "confirmRegister": "등록 하시겠습니까?",
+    "registered": "등록이 완료 되었습니다",
+    "cancel": "취소",
+    "register": "등록",
+    "languageWarningTitle": "작성 중 언어 변경 불가",
+    "currentLanguage": "현재 {{lang}} 컨텐츠를 작성 중입니다.",
+    "languageChangeGuide": "언어를 변경하려면 저장 후 다시 작성해주세요."
+  },
+  "wellbeing_edit": {
+    "confirmCancel": "수정을 취소하고 목록으로 돌아갑니다.",
+    "confirmDelete": "삭제하시겠습니까?",
+    "confirmUpdate": "수정 하시겠습니까?",
+    "deleted": "삭제가 완료 되었습니다",
+    "updated": "수정이 완료 되었습니다",
+    "cancel": "취소",
+    "delete": "삭제",
+    "update": "수정",
+    "editingLanguage": "수정 언어",
+    "noChange": "변경 금지",
+    "languageWarningTitle": "경고: 언어 변경 불가",
+    "currentLanguage": "현재 {{lang}} 컨텐츠를 수정 중입니다.",
+    "languageChangeWarning": "언어를 변경하면 잘못된 언어로 저장되어<br/>컨텐츠 노출에 심각한 문제가 발생할 수 있습니다.",
+    "useNewRegistration": "다른 언어로 등록하려면 <strong>신규 등록</strong>을 이용해주세요."
+  },
+  "treatmentInfo": {
+    "searchTypes": {
+      "title": "제목",
+      "content": "내용",
+      "author": "작성자"
+    },
+    "searchButton": "검색",
+    "resetButton": "초기화",
+    "newRegistration": "신규등록",
+    "noData": "조회된 데이터가 없습니다.",
+    "totalCountPrefix": "총",
+    "totalCountSuffix": "건",
+    "author": "작성자",
+    "modified": "수정"
+  },
+  "disabledTreatmentModal": {
+    "detailTitle": "작성중인 치료정보",
+    "newTitle": "신규 치료정보 등록",
+    "selectDisease": "질환을 선택해 주세요.",
+    "confirmDelete": "삭제 하시겠습니까?",
+    "deleted": "삭제 되었습니다.",
+    "confirmUpdate": "수정 하시겠습니까?",
+    "updated": "수정되었습니다.",
+    "confirmRegister": "등록 하시겠습니까?",
+    "registered": "등록되었습니다.",
+    "deleteButton": "삭제",
+    "updateButton": "수정",
+    "registerButton": "등록",
+    "closeButton": "닫기"
+  },
+  "patientMonitoring": {
+    "searchPlaceholder": "이름검색",
+    "searchButton": "검색",
+    "resetButton": "초기화",
+    "userTypeChangeTitle": "사용자 구분 변경",
+    "userTypeChangeMessage": "로 변경 하시겠습니까?",
+    "userTypeChanged": "사용자 구분이 변경되었습니다",
+    "researchParticipant": "연구참여자",
+    "nonParticipant": "연구미참여자",
+    "columns": {
+      "name": "이름",
+      "birth": "생년월일",
+      "gender": "성별",
+      "disease": "질환",
+      "treatment": "시기",
+      "progress": "건강 뉴스레터진도율",
+      "lastUsed": "최근사용일",
+      "userType": "사용자구분",
+      "changeUserType": "사용자구분변경",
+      "patientDetail": "환자정보상세"
+    }
+  },
+  "patientMng_coachingMonitoring": {
+    "tabs": {
+      "coachingMonitoring": "건강코칭 모니터링",
+      "trackReqHistory": "건강 뉴스레터 신청이력",
+      "surveyHistory": "운동평가 변경이력"
+    },
+    "coaching": {
+      "title": "님 건강코칭 모니터링 정보",
+      "categories": {
+        "sleep": "수면",
+        "diet": "식습관",
+        "physicalActivity": "신체 활동",
+        "mental": "심리"
+      },
+      "splitView": "분할보기",
+      "fullScreen": "전체화면",
+      "excelDownload": "엑셀다운로드",
+      "resetCoaching": "건강코칭초기화",
+      "noData": "조회된 건강코칭 정보가 없습니다.",
+      "confirmDelete": "건강코칭정보를 모두 삭제 하시겠습니까?",
+      "deleted": "삭제 되었습니다.",
+      "delete": "삭제",
+      "columns": {
+        "coaching": "건강코칭",
+        "day": "일차",
+        "cardType": "카드유형",
+        "question": "질문",
+        "answerSeq": "문답SEQ",
+        "answer": "문답"
+      },
+      "stepChart": {
+        "title": "걸음수 보기",
+        "open": "[열기]",
+        "close": "[닫기]",
+        "steps": "걸음",
+        "stepCount": "걸음 수"
+      }
+    },
+    "trackReqHst": {
+      "doubleClickInfo": "상세정보 확인하려면 행을 더블클릭하세요.",
+      "detailView": "상세보기",
+      "close": "닫기",
+      "columns": {
+        "disease": "질환",
+        "treatmentPeriod": "치료시기",
+        "cancerType": "암종류",
+        "considerations": "고려사항",
+        "progressDays": "진행일자",
+        "interestArea": "관심영역",
+        "progress": "진도율",
+        "status": "상태",
+        "createdAt": "생성일시",
+        "cancelAt": "종료일시"
+      }
+    },
+    "surveyHistory": {
+      "doubleClickInfo": "상세정보 확인하려면 행을 더블클릭하세요.",
+      "detailList": "운동평가 상세목록",
+      "close": "닫기",
+      "noDetailData": "상세 목록이 없습니다.",
+      "yes": "예",
+      "no": "아니오",
+      "aerobicRequired": "유산소필요",
+      "columns": {
+        "cancerType": "암종",
+        "difficulty": "난이도",
+        "aerobic": "유산소여부",
+        "specialTherapy": "특수치료",
+        "assessmentDate": "평가일시",
+        "progress": "진도율",
+        "question": "질문",
+        "answer": "답변"
+      }
+    }
+  },
+  "navigation": {
+    "home": "홈",
+    "dashboard": "대시보드",
+    "settings": "설정",
+    "profile": "프로필"
+  },
+  "validation": {
+    "required": "필수 항목입니다",
+    "invalidEmail": "유효하지 않은 이메일 주소입니다",
+    "invalidPassword": "비밀번호는 최소 8자 이상이어야 합니다"
+  }
+}

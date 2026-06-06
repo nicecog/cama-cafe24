@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "menuNm": "menu.patientManagement",
+    "url": "",
+    "children": [
+      {
+        "id": 2,
+        "menuNm": "menu.patientMonitoring",
+        "url": "/main/patientMng/patientMonitoring"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "menuNm": "menu.contentManagement",
+    "url": "",
+    "children": [
+      {
+        "id": 4,
+        "menuNm": "menu.treatmentInfo",
+        "url": "/main/contentMng/treatmentInfo"
+      },
+      {
+        "id": 5,
+        "menuNm": "menu.draftTreatment",
+        "url": "/main/contentMng/disabledTreatment"
+      },
+      {
+        "id": 6,
+        "menuNm": "menu.videoManagement",
+        "url": "/main/contentMng/videoMng"
+      },
+      {
+        "id": 7,
+        "menuNm": "menu.wellbeingResources",
+        "url": "/main/contentMng/wellbeing"
+      },
+      {
+        "id": 11,
+        "menuNm": "menu.bookmarkStats",
+        "url": "/main/contentMng/statistics"
+      } 
+    ]
+  },
+  {
+    "id": 8,
+    "menuNm": "menu.monitoring",
+    "url": "",
+    "children": [
+      {
+        "id": 9,
+        "menuNm": "menu.monthlyMetrics",
+        "url": "/main/monitoring/monthly"
+      },
+      {
+        "id": 10,
+        "menuNm": "menu.userSearchLog",
+        "url": "/main/monitoring/userSearch"
+      },
+      {
+        "id": 12,
+        "menuNm": "menu.coachingProgress",
+        "url": "/main/monitoring/coachingProgress"
+      }
+    ]
+  }
+]

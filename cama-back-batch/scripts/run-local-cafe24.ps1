@@ -5,7 +5,7 @@
 #>
 $ErrorActionPreference = 'Stop'
 $Root = Split-Path $PSScriptRoot -Parent
-$Jar = Join-Path $Root 'target\cama-batch-1.0-SNAPSHOT.jar'
+$Jar = Join-Path $Root 'target/cama-batch-1.0-SNAPSHOT.jar'
 
 function Find-Jdk {
     foreach ($pattern in @('jdk-21*', 'jdk-17*')) {
@@ -13,13 +13,27 @@ function Find-Jdk {
             Sort-Object Name -Descending | Select-Object -First 1
         if ($hit) { return $hit.FullName }
     }
-    if ($env:JAVA_HOME -and (Test-Path (Join-Path $env:JAVA_HOME 'bin\java.exe'))) { return $env:JAVA_HOME }
+    if ($env:JAVA_HOME -and (
+        (Test-Path (Join-Path $env:JAVA_HOME 'bin\java.exe')) -or
+        (Test-Path (Join-Path $env:JAVA_HOME 'bin/java'))
+    )) { return $env:JAVA_HOME }
     return $null
+}
+
+function Get-JavaCommand([string]$JdkHome) {
+    $windowsJava = Join-Path $JdkHome 'bin\java.exe'
+    if (Test-Path $windowsJava) { return $windowsJava }
+
+    $unixJava = Join-Path $JdkHome 'bin/java'
+    if (Test-Path $unixJava) { return $unixJava }
+
+    throw "java executable not found under $JdkHome"
 }
 
 $jdk = Find-Jdk
 if (-not $jdk) { throw 'JDK 17+ required.' }
 $env:JAVA_HOME = $jdk
+$javaCmd = Get-JavaCommand $jdk
 
 if (-not (Test-Path $Jar)) {
     Push-Location $Root
@@ -37,7 +51,7 @@ $env:DB_PASSWORD = if ($env:DB_PASSWORD) { $env:DB_PASSWORD } else { 'cama_local
 Write-Host "Starting cama-back-batch (profile=local-cafe24, port=$port)..." -ForegroundColor Cyan
 Write-Host "  http://localhost:$port/api/batch/dev/jobs" -ForegroundColor Yellow
 
-& "$jdk\bin\java.exe" `
+& $javaCmd `
     -Xms128m -Xmx512m `
     -jar $Jar `
     --spring.profiles.active=local-cafe24 `

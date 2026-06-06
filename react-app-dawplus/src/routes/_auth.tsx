@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 import { readStoredWebviewSession } from "@/atoms/authSessionAtom";
+import { getDevAuthBypassLoginId, isDevAuthBypassEnabled } from "@/lib/devAuth";
 import { getTokenEncryptedStorage } from "@/lib/encryptedStorage";
 import { bootstrapWebviewSession } from "@/lib/webview/bootstrapSession";
 
@@ -15,12 +16,20 @@ export const Route = createFileRoute("/_auth")({
       await bootstrapWebviewSession(search.wvLoginId.trim());
       return;
     }
+    const devBypassLoginId = getDevAuthBypassLoginId();
+    if (devBypassLoginId) {
+      await bootstrapWebviewSession(devBypassLoginId);
+      return;
+    }
     const token = await getTokenEncryptedStorage();
     if (token) {
       return;
     }
     const stored = readStoredWebviewSession();
     if (stored?.loginId) {
+      return;
+    }
+    if (isDevAuthBypassEnabled()) {
       return;
     }
     throw redirect({
