@@ -31,7 +31,7 @@ export default function TodayMission(props: { text: React.ReactNode }) {
 
       <div className="flex max-w-[280px] flex-col items-center gap-2 px-1">
         <div className="h-0.5 w-6 rounded-full bg-primary/30" />
-        <p className="mt-1 break-keep text-center text-base font-bold leading-relaxed tracking-tight text-primary">
+        <p className="mt-1 break-keep whitespace-pre-line text-center text-base font-bold leading-relaxed tracking-tight text-primary">
           {props.text}
         </p>
       </div>

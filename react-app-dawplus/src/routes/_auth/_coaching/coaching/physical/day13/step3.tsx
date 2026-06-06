@@ -1,29 +1,41 @@
 import { usePageTranslation } from "@/hooks/usePageTranslation";
-import ChallengeQuestion from "../../-components/elements/ChallengeQuestion";
-import Textbox from "../../-components/elements/Textbox";
 import TodayMission from "../../-components/elements/TodayMission";
 
-export function Day13Step3(props: any) {
+interface Day13Step3Props {
+  step3: string[];
+  setStep3: React.Dispatch<React.SetStateAction<string[]>>;
+  options: string[];
+}
+
+export function Day13Step3(props: Day13Step3Props) {
   const { pt } = usePageTranslation("coaching/physical/day13");
-  const { step3, setStep3, options } = props;
+  const { options } = props;
+
   return (
-    <div className="flex flex-col gap-4">
-      <TodayMission text={pt("MSG_016")} />
-      <Textbox className="text-center font-bold">{pt("MSG_018")}</Textbox>
-      <ChallengeQuestion
-        multiple
-        title={pt("MSG_018")}
-        options={options}
-        value={step3}
-        centeredOptions
-        onChange={(value) =>
-          setStep3((prev: string[]) =>
-            prev.includes(value)
-              ? prev.filter((item) => item !== value)
-              : [...prev, value],
-          )
-        }
-      />
+    <div className="flex flex-col gap-6 py-2">
+      <TodayMission text={pt("MSG_026")} />
+
+      <div className="flex flex-col gap-5 px-1 mt-2">
+        <h3 className="text-xl font-black text-slate-900 text-center leading-relaxed break-keep">
+          {pt("MSG_027")}
+        </h3>
+
+        <div className="flex flex-col gap-3 max-w-xs mx-auto w-full mt-2">
+          {options.map((option, idx) => (
+            <div
+              key={option}
+              className="flex items-center gap-3 py-3 px-4 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm"
+            >
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-black">
+                {idx + 1}
+              </div>
+              <span className="text-base font-bold text-slate-800 break-keep">
+                {option.replace(/^[0-9]\.\s*/, "")}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

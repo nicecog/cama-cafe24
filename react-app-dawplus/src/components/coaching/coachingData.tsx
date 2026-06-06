@@ -1,7 +1,7 @@
 import sleepMascot from "@/assets/images/coaching/main/type1.png";
 import dietMascot from "@/assets/images/coaching/main/type2.png";
-import exerciseMascot from "@/assets/images/coaching/main/type3.png";
-import mindMascot from "@/assets/images/coaching/main/type4.png";
+import mindMascot from "@/assets/images/coaching/main/type3.png";
+import exerciseMascot from "@/assets/images/coaching/main/type4.png";
 
 export type CoachingType = "sleep" | "meal" | "exercise" | "mind";
 
@@ -95,13 +95,13 @@ export const COACHING_DATA = {
       "운동 부족의 문제점",
       "꾸준한 운동습관을 위한 TIP",
       "운동 부족의 영향",
-      "코어 근육 강화",
-      "심폐 지구력 향상",
-      "주말 활동 계획",
-      "운동 일지 기록",
-      "동기 부여 유지",
-      "부상 방지 수칙",
-      "최종 운동 습관 완성",
+      "운동을 방해하는 요인2",
+      "근력 운동의 이점",
+      "운동할 때의 주의사항1",
+      "유산소와 근력 병행의 이점",
+      "운동 할 때의 주의사항2",
+      "일상에서 꾸준히 운동하기",
+      "운동을 지속하기위한 TIP",
       "최종 회고",
     ],
   },

@@ -4,6 +4,7 @@ import day9Pic1 from "@/assets/images/coaching/physical/day9_1.png";
 import day9Pic2 from "@/assets/images/coaching/physical/day9_2.png";
 import { usePageTranslation } from "@/hooks/usePageTranslation";
 import { CoachingInfoStep } from "../../-components/template/CoachingInfoStep";
+import Textbox from "../../-components/elements/Textbox";
 
 export function Day9Step2(props: any) {
   const { pt } = usePageTranslation("coaching/physical/day9");
@@ -27,16 +28,13 @@ export function Day9Step2(props: any) {
     <CoachingInfoStep
       title={pt("MSG_008")}
       image={step1 === pt("MSG_011") ? day9Pic2 : day9Pic1}
+      subtitle={pt("MSG_010")}
     >
-      <div className="flex flex-col gap-10 pt-4 pb-12">
-        <div className="space-y-3 px-1 text-center">
-          <h3 className="text-xl font-black tracking-tight text-slate-900 break-keep">
+      <div className="flex flex-col gap-10pb-12">
+        {/* <h3 className="text-xl font-black tracking-tight text-slate-900 break-keep">
             {pt("MSG_010")}
-          </h3>
-          <p className="text-base font-bold text-slate-500 break-keep">
-            {pt("MSG_019")}
-          </p>
-        </div>
+          </h3> */}
+        <Textbox className="font-semibold">{pt("MSG_012")}</Textbox>
 
         <div className="flex flex-col gap-6 mt-12 pb-12">
           {sections.map((section, idx) => (
@@ -66,6 +64,8 @@ export function Day9Step2(props: any) {
             </motion.div>
           ))}
         </div>
+
+        <Textbox className="font-semibold">{pt("MSG_019")}</Textbox>
       </div>
     </CoachingInfoStep>
   );

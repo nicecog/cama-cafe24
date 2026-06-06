@@ -11,7 +11,6 @@ export function Day11Step1(props: any) {
     <div className="flex flex-col gap-5">
       <ChallengeStart type="physical">
         {pt("MSG_005")}
-        <br />
         {pt("MSG_006", { name: accountName })}
       </ChallengeStart>
       <ChallengeQuestion

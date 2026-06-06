@@ -7,7 +7,7 @@ export function Day9Step3(props: any) {
   const { pt } = usePageTranslation("coaching/physical/day9");
   const { step3, setStep3 } = props;
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <TodayMission text={pt("MSG_021")} />
       <Textbox className="text-center font-bold">{pt("MSG_022")}</Textbox>
       <MissionInput

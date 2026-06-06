@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { format } from "date-fns";
 import { useState } from "react";
 import {
   type SaveCoachingAnswerInput,
@@ -92,8 +93,7 @@ function RouteComponent() {
   };
 
   const handleStepCountConfirm = async (trimmedStepCount: string) => {
-    const today = new Date();
-    const executionDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    const executionDate = format(new Date(), "yyyy-MM-dd");
 
     try {
       await saveCoachingStep({
