@@ -66,6 +66,8 @@ public class BilliveProxyController {
         }
         if (apiKey != null && !apiKey.isBlank()) {
             forwardHeaders.put("api_key", Collections.singletonList(apiKey));
+            // api_key(underscore) may be dropped by HTTP clients — Authorization is read by API JWT filter too
+            forwardHeaders.put(HttpHeaders.AUTHORIZATION, Collections.singletonList(apiKey));
         }
         String contentType = request.getContentType();
         if (contentType != null && !contentType.isBlank()) {

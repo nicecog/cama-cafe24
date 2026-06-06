@@ -107,6 +107,9 @@ public class JwtAuthenticationTokenFilter extends GenericFilterBean {
     private String obtainAuthorizationToken(HttpServletRequest request) {
 
         String token = request.getHeader(tokenHeader);
+        if (token == null || token.isBlank()) {
+            token = request.getHeader("Authorization");
+        }
 
         if (token != null) {
             if (log.isDebugEnabled())

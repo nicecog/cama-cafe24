@@ -21,11 +21,10 @@ import ConfirmModal from 'components/Modals/ConfirmModal';
 
 /** Services **/
 import commonApi from '../../../services/apis/common';
-import doctorContentsApi from '../../../services/apis/doctorContents';
+import adminServiceApi from '../../../services/apis/adminService';
 
 /** Hooks **/
 import useAlertState from 'hooks/useAlertState';
-import { useAuthRecoilValue } from '../../../hooks/recoil/useAuthState';
 
 /** Helpers **/
 import { bindBy } from '../../../utils/fxts';
@@ -52,7 +51,6 @@ interface PageState {
 
 function ApproveServicePage() {
   const navigate = useNavigate();
-  const account = useAuthRecoilValue();
   const { serviceSeq } = useParams<{ serviceSeq: string }>();
   const [state, setState] = useState<PageState>({
     diseaseGroup: [],
@@ -88,8 +86,8 @@ function ApproveServicePage() {
       diseaseList: [],
     };
 
-    doctorContentsApi
-      .updateDoctorServiceStatus(serviceSeq, dto)
+    adminServiceApi
+      .updateAdminServiceStatus(serviceSeq, dto)
       .then(res => {
         if (res) {
           onShowAlert('거절되었습니다.', () => {
@@ -128,8 +126,8 @@ function ApproveServicePage() {
       diseaseList,
     };
 
-    doctorContentsApi
-      .updateDoctorServiceStatus(serviceSeq, dto)
+    adminServiceApi
+      .updateAdminServiceStatus(serviceSeq, dto)
       .then(res => {
         if (res) {
           onShowAlert('승인되었습니다.', () => {
@@ -166,40 +164,42 @@ function ApproveServicePage() {
   };
 
   const initData = (seq: string) => {
-    if (account === null) {
-      return;
-    }
+    adminServiceApi
+      .getAdminServiceDetail(seq)
+      .then((serviceInfo) => {
+        return Promise.all([
+          commonApi.fetchDiseaseList(),
+          commonApi.fetchHospitalDiseaseList(serviceInfo.hospitalSeq),
+          Promise.resolve(serviceInfo),
+        ]).then(([diseaseList, hospitalDiseaseList, info]) => ({
+          diseaseList,
+          hospitalDiseaseList,
+          serviceInfo: info,
+        }));
+      })
+      .then(({ diseaseList, hospitalDiseaseList, serviceInfo }) => {
+        const hospitalDiseaseGroup = pipe(
+          hospitalDiseaseList,
+          groupBy((d) => d.diseaseSeq),
+        );
 
-    // Promise.all([
-    //   commonApi.fetchDiseaseList(),
-    //   commonApi.fetchHospitalDiseaseList(account.doctor.hospitalSeq),
-    //   doctorContentsApi.getDoctorServiceDetail(seq),
-    // ])
-    //   .then(([diseaseList, hospitalDiseaseList, serviceInfo]) => {
-    //
-    //     const hospitalDiseaseGroup = pipe(
-    //       hospitalDiseaseList,
-    //       groupBy(d => d.diseaseSeq),
-    //     );
-    //
-    //     const diseaseGroup: DiseaseGroup[] = diseaseList.map(d => ({
-    //       diseaseSeq: d.seq,
-    //       diseaseName: d.name,
-    //       diseaseOptions: (hospitalDiseaseGroup[d.seq] || []).map(k => ({
-    //         value: `${k.seq}`,
-    //         label: k.name,
-    //       }))
-    //     }))
-    //
-    //     changeState({
-    //       diseaseGroup,
-    //       serviceInfo,
-    //     });
-    //
-    //   })
-    //   .catch(err => {
-    //     onShowAlert(err);
-    //   });
+        const diseaseGroup: DiseaseGroup[] = diseaseList.map((d) => ({
+          diseaseSeq: d.seq,
+          diseaseName: d.name,
+          diseaseOptions: (hospitalDiseaseGroup[d.seq] || []).map((k) => ({
+            value: `${k.seq}`,
+            label: k.name,
+          })),
+        }));
+
+        changeState({
+          diseaseGroup,
+          serviceInfo,
+        });
+      })
+      .catch((err) => {
+        onShowAlert(err);
+      });
   };
 
   useEffect(() => {
@@ -211,7 +211,7 @@ function ApproveServicePage() {
     }
 
     initData(serviceSeq);
-  }, [account]);
+  }, [serviceSeq]);
 
   const { diseaseGroup, selectedItems, serviceInfo } = state;
   const { alertFlag, alertTitle, confirmFlag, confirmTitle } = alertState

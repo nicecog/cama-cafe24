@@ -78,7 +78,13 @@ const mainApiClient: ICustomAxiosInstance = axios.create({
 mainApiClient.interceptors.request.use(async (request: AxiosRequestConfig) => {
   const token = await getTokenLocalStorage();
   if (token !== null) {
-    request.headers = { ["api_key"]: `Bearer ${token}` };
+    const bearer = `Bearer ${token}`;
+    request.headers = {
+      ...request.headers,
+      api_key: bearer,
+      // Cafe24 front may strip api_key (underscore); Authorization is forwarded reliably
+      Authorization: bearer,
+    };
   }
   return request;
 });

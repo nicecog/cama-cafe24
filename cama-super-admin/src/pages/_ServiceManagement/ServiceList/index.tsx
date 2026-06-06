@@ -24,10 +24,9 @@ import ConfirmModal from 'components/Modals/ConfirmModal';
 /** Hooks **/
 import useAlertState from 'hooks/useAlertState';
 import { usePagingRecoilState } from '../../../hooks/recoil/usePagingState';
-import { useAuthRecoilValue } from '../../../hooks/recoil/useAuthState';
 
 /** Services **/
-import doctorContentsApi from '../../../services/apis/doctorContents';
+import adminServiceApi from '../../../services/apis/adminService';
 
 /** Helpers **/
 import { defaultPaginationValue } from '../../../constants/app';
@@ -53,7 +52,6 @@ const routeTag: RouteTag = 'SERVICE_LIST';
 
 function ServiceListPage() {
   const navigate = useNavigate();
-  const account = useAuthRecoilValue();
   const [pagingState, setPagingState] = usePagingRecoilState();
   const [state, setState] = useState<PageState>({
     list: [],
@@ -104,8 +102,8 @@ function ServiceListPage() {
 
   const fetchData = (page: number = 1, searchType: SearchType = defaultSearchValue, searchedValue: string ='') => {
 
-    doctorContentsApi.
-      fetchDoctorServiceList()
+    adminServiceApi
+      .fetchAdminServiceList(page, searchType, searchedValue)
       .then(res => {
         const { data, pagination } = res;
 

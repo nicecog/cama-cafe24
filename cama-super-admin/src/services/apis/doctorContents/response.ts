@@ -26,6 +26,7 @@ export interface ServiceInfo {
   createdAt: string;
   doctorName: string;
   hospitalName: string;
+  hospitalSeq: number;
   name: string;
   rejectDate: string;
   serviceSeq: number;

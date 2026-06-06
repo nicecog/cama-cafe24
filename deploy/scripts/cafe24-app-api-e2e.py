@@ -51,9 +51,9 @@ class Result:
 
     def __str__(self) -> str:
         if self.skipped:
-            return f"SKIP {self.name}: {self.method} {self.path} — {self.detail}"
+            return f"SKIP {self.name}: {self.method} {self.path} - {self.detail}"
         mark = "OK" if self.ok else "FAIL"
-        return f"{mark} [{self.status}] {self.name}: {self.method} {self.path} — {self.detail}"
+        return f"{mark} [{self.status}] {self.name}: {self.method} {self.path} - {self.detail}"
 
 
 def request(
