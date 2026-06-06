@@ -3,6 +3,7 @@ import AgGrid from "@/components/grid/AgGrid";
 import useExcelDownload, { ColumnDefsType } from "@/hooks/useExcelDownload";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import dayjs from "dayjs";
 
 export default function GridList(props: { data: any[]; searchInfo: any }) {
   const { data, searchInfo } = props;
@@ -14,7 +15,10 @@ export default function GridList(props: { data: any[]; searchInfo: any }) {
       {
         headerName: t("monthlyMonitoring.columns.yearMonth"),
         field: "yearMonth",
-
+        valueFormatter: (params: any) =>
+          params.value
+            ? dayjs(String(params.value), "YYYYMM").format("YYYY-MM")
+            : "",
         cellStyle: {
           textAlign: "center",
         },

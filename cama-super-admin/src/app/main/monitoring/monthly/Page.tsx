@@ -16,10 +16,12 @@ import { useTranslation } from "react-i18next";
 export default function Monthly() {
   const { t } = useTranslation();
   const [searchInfo, setSearchInfo] = useState({
-    frYearMonth: dayjs().startOf("year").format("YYYY-MM"), // 올해 1월
-    toYearMonth: dayjs().endOf("year").format("YYYY-MM"), // 올해 12월
+    frYearMonth: dayjs().startOf("year").format("YYYY-MM"), // UI 표시용
+    toYearMonth: dayjs().endOf("year").format("YYYY-MM"),
     userTypeCd: "99",
   });
+
+  const toDbYearMonth = (ym: string) => ym.replace(/-/g, "");
 
   const { getCodeList } = useCodeApi("USER_TYPE_CD");
   const { data: userTypeCode } = getCodeList();
@@ -41,7 +43,11 @@ export default function Monthly() {
     ],
     queryFn: async () => {
       const response = await axios
-        .post("api/monitoring/account/getAccountStatList", searchInfo)
+        .post("/api/monitoring/account/getAccountStatList", {
+          frYearMonth: toDbYearMonth(searchInfo.frYearMonth),
+          toYearMonth: toDbYearMonth(searchInfo.toYearMonth),
+          userTypeCd: searchInfo.userTypeCd,
+        })
         .then((res) => res.data.response);
       return response;
     },
@@ -58,7 +64,7 @@ export default function Monthly() {
 
     return {
       categories: reversed.map((r: any) =>
-        dayjs(r.yearMonth).format("YYYY-MM")
+        dayjs(r.yearMonth, "YYYYMM").format("YYYY-MM"),
       ),
       churnRate: reversed.map((r: any) => r.churnRate),
       dau: reversed.map((r: any) => r.dau),

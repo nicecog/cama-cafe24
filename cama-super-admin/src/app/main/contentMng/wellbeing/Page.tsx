@@ -55,7 +55,7 @@ export default function Wellbeing() {
     }));
   }, [i18n.language]);
 
-  const {data} = useGetWellbeingResourceList(params)
+  const { data, isPending, isError, error } = useGetWellbeingResourceList(params);
     
   // OnChange
   const onChange = ({
@@ -116,9 +116,19 @@ export default function Wellbeing() {
         </div>
 
         <div className="relative overflow-y-auto h-[82svh] p-5 my-2 ">
+          {isPending && (
+            <div className="flex items-center justify-center h-40 text-gray-500">
+              {t("common.loading", { defaultValue: "로딩 중..." })}
+            </div>
+          )}
+          {isError && (
+            <div className="flex items-center justify-center h-40 text-red-500 text-sm">
+              {(error as Error)?.message || t("common.loadFailed", { defaultValue: "데이터를 불러오지 못했습니다." })}
+            </div>
+          )}
           <div className="w-full">
             <Each
-              of={data?.response}
+              of={isPending || isError ? undefined : data?.response}
               keyItem={(item, index) => item.seq ?? index}
               noData={
                 <div className="p-5 text-center text-sm mt-10">

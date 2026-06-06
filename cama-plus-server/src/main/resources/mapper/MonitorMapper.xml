@@ -223,6 +223,9 @@
 		    and ac.seq = hs.account_seq 
 		    and hs.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq})
 		    and ac.is_enabled
+            <if test='acSeq != null and acSeq != 0'>
+                and ac.seq = #{acSeq}
+            </if>
             <if test='searchType != null and searchType != ""'>
                 <if test='searchText != null and searchText != ""'>
                     <if test='searchType == "name"'>
@@ -264,6 +267,9 @@
 		    and ac.seq = hs.account_seq 
 		    and hs.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq})
 		    and ac.is_enabled
+            <if test='acSeq != null and acSeq != 0'>
+                and ac.seq = #{acSeq}
+            </if>
             <if test='searchType != null and searchType != ""'>
                 <if test='searchText != null and searchText != ""'>
                     <if test='searchType == "name"'>

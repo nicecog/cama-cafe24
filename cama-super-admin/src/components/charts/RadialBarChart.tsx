@@ -2,13 +2,14 @@ import ApexChart from "react-apexcharts";
 
 export default function RadialBarChart(props: any) {
   const { color = "#249efa", title, per } = props;
+  const value = Math.max(0, Math.min(100, Number(per) || 0));
 
   const defaultOpt = {
     chart: {
-      events: {
-        // click: (c: any, w: any, e: any) => {
-        //   console.log(c, w, e);
-        // },
+      id: `radial-${title}`,
+      animations: {
+        enabled: true,
+        speed: 400,
       },
     },
     legend: { show: false },
@@ -46,7 +47,7 @@ export default function RadialBarChart(props: any) {
       type="radialBar"
       width={200}
       height={200}
-      series={[per]}
+      series={[value]}
     />
   );
 }

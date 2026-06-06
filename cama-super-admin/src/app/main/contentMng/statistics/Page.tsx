@@ -26,31 +26,33 @@ export default function Statistics() {
   };
 
   // Query Data
-  const { data } = useQuery({
-    queryKey: ["contents", "getFavoriteStatList" , i18n.language],
+  const { data, isPending, isFetching, isError } = useQuery({
+    queryKey: ["contents", "getFavoriteStatList", i18n.language],
     queryFn: async () => {
       const response = await axios
-        .post("api/monitoring/contents/getFavoriteStatList", {lang : i18n.language})
+        .post("/api/monitoring/contents/getFavoriteStatList", {
+          lang: i18n.language,
+        })
         .then((res) => res.data.response);
-      return response;
+      return Array.isArray(response) ? response : [];
     },
-    initialData: [],
   });
+
+  const list = data ?? [];
 
   // Step 1: Sort by `cnt` in descending order
   const sortedContents = useMemo(() => {
-    const sorted = data.sort((a: any, b: any) => b.cnt - a.cnt);
-    const top3 = sorted.slice(0, 3);
-
-    return top3;
-  }, [data]);
+    return [...list]
+      .sort((a: any, b: any) => b.cnt - a.cnt)
+      .slice(0, 3);
+  }, [list]);
 
   // Paginated data
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * displayRow;
     const endIndex = startIndex + displayRow;
-    return data.slice(startIndex, endIndex);
-  }, [data, currentPage, displayRow]);
+    return list.slice(startIndex, endIndex);
+  }, [list, currentPage, displayRow]);
 
   const onOpenDetail = (post: any) => {
     setDetail((p: any) => ({ ...p, visible: true, info: post }));
@@ -77,6 +79,11 @@ export default function Statistics() {
 
   return (
     <>
+      {(isPending || isFetching) && (
+        <div className="fixed inset-0 bg-gray-500/40 flex items-center justify-center z-50">
+          <div className="w-12 h-12 border-4 border-green-600 border-solid rounded-full animate-spin border-t-transparent" />
+        </div>
+      )}
       <div className="flex flex-col h-full ">
         <div className="shrink-0 ">
           <div className="flex flex-col gap-3 w-full  ">
@@ -122,7 +129,7 @@ export default function Statistics() {
           {/* Table */}
           <div className="overflow-auto  ">
             <h2 className="text-sm font-extrabold text-gray-800 border-b  text-right pb-0.5">
-            총 {data.length} 건
+            총 {list.length} 건
           </h2>
             <table className="w-full border-collapse table-fixed border-t-2 border-main">
               <colgroup>
@@ -165,9 +172,9 @@ export default function Statistics() {
                 ))}
               </tbody>
             </table>
-            {paginatedData.length === 0 && (
+            {paginatedData.length === 0 && !isPending && !isFetching && (
               <div className="flex items-center justify-center h-40 text-gray-500">
-                데이터가 없습니다.
+                {isError ? "데이터를 불러오지 못했습니다." : "데이터가 없습니다."}
               </div>
             )}
           </div>
@@ -176,7 +183,7 @@ export default function Statistics() {
           <div className="mt-4">
             <ClientPagination
               currentPage={currentPage}
-              totalCount={data?.length || 0}
+              totalCount={list.length || 0}
               displayRow={displayRow}
               onClick={(page: number) => {
                 setCurrentPage(page);

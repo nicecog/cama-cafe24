@@ -24,8 +24,9 @@ import {
 
 export const loader = ({ request }: any) => {
   const url = new URL(request.url);
+  const pathname = url.pathname.replace(/^\/admin(?=\/|$)/, "") || "/";
 
-  return ["/main", "/main/"].includes(url.pathname)
+  return ["/main", "/main/"].includes(pathname)
     ? redirect(import.meta.env.VITE_DEFAULT_PAGE)
     : null;
 };

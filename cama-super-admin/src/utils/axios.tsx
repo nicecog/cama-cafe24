@@ -33,8 +33,10 @@ axios.interceptors.request.use(
     // const apikey = getCookie(import.meta.env.VITE_COOKIE_ACCESS_TOKKEN);
 
     if (apikey) {
-      // 요청 전 헤더에 특정 값을 추가
-      config.headers["api_key"] = `Bearer ${apikey}`;
+      const bearer = `Bearer ${apikey}`;
+      config.headers["api_key"] = bearer;
+      // Cafe24 front may strip api_key (underscore)
+      config.headers["Authorization"] = bearer;
     }
 
     // 1. 요청 전달되기 전 작업 처리

@@ -1,26 +1,24 @@
 #!/usr/bin/env node
 /**
- * Cafe24 PROD build: cama-super-admin .env.cafe24.example → .env 후 CRA build
+ * Cafe24 PROD build: cama-super-admin (Vite) — .env.production 사용
  */
-import { copyFileSync, existsSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../../cama-super-admin");
-const example = join(root, ".env.cafe24.example");
-const envFile = join(root, ".env");
+const envProduction = join(root, ".env.production");
 
-if (!existsSync(example)) {
-  console.error("Missing:", example);
+if (!existsSync(envProduction)) {
+  console.error("Missing:", envProduction);
   process.exit(1);
 }
 
-copyFileSync(example, envFile);
-console.log("Using", example, "→ .env");
+console.log("Building cama-super-admin with mode=production (.env.production)");
 
 const npm = process.platform === "win32" ? "npm.cmd" : "npm";
-const r = spawnSync(npm, ["run", "build:cafe24"], {
+const r = spawnSync(npm, ["run", "build:prod"], {
   cwd: root,
   stdio: "inherit",
   shell: process.platform === "win32",

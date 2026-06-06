@@ -9,7 +9,7 @@ const App = () => {
 
   if (pathname === "/") {
     return isAuthLogin() ? (
-      <Navigate to={"/main"} />
+      <Navigate to={import.meta.env.VITE_DEFAULT_PAGE} />
     ) : (
       <Navigate to={"/login"} />
     );

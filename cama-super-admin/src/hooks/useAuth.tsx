@@ -61,11 +61,18 @@ const useAuth = () => {
 	const login = async (principal: string, credentials: string) => {
 		try {
 			const { apiToken, doctor } = await axios
-				.post("/api/auth/admin", {
+				.post("/api/auth/doctor", {
 					credentials,
 					principal,
 				})
 				.then(({ data }: any) => data.response);
+
+			if (!apiToken || !doctor) {
+				return {
+					isLogin: false,
+					message: "로그인 응답 형식이 올바르지 않습니다.",
+				};
+			}
 
 			const userInfo: SessionTokkenType = {
 				isLogin: true, // 로그인 여부 필수 !

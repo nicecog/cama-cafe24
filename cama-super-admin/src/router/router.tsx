@@ -37,7 +37,8 @@ const routes = Object.keys(ROUTES).map((route) => {
 });
 
 //  Create Routers
-export const router = createBrowserRouter([
+export const router = createBrowserRouter(
+  [
   {
     path: "/",
     element: <App />,
@@ -61,4 +62,6 @@ export const router = createBrowserRouter([
     ],
   },
   // { path: "*", element: <NotFound /> },
-]);
+  ],
+  { basename: "/admin" },
+);

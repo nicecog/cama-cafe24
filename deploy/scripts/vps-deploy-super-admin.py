@@ -35,11 +35,11 @@ def load_access() -> dict[str, str]:
     return {"host": host, "user": user, "password": password}
 
 
-def ensure_build() -> Path:
-    build_dir = ADMIN_ROOT / "build"
-    if not (build_dir / "index.html").is_file():
+def ensure_build(force: bool = False) -> Path:
+    build_dir = ADMIN_ROOT / "dist"
+    if force or not (build_dir / "index.html").is_file():
         print("Building cama-super-admin...")
-        r = subprocess.run([sys.executable, str(BUILD_SCRIPT)], cwd=REPO_ROOT)
+        r = subprocess.run(["node", str(BUILD_SCRIPT)], cwd=REPO_ROOT)
         if r.returncode != 0:
             raise SystemExit(r.returncode)
     if not (build_dir / "index.html").is_file():
@@ -78,7 +78,7 @@ def sftp_upload_tree(sftp, local: Path, remote: str) -> int:
 def main() -> None:
     import paramiko
 
-    build_dir = ensure_build()
+    build_dir = ensure_build(force=True)
     acc = load_access()
     print(f"Connecting {acc['user']}@{acc['host']} ...")
 
@@ -134,7 +134,7 @@ def main() -> None:
 
     _, stdout, _ = client.exec_command(
         "curl -sk -o /dev/null -w 'public_admin:%{http_code}\\n' "
-        "https://127.0.0.1/admin/ -H 'Host: camaplus.cafe24.com'"
+        "https://camaplus.cafe24.com/admin/"
     )
     print(stdout.read().decode(errors="replace").strip())
 

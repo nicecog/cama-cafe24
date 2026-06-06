@@ -13,26 +13,27 @@ import { useQuery } from "@tanstack/react-query";
 import StepChart from "./StepChart";
 import useAlert from "@/hooks/useAlert";
 import { useTranslation } from "react-i18next";
- 
 
-// 코칭 모니터링 목록
-const url = "/api/monitoring/coaching/getCoachingMonitoringList";
+// 코칭 모니터링 목록 (환자별 radial 차트)
+const coachingListUrl = "/api/monitoring/coaching/getCoachingMonitoringList";
 // 코칭모니터링 상세
-const detail = "api/monitoring/coaching/getCoachingDetailList";
+const coachingDetailUrl = "/api/monitoring/coaching/getCoachingDetailList";
 // 코칭 모니터링 삭제
 const deleteUrl = "/api/monitoring/coaching/deleteAnswer";
 
 export default function CoachingMonitoring() {
   const { t, i18n } = useTranslation();
- 
 
   // 카테고리 옵션
-  const options = useMemo(() => [
-    { label: t("patientMng_coachingMonitoring.coaching.categories.sleep"), value: "A" },
-    { label: t("patientMng_coachingMonitoring.coaching.categories.diet"), value: "B" },
-    { label: t("patientMng_coachingMonitoring.coaching.categories.physicalActivity"), value: "C" },
-    { label: t("patientMng_coachingMonitoring.coaching.categories.mental"), value: "D" },
-  ], [t, i18n.language]);
+  const options = useMemo(
+    () => [
+      { label: t("patientMng_coachingMonitoring.coaching.categories.sleep"), value: "A" },
+      { label: t("patientMng_coachingMonitoring.coaching.categories.diet"), value: "B" },
+      { label: t("patientMng_coachingMonitoring.coaching.categories.physicalActivity"), value: "C" },
+      { label: t("patientMng_coachingMonitoring.coaching.categories.mental"), value: "D" },
+    ],
+    [t, i18n.language],
+  );
   const [searchParams] = useSearchParams();
 
   const { alert, confirm } = useAlert();
@@ -40,57 +41,62 @@ export default function CoachingMonitoring() {
   const name = searchParams.get("name") || "";
   const seq = searchParams.get("seq") || "0";
 
-  const [rowData, setRowData] = useState([]);
-
-  const [gridData, setGridData] = useState([]);
+  const [rowData, setRowData] = useState<any[]>([]);
+  const [gridData, setGridData] = useState<any[]>([]);
   const [categoryCd, setCategoryCd] = useState("A");
+  const [chartsLoading, setChartsLoading] = useState(false);
 
-  const { data } = useQuery({
-    queryKey: ["coaching", "stepCount"],
+  const { data: stepData, isFetching: stepFetching } = useQuery({
+    queryKey: ["coaching", "stepCount", seq],
     queryFn: async () => {
-      const response = await axios
-        .post("api/monitoring/coaching/getStepInfoList", {
-          accountSeq: seq,
-        })
-        .then((res) => res.data.response);
-      return response;
+      const response = await axios.post("/api/monitoring/coaching/getStepInfoList", {
+        accountSeq: seq,
+      });
+      return response.data.response ?? [];
     },
-    initialData: [],
+    enabled: seq !== "0",
   });
 
-  const onSearch = (
-    // searchName: string,
-    searchSeq: string,
-    searchCategoryCd: string
-  ) => {
-    axios
-      .post(url, {
-        acSeq : searchSeq, 
-        // searchText: searchName,
-        searchType: "name",
-        page: "1",
-      })
-      .then(({ data }) => {
-        setRowData(data.response.filter((r: any) => r.seq === +searchSeq));
-      });
+  const loadPatientCoaching = async (searchSeq: string, searchCategoryCd: string) => {
+    if (!searchSeq || searchSeq === "0") {
+      setRowData([]);
+      setGridData([]);
+      return;
+    }
 
-    axios
-      .post(detail, {
-        acSeq: searchSeq,
-        categoryCd: searchCategoryCd,
-      })
-      .then((r: any) => {
-        setGridData((_) => r.data.response);
-      })
-      .catch((_) => {
-        alert(t("patientMng_coachingMonitoring.coaching.noData"));
-        setGridData([]);
-      });
+    setChartsLoading(true);
+    try {
+      const [listRes, detailRes] = await Promise.all([
+        axios.post(coachingListUrl, {
+          acSeq: searchSeq,
+          searchType: "name",
+          searchText: name,
+          page: "1",
+        }),
+        axios.post(coachingDetailUrl, {
+          acSeq: searchSeq,
+          categoryCd: searchCategoryCd,
+        }),
+      ]);
+
+      const targetSeq = Number(searchSeq);
+      const rows = (listRes.data.response ?? []).filter(
+        (r: any) => Number(r.seq) === targetSeq,
+      );
+      setRowData(rows);
+      setGridData(detailRes.data.response ?? []);
+    } catch {
+      alert(t("patientMng_coachingMonitoring.coaching.noData"));
+      setRowData([]);
+      setGridData([]);
+    } finally {
+      setChartsLoading(false);
+    }
   };
 
   useEffect(() => {
-    onSearch( seq, categoryCd);
-  }, []);
+    loadPatientCoaching(seq, categoryCd);
+  }, [seq, name, categoryCd]);
 
   const recommendedColors = [
     "#1a8cff", // 진한 청록색 - 메인 색상과 잘 어울리는 강렬한 청록색
@@ -101,8 +107,7 @@ export default function CoachingMonitoring() {
   ];
 
   const onDetailClick = (e: ChangeEvent<HTMLSelectElement>) => {
-    setCategoryCd((_) => e.target.value);
-    onSearch( seq, e.target.value);
+    setCategoryCd(e.target.value);
   };
 
   const colDefs = useMemo(
@@ -180,7 +185,7 @@ export default function CoachingMonitoring() {
             if (data.success) {
               alert(t("patientMng_coachingMonitoring.coaching.deleted"));
 
-              onSearch(  seq, categoryCd);
+              loadPatientCoaching(seq, categoryCd);
             }
           });
       }
@@ -228,19 +233,25 @@ export default function CoachingMonitoring() {
           </div>
           {!fullSize ? (
             <div className="mt-5 flex w-full flex-col">
+              {(chartsLoading || stepFetching) && (
+                <div className="flex justify-center py-6">
+                  <div className="w-10 h-10 border-4 border-green-600 border-solid rounded-full animate-spin border-t-transparent" />
+                </div>
+              )}
               <div className="flex justify-around flex-auto ">
-                {rowData.map((i: any, index: number) => (
-                  <RadialBarChart
-                    key={index}
-                    title={i.categoryNm}
-                    per={i.progress}
-                    color={recommendedColors[index]}
-                  />
-                ))}
+                {!chartsLoading &&
+                  rowData.map((i: any, index: number) => (
+                    <RadialBarChart
+                      key={`${i.categoryCd ?? index}-${i.seq}`}
+                      title={i.categoryNm}
+                      per={Number(i.progress) || 0}
+                      color={recommendedColors[index % recommendedColors.length]}
+                    />
+                  ))}
               </div>
 
               <div className="w-full">
-                <StepChart data={data} />
+                <StepChart data={stepData ?? []} />
               </div>
             </div>
           ) : null}
