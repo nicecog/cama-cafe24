@@ -1,20 +1,21 @@
 # Cafe24 이관 — 작업 진행 상황 (재시작용)
 
-> **최종 갱신:** 2026-06-03  
+> **최종 갱신:** 2026-06-06  
 > **워크스페이스:** `F:\cama_pjt` · **작업 루트:** `F:\cama_pjt\cama-cafe24`  
 > **목적:** Cursor·개발자가 세션을 새로 열 때 **지금까지 한 일·미완료·다음 단계**를 한 번에 파악.
 
 **관련 문서 (읽는 순서)**
 
-1. **[CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md](CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md)** — **최신** AWS→Cafe24 이관·Super Admin·서비스 신청 API·GitHub
-2. **[CAFE24_SESSION_HANDOFF_2026-06-04.md](CAFE24_SESSION_HANDOFF_2026-06-04.md)** — WebView 성능·탭바·RN 홈 복귀·웰빙/건강코칭 헤더
-3. **[CAFE24_SESSION_HANDOFF_2026-06-03.md](CAFE24_SESSION_HANDOFF_2026-06-03.md)** — WebView nginx·ID 변경·로그인·APK 1.2.7
-4. **[CAFE24_AWS_DECOMMISSION.md](CAFE24_AWS_DECOMMISSION.md)** — AWS 리소스 만료 체크리스트
-5. **[WEBVIEW_PERFORMANCE_FUTURE.md](WEBVIEW_PERFORMANCE_FUTURE.md)** — WebView 성능 추후 검토
-6. **본 문서** — 계정 복구·APK·Brevo·이슈 롤업
-7. [CAFE24_CURSOR_HANDOFF.md](CAFE24_CURSOR_HANDOFF.md) — 재시작 5분 체크리스트
-8. [CAFE24_WORK_STATUS_AND_TODO.md](CAFE24_WORK_STATUS_AND_TODO.md) — 인프라·TO-BE 상세
-9. [CAFE24_TEST_GUIDE.md](CAFE24_TEST_GUIDE.md) · [CAFE24_DEPLOYMENT_GUIDE.md](CAFE24_DEPLOYMENT_GUIDE.md)
+1. **[CAFE24_SESSION_HANDOFF_2026-06-06-SUPER-ADMIN-MONITORING.md](CAFE24_SESSION_HANDOFF_2026-06-06-SUPER-ADMIN-MONITORING.md)** — **최신** Vite Super Admin·월평가·radial 차트·Git `3fa1c59`
+2. **[CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md](CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md)** — AWS→Cafe24 이관·403·서비스 신청 API
+3. **[CAFE24_SESSION_HANDOFF_2026-06-04.md](CAFE24_SESSION_HANDOFF_2026-06-04.md)** — WebView 성능·탭바·RN 홈 복귀·웰빙/건강코칭 헤더
+4. **[CAFE24_SESSION_HANDOFF_2026-06-03.md](CAFE24_SESSION_HANDOFF_2026-06-03.md)** — WebView nginx·ID 변경·로그인·APK 1.2.7
+5. **[CAFE24_AWS_DECOMMISSION.md](CAFE24_AWS_DECOMMISSION.md)** — AWS 리소스 만료 체크리스트
+6. **[WEBVIEW_PERFORMANCE_FUTURE.md](WEBVIEW_PERFORMANCE_FUTURE.md)** — WebView 성능 추후 검토
+7. **본 문서** — 계정 복구·APK·Brevo·이슈 롤업
+8. [CAFE24_CURSOR_HANDOFF.md](CAFE24_CURSOR_HANDOFF.md) — 재시작 5분 체크리스트
+9. [CAFE24_WORK_STATUS_AND_TODO.md](CAFE24_WORK_STATUS_AND_TODO.md) — 인프라·TO-BE 상세
+10. [CAFE24_TEST_GUIDE.md](CAFE24_TEST_GUIDE.md) · [CAFE24_DEPLOYMENT_GUIDE.md](CAFE24_DEPLOYMENT_GUIDE.md)
 
 **GitHub:** https://github.com/nicecog/cama-cafe24 (`main`)
 
@@ -245,6 +246,27 @@ docker restart cama-plus-server
 python deploy/scripts/aws-to-cafe24-migrate.py --verify --use-legacy-aws-config
 python deploy/scripts/vps-deploy-server-src.py
 python deploy/scripts/vps-deploy-super-admin.py
+```
+
+---
+
+## 7b. Super Admin · 모니터링 (2026-06-06) — 요약
+
+> 상세: [CAFE24_SESSION_HANDOFF_2026-06-06-SUPER-ADMIN-MONITORING.md](CAFE24_SESSION_HANDOFF_2026-06-06-SUPER-ADMIN-MONITORING.md)
+
+| 작업 | 결과 |
+|------|------|
+| Vite Super Admin `/admin/` VPS 배포 | ✅ `cama` / `admincama!` |
+| 코칭 radial 차트 (환자 상세) | ✅ `MonitorMapper.xml` acSeq + `Coaching.tsx` |
+| 월평가지표 빈 화면 | ✅ UI `YYYYMM` (DB 형식), 배치·DB 이관 정상 확인 |
+| 웰빙·즐겨찾기 통계 로딩 UX | ✅ |
+| Git push | ✅ `3fa1c59` |
+
+```powershell
+node deploy/scripts/build-super-admin-cafe24.mjs
+python deploy/scripts/vps-deploy-super-admin.py
+python deploy/scripts/vps-deploy-server-src.py   # MonitorMapper acSeq
+python deploy/scripts/diagnose-monthly-stats.py  # 월평가 진단
 ```
 
 ---

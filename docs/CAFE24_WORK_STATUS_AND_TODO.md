@@ -1,8 +1,8 @@
 # Cafe24 이관 작업 현황 · 주의사항 · TO-BE
 
-> **작성일:** 2026-06-03 · **최종 갱신:** 2026-06-03  
+> **작성일:** 2026-06-03 · **최종 갱신:** 2026-06-06  
 > **대상 경로:** `F:\cama_pjt\cama-cafe24`  
-> **Cursor AI 재시작 시:** 👉 **[CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md](CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md)** (AWS·Admin·Git) → [CAFE24_PROGRESS_HANDOFF.md](CAFE24_PROGRESS_HANDOFF.md)  
+> **Cursor AI 재시작 시:** 👉 **[CAFE24_SESSION_HANDOFF_2026-06-06-SUPER-ADMIN-MONITORING.md](CAFE24_SESSION_HANDOFF_2026-06-06-SUPER-ADMIN-MONITORING.md)** (Super Admin·모니터링·Git `3fa1c59`) → [MIGRATION-GIT](CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md) → [PROGRESS](CAFE24_PROGRESS_HANDOFF.md)  
 > **GitHub:** https://github.com/nicecog/cama-cafe24  
 > **관련 문서:** [AWS 만료](CAFE24_AWS_DECOMMISSION.md) · [Super Admin](CAFE24_SUPER_ADMIN_MIG.md) · [핸드오프](CAFE24_CURSOR_HANDOFF.md) · [배포](CAFE24_DEPLOYMENT_GUIDE.md) · [테스트](CAFE24_TEST_GUIDE.md)
 
@@ -32,9 +32,11 @@
 | Android APK 빌드 (JDK 17) | ✅ 완료 | `dist/cama-plus-cafe24-1.2.7-release.apk` (Git 추적) |
 | **AWS S3 → VPS 로컬 파일** | ✅ 완료 | `cama-images` + `cama-files` — [MIGRATION-GIT §2](CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md) |
 | **DB AWS URL 치환** | ✅ 완료 | 전 컬럼 감사 0건 |
-| **Super Admin** `/admin/` | ✅ 완료 | 라우팅·테마·치료정보 사용현황 |
-| **의사 웹 서비스 신청 API** | ✅ 완료 | `/api/doctor/service` |
-| **GitHub** | ✅ 완료 | `nicecog/cama-cafe24` |
+| **Super Admin** `/admin/` | ✅ 완료 | **Vite** 배포·doctor 로그인·모니터링 버그 수정 — [HANDOFF 2026-06-06](CAFE24_SESSION_HANDOFF_2026-06-06-SUPER-ADMIN-MONITORING.md) |
+| **의사 웹·Admin 403** | ✅ 완료 | JWT·nginx·`/api/doctor/service` — `42a2225` |
+| **월평가지표** (`account_cnt_statistics`) | ✅ 완료 | DB·배치 정상, UI `YYYYMM` 수정 |
+| **코칭 radial 차트** (환자 상세) | ✅ 완료 | `acSeq` SQL 필터 + 프론트 |
+| **GitHub** | ✅ 완료 | `nicecog/cama-cafe24` · **`3fa1c59`** |
 | 환자 ID/PW 찾기·초기화 (API+앱) | ✅ VPS 배포 | [PROGRESS §3](CAFE24_PROGRESS_HANDOFF.md) |
 | Brevo SMTP | ⏳ 설정만 | VPS `.env` + `camaplus.me` DNS |
 | cama-back-batch 스케줄 + FCM dry-run | ✅ 검증 | dry-run 로그 확인 |
@@ -408,7 +410,8 @@ cama-cafe24/
 ├── react-app-dawplus/     # 환자 WebView SPA
 ├── dist/                  # ★ APK: cama-plus-cafe24-1.2.7-release.apk (Git 추적)
 └── docs/
-    ├── CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md  ← ★ AWS·Admin·Git
+    ├── CAFE24_SESSION_HANDOFF_2026-06-06-SUPER-ADMIN-MONITORING.md  ← ★ Super Admin·모니터링·Git 3fa1c59
+    ├── CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md  ← AWS·Admin·Git
     ├── CAFE24_AWS_DECOMMISSION.md
     ├── CAFE24_PROGRESS_HANDOFF.md
     ├── CAFE24_CURSOR_HANDOFF.md
@@ -428,6 +431,7 @@ cama-cafe24/
 | 2026-06-03 | [CAFE24_BATCH_SCHEDULE.md](CAFE24_BATCH_SCHEDULE.md) 추가 (스케줄 배치 상세) |
 | 2026-06-03 | 배치 FCM dry-run E2E, [CAFE24_CURSOR_HANDOFF.md](CAFE24_CURSOR_HANDOFF.md) |
 | 2026-06-03 | AWS→Cafe24 S3·DB·`/files/`, Super Admin, `/api/doctor/service`, GitHub, [MIGRATION-GIT](CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md) |
+| 2026-06-06 | Vite Super Admin `/admin/` VPS 배포, 403/JWT, 코칭 radial·월평가 YYYYMM·로딩 UX, Git `3fa1c59` — [HANDOFF 2026-06-06](CAFE24_SESSION_HANDOFF_2026-06-06-SUPER-ADMIN-MONITORING.md) |
 
 ---
 
