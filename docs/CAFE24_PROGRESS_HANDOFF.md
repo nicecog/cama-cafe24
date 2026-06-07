@@ -260,13 +260,15 @@ python deploy/scripts/vps-deploy-super-admin.py
 | 코칭 radial 차트 (환자 상세) | ✅ `MonitorMapper.xml` acSeq + `Coaching.tsx` |
 | 월평가지표 빈 화면 | ✅ UI `YYYYMM` (DB 형식), 배치·DB 이관 정상 확인 |
 | 웰빙·즐겨찾기 통계 로딩 UX | ✅ |
-| Git push | ✅ `3fa1c59` |
+| Git push | ✅ `3fa1c59` · `5790939` |
+| `/admin/login` happycog | ✅ `cm_doctor` 생성 + PW (`vps-set-admin-login-happycog.py`) |
 
 ```powershell
 node deploy/scripts/build-super-admin-cafe24.mjs
 python deploy/scripts/vps-deploy-super-admin.py
 python deploy/scripts/vps-deploy-server-src.py   # MonitorMapper acSeq
 python deploy/scripts/diagnose-monthly-stats.py  # 월평가 진단
+python deploy/scripts/vps-set-admin-login-happycog.py  # Super Admin 계정 PW
 ```
 
 ---
