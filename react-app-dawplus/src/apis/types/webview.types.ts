@@ -199,6 +199,40 @@ export interface WebviewExerciseUserClassInfo {
 }
 
 /**
+ * 운동 콘텐츠 아이템
+ */
+export interface WebviewExerciseContentItem {
+  difficultyCd: string;
+  engName: string;
+  exerciseTypeCd: string;
+  indexNum: number;
+  korName: string;
+  loginId: string | null;
+  url: string;
+}
+
+/**
+ * 운동 평가 결과 문답 항목
+ */
+export interface ExerciseSurveyResultItem {
+  seq: number;
+  question: string;
+  answer: string;
+}
+
+/**
+ * 운동 평가 저장 요청 파라미터
+ */
+export interface SaveExerciseUserClassParams {
+  loginId: string;
+  cancerTypeCd: string;
+  exerciseProgramCd: string;
+  aerobic: string;
+  therapyCd: string;
+  surveyResult: ExerciseSurveyResultItem[];
+}
+
+/**
  * 웰빙 리소스 리스트 요청 파라미터
  */
 export interface WellbeingResourceListParams {

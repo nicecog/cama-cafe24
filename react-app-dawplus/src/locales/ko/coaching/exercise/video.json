@@ -1,0 +1,19 @@
+{
+  "title": "운동콘텐츠",
+  "description": "영상을 보면서 따라해 보세요.",
+  "today_prefix": "오늘 진행할 운동은",
+  "today_suffix": "입니다.",
+  "notice_title": "주의",
+  "notice_body": "자가운동 시행 시에는 그날의 신체상황에 따라\n무리하지 않고 가능한 범위 내에서\n실시하는 것이 가장 중요합니다.\n언제나 낙상에 유의하시어 진행하시기 바랍니다.",
+  "notice_advanced": "고급 운동은 체육 및 재활 전문가와 함께 하시길 권고드립니다.",
+  "guide": "영상을 보면서 따라해 보세요",
+  "confirm": "운동을 완료 하셨나요?",
+  "confirm_prefix": "운동을",
+  "confirm_suffix": "완료 하셨나요?",
+  "confirm_yes": "네, 완료했어요",
+  "confirm_no": "아니오, 더 해볼게요",
+  "back": "목록으로",
+  "complete": "운동완료",
+  "success": "운동 완료가 저장되었습니다.",
+  "error": "운동 완료 저장 중 문제가 발생했습니다."
+}

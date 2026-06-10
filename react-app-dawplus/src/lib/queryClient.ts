@@ -217,6 +217,8 @@ export const queryKeys = {
         ["webview", "coaching", "answerList", loginId, categoryCd] as const,
       exerciseClassInfo: (loginId: string) =>
         ["webview", "coaching", "exerciseClassInfo", loginId] as const,
+      exerciseContentList: (loginId: string) =>
+        ["webview", "coaching", "exerciseContentList", loginId] as const,
     },
     // Wellbeing
     wellbeing: {

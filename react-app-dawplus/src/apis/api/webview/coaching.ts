@@ -5,7 +5,9 @@ import type {
   CoachingCodeListParams,
   SaveCoachingAnswerParams,
   SaveCoachingStepParams,
+  SaveExerciseUserClassParams,
   WebviewCoachingProgress,
+  WebviewExerciseContentItem,
   WebviewExerciseUserClassInfo,
   WebviewUserAnswerInfo,
   WebviewUserAnswerInfoListParams,
@@ -77,6 +79,51 @@ export const fetchExerciseUserClassInfo = async (
   return api
     .post("api/coaching/service/getExerciseUserClassInfo", {
       json: { loginId },
+    })
+    .json();
+};
+
+/**
+ * 운동 콘텐츠 리스트 조회
+ * POST /api/coaching/service/getExerciseContentList
+ */
+export const fetchExerciseContentList = async (
+  loginId: string,
+): Promise<ApiResponse<WebviewExerciseContentItem[]>> => {
+  return api
+    .post("api/coaching/service/getExerciseContentList", {
+      json: { loginId },
+    })
+    .json();
+};
+
+/**
+ * 운동 평가 결과 저장
+ * PUT /api/coaching/service/saveExerciseUserClass
+ */
+export const saveExerciseUserClass = async (
+  params: SaveExerciseUserClassParams,
+): Promise<ApiResponse<void>> => {
+  return api
+    .put("api/coaching/service/saveExerciseUserClass", {
+      json: params,
+    })
+    .json();
+};
+
+/**
+ * 운동 평가 설문 이력 저장
+ * PUT /api/coaching/service/saveExerciseSurveyResult
+ */
+export const saveExerciseSurveyResult = async (
+  params: SaveExerciseUserClassParams,
+): Promise<ApiResponse<void>> => {
+  return api
+    .put("api/coaching/service/saveExerciseSurveyResult", {
+      json: {
+        ...params,
+        difficultyCd: params.exerciseProgramCd,
+      },
     })
     .json();
 };

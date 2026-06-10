@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import {
   fetchCoachingCodeList,
   fetchCoachingProgressList,
+  fetchExerciseContentList,
   fetchExerciseUserClassInfo,
   fetchUserAnswerInfoList,
 } from "@/apis/api/webview/coaching";
@@ -54,6 +55,19 @@ export const useExerciseUserClassInfo = (loginId: string = "") => {
     queryFn: () => fetchExerciseUserClassInfo(loginId),
     enabled: !!loginId,
     select: (data) => data.response,
+  });
+};
+
+/**
+ * 운동 콘텐츠 리스트 조회
+ * @param loginId - 로그인 ID
+ */
+export const useExerciseContentList = (loginId: string = "") => {
+  return useQuery({
+    queryKey: queryKeys.webview.coaching.exerciseContentList(loginId),
+    queryFn: () => fetchExerciseContentList(loginId),
+    enabled: !!loginId,
+    select: (data) => data.response ?? [],
   });
 };
 

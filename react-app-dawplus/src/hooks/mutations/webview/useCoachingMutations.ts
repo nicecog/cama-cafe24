@@ -3,10 +3,13 @@ import { useAtomValue } from "jotai";
 import {
   saveCoachingAnswerList,
   saveCoachingStep,
+  saveExerciseSurveyResult,
+  saveExerciseUserClass,
 } from "@/apis/api/webview/coaching";
 import type {
   SaveCoachingAnswerParams,
   SaveCoachingStepParams,
+  SaveExerciseUserClassParams,
 } from "@/apis/types";
 import { accountMeAtom } from "@/atoms/accountAtoms";
 import { queryKeys } from "@/lib/queryClient";
@@ -77,6 +80,30 @@ export const useSaveCoachingStep = () => {
         ...params,
         loginId,
       });
+    },
+  });
+};
+
+/**
+ * 운동 평가 결과 저장 Mutation
+ * PUT /api/coaching/service/saveExerciseUserClass
+ */
+export const useSaveExerciseUserClass = () => {
+  return useMutation({
+    mutationFn: async (params: SaveExerciseUserClassParams) => {
+      return saveExerciseUserClass(params);
+    },
+  });
+};
+
+/**
+ * 운동 평가 설문 이력 저장 Mutation
+ * PUT /api/coaching/service/saveExerciseSurveyResult
+ */
+export const useSaveExerciseSurveyResult = () => {
+  return useMutation({
+    mutationFn: async (params: SaveExerciseUserClassParams) => {
+      return saveExerciseSurveyResult(params);
     },
   });
 };
