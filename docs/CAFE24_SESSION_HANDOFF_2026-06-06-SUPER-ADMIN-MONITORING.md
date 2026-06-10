@@ -2,7 +2,7 @@
 
 > **최종 갱신:** 2026-06-06  
 > **워크스페이스:** `F:\cama_pjt` · **작업 루트:** `F:\cama_pjt\cama-cafe24`  
-> **GitHub:** https://github.com/nicecog/cama-cafe24 · **커밋:** `3fa1c59` (`main`)
+> **GitHub:** https://github.com/nicecog/cama-cafe24 · **커밋:** `5790939` (`main`, docs)
 
 **관련 문서**
 
@@ -26,7 +26,8 @@
 | 웰빙·즐겨찾기 통계 멈춤처럼 보임 | ✅ API 정상, 로딩 UI 추가 |
 | `account_cnt_statistics` AWS 이관 | ✅ 202411~ 데이터 존재 (마이그레이션 문제 아님) |
 | 배치 `accountStatisticsBatch` (23:00 KST) | ✅ Cafe24 정상 동작 확인 |
-| GitHub push | ✅ `3fa1c59` |
+| GitHub push | ✅ `3fa1c59` (코드) · `5790939` (문서) |
+| **`/admin/login` happycog 계정** | ✅ VPS DB (`cm_doctor` 신규 + `cm_admin` PW) |
 
 ---
 
@@ -56,8 +57,18 @@ Cafe24 `/admin/` 경로에 맞춰 빌드·배포·인증·라우팅을 재점검
 
 | URL | 용도 | 계정 |
 |-----|------|------|
-| `/admin/` | **신규 Vite 의사 관리자** (환자·콘텐츠·모니터링) | `cama` / `admincama!` |
-| 구 CRA `/admin/system-management/*` | 시스템 Admin (현 라우터 **미포함**) | `happycog` / (별도) |
+| `/admin/login` | **신규 Vite Super Admin** (환자·콘텐츠·모니터링) | `cama` / `admincama!` |
+| `/admin/login` | 동일 (추가 발행) | `happycog` / `whanam74!` |
+| `/api/auth/admin` | 시스템 Admin API (구 CRA·병원/의사 관리) | `happycog` / `whanam74!` |
+
+> `/admin/login`은 **`POST /api/auth/doctor`** 를 사용하므로 **`cm_doctor` 행이 필수**입니다.  
+> `happycog`는 기존에 `cm_admin`만 있어 로그인 불가 → **`cm_doctor` seq=6** (`hospital_seq=1`, `cama`와 동일) 생성.
+
+```powershell
+# 비밀번호 재설정 (VPS DB, bcrypt)
+python deploy/scripts/vps-set-admin-login-happycog.py
+# 환경변수: CAMA_ADMIN_LOGIN, CAMA_ADMIN_PASSWORD
+```
 
 ### 2.4 배포
 
@@ -172,16 +183,16 @@ API 프로브 12건 모두 HTTP 200 (`cafe24-super-admin-screen-api-probe.py`).
 | `probe-coaching-radial.py` | 코칭 radial 차트 API |
 | `diagnose-monthly-stats.py` | 월평가 DB·배치·API 형식 |
 | `vps-debug-super-admin.py` | `/admin/` VPS 헬스 |
+| `vps-set-admin-login-happycog.py` | Super Admin 로그인 계정(`cm_doctor`+`cm_admin`) PW 설정 |
 
 ---
 
 ## 9. Git
 
 ```text
-커밋: 3fa1c59
+코드: 3fa1c59 — fix: Super Admin Cafe24 deploy and monitoring screen bugs
+문서: 5790939 — docs: add Super Admin and monitoring session handoff (2026-06-06)
 브랜치: main
-메시지: fix: Super Admin Cafe24 deploy and monitoring screen bugs
-이전: 4688602 → 3fa1c59
 ```
 
 **포함:** cama-super-admin, MonitorMapper.xml, deploy scripts  
@@ -189,7 +200,34 @@ API 프로브 12건 모두 HTTP 200 (`cafe24-super-admin-screen-api-probe.py`).
 
 ---
 
-## 10. 미완료 · 후속
+## 10. `/admin/login` happycog 계정 발행 (2026-06-06)
+
+### 10.1 요청
+
+https://camaplus.cafe24.com/admin/login 에서 `happycog` / `whanam74!` 로그인 사용.
+
+### 10.2 원인
+
+| 테이블 | 발행 전 |
+|--------|---------|
+| `cm_admin` | `happycog` 존재 (seq=4) — `/api/auth/admin`만 가능 |
+| `cm_doctor` | **없음** — `/api/auth/doctor` 실패 → Super Admin 로그인 불가 |
+
+### 10.3 처리 (VPS PostgreSQL)
+
+1. `cm_admin.password` → bcrypt(`whanam74!`) UPDATE  
+2. `cm_doctor` INSERT — `login_id=happycog`, `hospital_seq=1` (`cama`와 동일), `department_seq` 복사  
+
+### 10.4 검증
+
+| API | 결과 |
+|-----|------|
+| `POST /api/auth/doctor` | HTTP 200 |
+| `POST /api/auth/admin` | HTTP 200 |
+
+---
+
+## 11. 미완료 · 후속
 
 | 우선 | 작업 |
 |------|------|
@@ -200,4 +238,4 @@ API 프로브 12건 모두 HTTP 200 (`cafe24-super-admin-screen-api-probe.py`).
 
 ---
 
-*다음 세션: [CAFE24_WORK_STATUS_AND_TODO.md](CAFE24_WORK_STATUS_AND_TODO.md) §1 → 본 문서 §10*
+*다음 세션: [CAFE24_WORK_STATUS_AND_TODO.md](CAFE24_WORK_STATUS_AND_TODO.md) §1 → 본 문서 §11*

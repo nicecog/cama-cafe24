@@ -36,7 +36,8 @@
 | **의사 웹·Admin 403** | ✅ 완료 | JWT·nginx·`/api/doctor/service` — `42a2225` |
 | **월평가지표** (`account_cnt_statistics`) | ✅ 완료 | DB·배치 정상, UI `YYYYMM` 수정 |
 | **코칭 radial 차트** (환자 상세) | ✅ 완료 | `acSeq` SQL 필터 + 프론트 |
-| **GitHub** | ✅ 완료 | `nicecog/cama-cafe24` · **`3fa1c59`** |
+| **GitHub** | ✅ 완료 | `5790939` (docs) · `3fa1c59` (코드) |
+| **Super Admin 로그인** `happycog` | ✅ VPS DB | `/admin/login` — `cm_doctor` + `cm_admin` — [HANDOFF §10](CAFE24_SESSION_HANDOFF_2026-06-06-SUPER-ADMIN-MONITORING.md) |
 | 환자 ID/PW 찾기·초기화 (API+앱) | ✅ VPS 배포 | [PROGRESS §3](CAFE24_PROGRESS_HANDOFF.md) |
 | Brevo SMTP | ⏳ 설정만 | VPS `.env` + `camaplus.me` DNS |
 | cama-back-batch 스케줄 + FCM dry-run | ✅ 검증 | dry-run 로그 확인 |
@@ -432,6 +433,7 @@ cama-cafe24/
 | 2026-06-03 | 배치 FCM dry-run E2E, [CAFE24_CURSOR_HANDOFF.md](CAFE24_CURSOR_HANDOFF.md) |
 | 2026-06-03 | AWS→Cafe24 S3·DB·`/files/`, Super Admin, `/api/doctor/service`, GitHub, [MIGRATION-GIT](CAFE24_SESSION_HANDOFF_2026-06-03-MIGRATION-GIT.md) |
 | 2026-06-06 | Vite Super Admin `/admin/` VPS 배포, 403/JWT, 코칭 radial·월평가 YYYYMM·로딩 UX, Git `3fa1c59` — [HANDOFF 2026-06-06](CAFE24_SESSION_HANDOFF_2026-06-06-SUPER-ADMIN-MONITORING.md) |
+| 2026-06-06 | 문서 `5790939` · **`happycog` `/admin/login` 계정** (`cm_doctor` 생성, PW VPS 반영) |
 
 ---
 
