@@ -7,12 +7,7 @@ export function Day16Step1(props: any) {
   const { step1, setStep1, answers } = props;
   return (
     <div className="flex flex-col gap-5">
-      <ChallengeStart
-        type="physical"
-        title={<p className="text-center">🎉 {pt("MSG_018")} 🎉</p>}
-      >
-        {pt("MSG_009")}
-      </ChallengeStart>
+      <ChallengeStart type="physical">{pt("MSG_018")}</ChallengeStart>
 
       <ChallengeQuestion
         title={pt("MSG_009")}

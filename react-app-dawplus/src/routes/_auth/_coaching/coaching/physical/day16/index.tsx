@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { format } from "date-fns";
 import { useState } from "react";
 import {
   type SaveCoachingAnswerInput,
@@ -24,6 +25,8 @@ const stepDayCd = "16";
 function RouteComponent() {
   const { toast } = useToast();
   const { pt } = usePageTranslation("coaching/physical/day16");
+  const yesLabel = pt("MSG_044");
+  const noLabel = pt("MSG_002");
   const { saveAndNavigate } = useSaveCoachingAndNavigate({
     redirectTo: "/coaching/physical",
     successMessage: "오늘 미션이 저장되었어요.\n메인 화면으로 돌아갈게요.",
@@ -60,12 +63,12 @@ function RouteComponent() {
     pt("MSG_008"),
   ];
   const infoKeys = [
-    ["MSG_023", "MSG_024"],
-    ["MSG_025", "MSG_026"],
-    ["MSG_027", "MSG_028"],
-    ["MSG_029", "MSG_030"],
-    ["MSG_031", "MSG_032"],
-    ["MSG_033", "MSG_034"],
+    "MSG_024",
+    "MSG_026",
+    "MSG_028",
+    "MSG_030",
+    "MSG_032",
+    "MSG_034",
   ] as const;
 
   const onBeforeNext = (currentStep: number) => {
@@ -96,7 +99,7 @@ function RouteComponent() {
     },
     ...step2.map((item, index) => ({
       progressTypeCd: "A2",
-      answerChoice: `${questions[index]} : ${item ? pt("MSG_001") : pt("MSG_002")}`,
+      answerChoice: `${questions[index]} : ${item ? yesLabel : noLabel}`,
       refVal1: item ? "Y" : "N",
       categoryCd: "C",
       stepDayCd,
@@ -124,8 +127,7 @@ function RouteComponent() {
   };
 
   const handleStepCountConfirm = async (trimmedStepCount: string) => {
-    const today = new Date();
-    const executionDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    const executionDate = format(new Date(), "yyyy-MM-dd");
 
     try {
       await saveCoachingStep({

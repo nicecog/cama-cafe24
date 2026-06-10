@@ -67,7 +67,7 @@ const coachingData = [
     categoryCd: "E", // 운동하기
     titleKey: "MSG_27",
     descriptionKey: "MSG_28",
-    screenId: "/coaching/physical",
+    screenId: "/coaching/exercise",
     image: type5,
     primaryColor: "rgb(251, 191, 36)", // amber-400
     bgGradient: "from-amber-100 to-amber-50",

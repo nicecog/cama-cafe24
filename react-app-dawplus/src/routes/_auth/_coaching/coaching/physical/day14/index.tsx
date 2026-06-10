@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { format } from "date-fns";
 import { useState } from "react";
 import {
   type SaveCoachingAnswerInput,
@@ -29,13 +30,6 @@ function RouteComponent() {
     errorMessage: "저장 중 오류가 발생했습니다.",
   });
   const { mutateAsync: saveCoachingStep } = useSaveCoachingStep();
-  const exerciseTypes = [
-    pt("MSG_017"),
-    pt("MSG_018"),
-    pt("MSG_019"),
-    pt("MSG_020"),
-  ];
-
   const [step1, setStep1] = useState({
     type: "",
     time: "10",
@@ -105,8 +99,7 @@ function RouteComponent() {
   };
 
   const handleStepCountConfirm = async (trimmedStepCount: string) => {
-    const today = new Date();
-    const executionDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    const executionDate = format(new Date(), "yyyy-MM-dd");
 
     try {
       await saveCoachingStep({
@@ -135,12 +128,8 @@ function RouteComponent() {
         }
         showFooter
       >
-        <Day14Step1
-          step1={step1}
-          setStep1={setStep1}
-          exerciseTypes={exerciseTypes}
-        />
-        <Day14Step2 />
+        <Day14Step1 step1={step1} setStep1={setStep1} />
+        <Day14Step2 step1={step1} />
         <Day14Step3 step3={step3} setStep3={setStep3} />
       </DayStepFlow>
       <StepCountPopup

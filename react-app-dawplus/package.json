@@ -9,6 +9,8 @@
     "type-check": "tsc -b --noEmit",
     "lint": "biome lint .",
     "lint:check": "biome check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "validate": "npm run type-check && npm run lint:check",
     "preview": "vite preview",
     "test:login-api": "node scripts/test-login-api.mjs",
@@ -84,14 +86,18 @@
     "@types/react": "^19.2.16",
     "@types/react-dom": "^19.2.3",
     "@types/three": "^0.180.0",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.20",
     "globals": "^15.14.0",
+    "jsdom": "^26.1.0",
     "postcss": "^8.5.1",
     "shadcn": "^3.8.1",
     "tailwindcss": "3",
     "typescript": "~5.6.2",
     "vite": "^6.0.5",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^2.1.9"
   }
 }

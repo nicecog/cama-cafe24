@@ -7,14 +7,16 @@ export function Day15Step3(props: any) {
   const { pt } = usePageTranslation("coaching/physical/day15");
   const { step3, setStep3 } = props;
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-1">
       <TodayMission text={pt("MSG_018")} />
-      <Textbox className="text-center font-bold">{pt("MSG_019")}</Textbox>
+      <Textbox className="text-center font-bold">{pt("MSG_020")}</Textbox>
+
       <MissionInput
         value={step3}
         onChange={setStep3}
         inputClassName="text-center placeholder:text-center"
       />
+      <Textbox className="text-center font-bold">{pt("MSG_021")}</Textbox>
     </div>
   );
 }
