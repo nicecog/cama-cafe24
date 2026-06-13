@@ -13,6 +13,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/Drawer";
 import { Input } from "@/components/ui/Input";
+import { cn } from "@/lib/utils";
 
 type DateFormat = "yyyy년 MM월 dd일" | "yyyy.MM.dd" | "yyyy-MM-dd";
 
@@ -20,6 +21,7 @@ interface DatePickerDrawerProps {
   format?: DateFormat;
   value?: string | Date;
   onChange?: (date: Date | undefined) => void;
+  className?: string;
   disabled?:
     | (Omit<
         React.ComponentProps<typeof Calendar>["disabled"],
@@ -45,8 +47,7 @@ function ensureDate(value: string | Date | undefined): Date | undefined {
 }
 
 function parseValue(value: string | Date | undefined): Date | undefined {
-  const date = ensureDate(value);
-  return date || new Date();
+  return ensureDate(value);
 }
 
 function formatDate(
@@ -89,6 +90,7 @@ export function DatePickerDrawer({
   value,
   onChange,
   disabled: disabledProp,
+  className,
 }: DatePickerDrawerProps) {
   // disabled prop 내부의 string 날짜들을 Date 객체로 변환
   const disabled = React.useMemo(() => {
@@ -127,21 +129,20 @@ export function DatePickerDrawer({
 
   const parsedValue = parseValue(value);
   const [open, setOpen] = React.useState(false);
-  const [date, setDate] = React.useState<Date | undefined>(
+  const [date, setDate] = React.useState<Date | undefined>(parsedValue);
+  const [month, setMonth] = React.useState<Date | undefined>(
     parsedValue || new Date(),
   );
-  const [month, setMonth] = React.useState<Date | undefined>(date);
   const [displayValue, setDisplayValue] = React.useState(
-    formatDate(date, format),
+    formatDate(parsedValue, format),
   );
 
   // value prop이 변경되면 내부 상태 업데이트
   React.useEffect(() => {
-    if (value) {
-      const parsed = parseValue(value);
-      setDate(parsed);
-      setDisplayValue(formatDate(parsed, format));
-    }
+    const parsed = parseValue(value);
+    setDate(parsed);
+    setMonth(parsed || new Date());
+    setDisplayValue(formatDate(parsed, format));
   }, [value, format]);
 
   const handleSelect = (selectedDate: Date | undefined) => {
@@ -159,7 +160,7 @@ export function DatePickerDrawer({
         <Input
           value={displayValue}
           placeholder={getPlaceholder(format)}
-          className="bg-background pr-10 cursor-pointer"
+          className={cn("bg-background pr-10 cursor-pointer", className)}
           readOnly
           onClick={() => setOpen(true)}
         />

@@ -12,6 +12,11 @@ export const WEBVIEW_CATEGORY_TO_COACHING_PATH: Record<
 
 export function resolveCoachingPathForCategory(
   categoryCd: string,
-): "/coaching/sleep" | "/coaching/meal" | "/coaching/physical" | "/coaching/mind" | null {
+):
+  | "/coaching/sleep"
+  | "/coaching/meal"
+  | "/coaching/physical"
+  | "/coaching/mind"
+  | null {
   return WEBVIEW_CATEGORY_TO_COACHING_PATH[categoryCd.toUpperCase()] ?? null;
 }

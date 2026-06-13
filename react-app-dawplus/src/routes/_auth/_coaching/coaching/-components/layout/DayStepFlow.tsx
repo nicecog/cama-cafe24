@@ -21,6 +21,9 @@ interface DayStepFlowProps {
   onNextStep?: (currentStep: number) => number | undefined;
   onPrevStep?: (currentStep: number) => number | undefined;
   onSave: () => void;
+  stepIndicatorVariant?: "default" | "fraction";
+  /** 특정 스텝의 '다음' 버튼 내용을 커스텀 ReactNode로 대체합니다. */
+  nextButtonContent?: Record<number, React.ReactNode>;
   children: React.ReactNode;
 }
 
@@ -109,22 +112,13 @@ export function DayStepFlow({
   onNextStep,
   onPrevStep,
   onSave,
+  stepIndicatorVariant = "default",
+  nextButtonContent,
   children,
 }: DayStepFlowProps) {
   const { pt } = usePageTranslation("coaching/coachingCommon");
   const location = useLocation();
-  const stepStorageKey = `coaching-step:${location.pathname}`;
-  const [internalStep, setInternalStep] = useState(() => {
-    if (!import.meta.env.DEV || typeof window === "undefined") {
-      return 1;
-    }
-
-    const savedStep = window.sessionStorage.getItem(stepStorageKey);
-    window.sessionStorage.removeItem(stepStorageKey);
-    const parsedStep = Number(savedStep);
-
-    return Number.isFinite(parsedStep) && parsedStep > 0 ? parsedStep : 1;
-  });
+  const [internalStep, setInternalStep] = useState(1);
   const step = currentStep ?? internalStep;
   const isLastStep = step === totalSteps;
   const setHeaderTtsText = useSetAtom(coachingHeaderTTSAtom);
@@ -147,18 +141,6 @@ export function DayStepFlow({
       setHeaderTtsText(null);
     };
   }, [setHeaderTtsText, ttsTexts, step]);
-
-  useEffect(() => {
-    if (
-      !import.meta.env.DEV ||
-      currentStep !== undefined ||
-      typeof window === "undefined"
-    ) {
-      return;
-    }
-
-    window.sessionStorage.setItem(stepStorageKey, String(step));
-  }, [currentStep, step, stepStorageKey]);
 
   const handleNext = async () => {
     if (onBeforeNext) {
@@ -197,7 +179,13 @@ export function DayStepFlow({
 
           {/* Progress Indicator */}
           <div className="my-2 flex items-center justify-end">
-            <StepIndicator step={step} totalSteps={totalSteps} />
+            {stepIndicatorVariant === "fraction" ? (
+              <div className="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-black tracking-tight text-slate-600">
+                {step}/{totalSteps}
+              </div>
+            ) : (
+              <StepIndicator step={step} totalSteps={totalSteps} />
+            )}
           </div>
 
           <AnimatePresence
@@ -267,6 +255,8 @@ export function DayStepFlow({
                           <Check size={16} />
                           {pt("step_flow.complete")}
                         </>
+                      ) : nextButtonContent?.[step] ? (
+                        nextButtonContent[step]
                       ) : (
                         <>
                           {pt("step_flow.next")}

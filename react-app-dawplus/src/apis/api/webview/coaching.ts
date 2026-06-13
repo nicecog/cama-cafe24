@@ -9,9 +9,18 @@ import type {
   WebviewCoachingProgress,
   WebviewExerciseContentItem,
   WebviewExerciseUserClassInfo,
+  WebviewMentalVideoItem,
   WebviewUserAnswerInfo,
   WebviewUserAnswerInfoListParams,
 } from "../../types";
+
+export interface SaveCoachingScheduleParams {
+  loginId: string;
+  startDate: string;
+  time: string;
+  categoryType: string;
+  memo: string;
+}
 
 /**
  * 코칭 답변 리스트 저장
@@ -22,6 +31,20 @@ export const saveCoachingAnswerList = async (
 ): Promise<ApiResponse<void>> => {
   return api
     .put("api/coaching/service/answerList", {
+      json: params,
+    })
+    .json();
+};
+
+/**
+ * 코칭 일정 저장
+ * PUT /api/coaching/service/saveSchedule
+ */
+export const saveCoachingSchedule = async (
+  params: SaveCoachingScheduleParams[],
+): Promise<ApiResponse<void>> => {
+  return api
+    .put("api/coaching/service/saveSchedule", {
       json: params,
     })
     .json();
@@ -92,6 +115,20 @@ export const fetchExerciseContentList = async (
 ): Promise<ApiResponse<WebviewExerciseContentItem[]>> => {
   return api
     .post("api/coaching/service/getExerciseContentList", {
+      json: { loginId },
+    })
+    .json();
+};
+
+/**
+ * 명상 영상 정보 리스트 조회
+ * POST /api/coaching/service/getCmVideoInfoList
+ */
+export const fetchMentalVideoInfoList = async (
+  loginId: string,
+): Promise<ApiResponse<WebviewMentalVideoItem[]>> => {
+  return api
+    .post("api/coaching/service/getCmVideoInfoList", {
       json: { loginId },
     })
     .json();

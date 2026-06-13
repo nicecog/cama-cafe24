@@ -212,6 +212,20 @@ export interface WebviewExerciseContentItem {
 }
 
 /**
+ * 건강코칭 명상 영상 정보
+ */
+export interface WebviewMentalVideoItem {
+  seq: number;
+  loginId: string | null;
+  priority: number;
+  url: string;
+  useYn: string;
+  videoTypeCd: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
  * 운동 평가 결과 문답 항목
  */
 export interface ExerciseSurveyResultItem {

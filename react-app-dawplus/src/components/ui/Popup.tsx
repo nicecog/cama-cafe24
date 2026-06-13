@@ -78,7 +78,7 @@ export default function Popup(props: PopupProps) {
         {/* Overlay */}
         <DialogPrimitive.Overlay
           className={cn(
-            "fixed inset-0 z-50 bg-black/80",
+            "fixed inset-0 z-[200] bg-black/80",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           )}
@@ -90,7 +90,7 @@ export default function Popup(props: PopupProps) {
         {/* Content */}
         <DialogPrimitive.Content
           className={cn(
-            "fixed z-50 flex flex-col bg-background",
+            "fixed z-[201] flex flex-col bg-background",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             // 열릴 때: fade 없이 slide만 (깔끔함)
             // 닫힐 때: slide만 (fade 없음)

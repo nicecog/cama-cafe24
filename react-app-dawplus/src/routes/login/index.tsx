@@ -1,34 +1,23 @@
-import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
-import { Eye, EyeClosed } from "lucide-react";
-import * as React from "react";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useSetAtom } from "jotai";
 import { z } from "zod";
 import { readStoredWebviewSession } from "@/atoms/authSessionAtom";
-import { useAuth } from "@/auth";
-import SplitText from "@/components/SplitText";
-import { Input } from "@/components/ui/Input";
-import { usePatientSession } from "@/hooks/auth/usePatientSession";
-import { useToast } from "@/hooks/use-toast";
-import { getDevAuthBypassLoginId, isDevAuthBypassEnabled } from "@/lib/devAuth";
-import { bootstrapWebviewSession } from "@/lib/webview/bootstrapSession";
+import { setAuthSessionAtom } from "@/atoms/authSessionAtom";
+import { Button } from "@/components/ui/Button";
+import { isDevAuthBypassEnabled } from "@/lib/devAuth";
+import { removeTokenEncryptedStorage } from "@/lib/encryptedStorage";
+import { queryClient } from "@/lib/queryClient";
 import { isReactNativeWebView } from "@/lib/webview/rnBridge";
+import { motion } from "framer-motion";
+import * as React from "react";
+import welcomeImage from "@/assets/images/character/welcome.png";
+import SplitText from "@/components/SplitText";
 
 export const Route = createFileRoute("/login/")({
   validateSearch: z.object({
     redirect: z.string().optional().catch(""),
   }),
   beforeLoad: async ({ context, search }) => {
-    const devBypassLoginId = getDevAuthBypassLoginId();
-    if (devBypassLoginId) {
-      await bootstrapWebviewSession(devBypassLoginId);
-      throw redirect({
-        to: search.redirect || import.meta.env.VITE_DEFAULT_PAGE,
-      });
-    }
-    if (isDevAuthBypassEnabled()) {
-      throw redirect({
-        to: search.redirect || import.meta.env.VITE_DEFAULT_PAGE,
-      });
-    }
     if (context.auth.isAuthenticated) {
       throw redirect({
         to: search.redirect || import.meta.env.VITE_DEFAULT_PAGE,
@@ -47,139 +36,87 @@ export const Route = createFileRoute("/login/")({
         });
       }
     }
+    if (isDevAuthBypassEnabled()) {
+      return;
+    }
   },
   component: LoginComponent,
 });
 
 function LoginComponent() {
-  const auth = useAuth();
-  const router = useRouter();
   const navigate = Route.useNavigate();
   const search = Route.useSearch();
-  const { toast } = useToast();
-  const { completePatientLogin, handleLoginError } = usePatientSession();
-  const [submitting, setSubmitting] = React.useState(false);
-  const [pwShow, setPwShow] = React.useState(false);
-  const [userInfo, setUserInfo] = React.useState({ id: "", password: "" });
+  const setAuthSession = useSetAtom(setAuthSessionAtom);
 
-  const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUserInfo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const onFormSubmit = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (submitting) return;
-
-    const loginId = userInfo.id.trim();
-    if (!loginId) {
-      toast({
-        variant: "destructive",
-        title: "로그인 실패",
-        description: "아이디를 입력해 주세요.",
-      });
-      return;
-    }
-    if (!userInfo.password) {
-      toast({
-        variant: "destructive",
-        title: "로그인 실패",
-        description: "비밀번호를 입력해 주세요.",
-      });
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const route = await completePatientLogin(loginId, userInfo.password);
-      await router.invalidate();
-
-      const target =
-        search.redirect ||
-        (route === "selectInfo" ? "/home" : import.meta.env.VITE_DEFAULT_PAGE);
-
-      await navigate({ to: target });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "로그인 실패",
-        description: handleLoginError(error),
-      });
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  if (!auth.isAuthReady) {
-    return (
-      <section className="flex h-screen items-center justify-center bg-black text-white">
-        로딩 중…
-      </section>
-    );
-  }
+  React.useEffect(() => {
+    void (async () => {
+      await removeTokenEncryptedStorage();
+      setAuthSession(null);
+      queryClient.clear();
+    })();
+  }, [setAuthSession]);
 
   return (
-    <section className="relative flex justify-center items-center h-screen bg-black overflow-hidden">
-      <div className=" relative z-10 w-full max-w-sm sm:max-w-xs md:max-w-lg lg:max-w-xl bg-transparent p-6 sm:p-8 md:p-10 ">
-        <div className="flex items-center justify-center text-5xl font-jalnan text-white flex-col ">
+    <section className="min-h-[100dvh] bg-[#f2f7f5] text-slate-900 overflow-hidden relative flex flex-col">
+      <div className="mx-auto flex flex-1 w-full max-w-md flex-col justify-between px-6 py-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="absolute -right-20 -top-20 -z-10 h-[300px] w-[300px] rounded-full bg-primary/10 blur-[80px]" />
+        <div className="absolute -left-20 bottom-40 -z-10 h-[250px] w-[250px] rounded-full bg-primary/10 blur-[80px]" />
+        
+        <div className="space-y-2 pt-4 z-10">
           <SplitText
-            text="Hello, CAMA"
-            className="text-3xl sm:text-4xl md:text-5xl font-semibold text-white font-jalnan"
-            delay={100}
-            duration={0.6}
-            ease="power3.out"
-            splitType="chars"
-            from={{ opacity: 0, y: 40 }}
-            to={{ opacity: 1, y: 0 }}
-            threshold={0.1}
-            rootMargin="-100px"
-            textAlign="center"
+            text="안녕하세요"
+            tag="p"
+            textAlign="left"
+            className="text-3xl font-light tracking-tight text-slate-700"
+            delay={30}
+          />
+          <SplitText
+            text="CAMA입니다"
+            tag="h1"
+            textAlign="left"
+            className="text-5xl font-black tracking-tight text-primary drop-shadow-sm"
+            delay={30}
+            to={{ opacity: 1, y: 0, delay: 0.2 }}
           />
         </div>
-        <form
-          className="flex flex-col space-y-5 sm:space-y-5 mt-8"
-          onSubmit={onFormSubmit}
-        >
-          <div className="relative">
-            <Input
-              autoComplete="username"
-              placeholder="아이디"
-              value={userInfo.id}
-              name="id"
-              className="w-full p-5 border-2 text-lg bg-primary-thin focus:border-primary-thin rounded-lg focus:bg-white"
-              onChange={onChangeHandler}
-            />
-          </div>
-          <div className="relative">
-            <Input
-              type={pwShow ? "text" : "password"}
-              value={userInfo.password}
-              placeholder="비밀번호"
-              name="password"
-              autoComplete="current-password"
-              className="w-full p-5 border-2 text-lg bg-primary-thin focus:border-primary-thin rounded-lg pr-16 focus:bg-white"
-              onChange={onChangeHandler}
-            />
-            <button
-              type="button"
-              onClick={() => setPwShow((prev) => !prev)}
-              className="absolute top-1/2 right-3 transform -translate-y-1/2"
-              aria-label={pwShow ? "비밀번호 숨기기" : "비밀번호 보기"}
-            >
-              {pwShow ? (
-                <Eye className="text-gray-400" />
-              ) : (
-                <EyeClosed className="text-gray-400" />
-              )}
-            </button>
-          </div>
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full bg-transparent border-white border-2 font-bold font-jalnan text-xl text-white py-3 rounded-lg transition-all duration-300 hover:bg-white hover:text-black disabled:opacity-50"
+
+        <div className="flex flex-1 items-center justify-center z-10 relative min-h-[200px]">
+          <motion.img 
+            src={welcomeImage} 
+            alt="Welcome Character" 
+            className="w-full max-w-[300px] object-contain relative z-10"
+            animate={{ scale: [1, 1.03, 1] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+          />
+        </div>
+
+        <div className="space-y-4 pb-2 z-10">
+          <Button
+            type="button"
+            className="h-14 w-full rounded-2xl text-lg font-bold shadow-lg shadow-primary/25 transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            onClick={() =>
+              navigate({
+                to: "/login/credentials",
+                search: search.redirect ? { redirect: search.redirect } : {},
+              })
+            }
           >
-            {submitting ? "로그인 중…" : "로그인"}
+            로그인
+          </Button>
+          <button
+            type="button"
+            className="w-full text-center text-sm font-bold text-slate-500 transition-colors hover:text-slate-800"
+            onClick={() =>
+              navigate({
+                to: search.redirect || import.meta.env.VITE_DEFAULT_PAGE,
+              })
+            }
+          >
+            <span className="border-b border-slate-300 pb-0.5 transition-colors hover:border-slate-500">
+              로그인 하지 않고 둘러보기
+            </span>
           </button>
-        </form>
+        </div>
       </div>
     </section>
   );

@@ -57,7 +57,7 @@ const coachingData = [
     categoryCd: "D", // 심리
     titleKey: "MSG_25",
     descriptionKey: "MSG_26",
-    screenId: "/coaching/mind",
+    screenId: "/coaching/mental",
     image: type3,
     primaryColor: "rgb(236, 72, 153)", // pink-500
     bgGradient: "from-pink-100 to-pink-50",

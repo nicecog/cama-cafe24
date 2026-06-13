@@ -14,6 +14,17 @@ export type {
   ResetPasswordRequest,
   User,
 } from "./auth.types";
+export type {
+  PatientAvailabilityRequest,
+  PatientAvailabilityResponse,
+  PatientFindLoginIdRequest,
+  PatientFindLoginIdResponse,
+  PatientFindPasswordRequest,
+  PatientFindPasswordResponse,
+  PatientRegisterRequest,
+  PatientResetPasswordRequest,
+  PatientResetPasswordResponse,
+} from "./patientAuth.types";
 // Axios compatibility types
 export type {
   CustomResponse,
@@ -68,6 +79,7 @@ export type {
   WebviewExerciseContentItem,
   WebviewExerciseUserClassInfo,
   WebviewHospitalInfo,
+  WebviewMentalVideoItem,
   WebviewNotification,
   WebviewSchedule,
   WebviewStepInfo,

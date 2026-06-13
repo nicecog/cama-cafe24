@@ -43,13 +43,11 @@ const SplitText: React.FC<SplitTextProps> = ({
   const [fontsLoaded, setFontsLoaded] = useState<boolean>(false);
 
   useEffect(() => {
-    if (document.fonts.status === "loaded") {
-      setFontsLoaded(true);
-    } else {
-      document.fonts.ready.then(() => {
-        setFontsLoaded(true);
-      });
-    }
+    document.fonts.ready.then(() => {
+      // GSAP SplitText internal check sometimes fires too early even after fonts.ready resolves.
+      // A slight delay ensures all font metrics are completely applied.
+      setTimeout(() => setFontsLoaded(true), 150);
+    });
   }, []);
 
   useGSAP(
@@ -159,6 +157,7 @@ const SplitText: React.FC<SplitTextProps> = ({
       textAlign,
       wordWrap: "break-word",
       willChange: "transform, opacity",
+      opacity: fontsLoaded ? 1 : 0,
     };
     const classes = `split-parent overflow-hidden inline-block whitespace-normal py-2 ${className}`;
     switch (tag) {
