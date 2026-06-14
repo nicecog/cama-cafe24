@@ -71,7 +71,7 @@ function LoginComponent() {
             delay={30}
           />
           <SplitText
-            text="CAMA입니다"
+            text="Cama+입니다"
             tag="h1"
             textAlign="left"
             className="text-5xl font-black tracking-tight text-primary drop-shadow-sm -mt-5"
