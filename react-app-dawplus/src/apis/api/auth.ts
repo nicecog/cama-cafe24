@@ -1,3 +1,4 @@
+import { HTTPError } from "ky";
 import { publicApi } from "../client";
 import type {
   ApiResponse,
@@ -19,16 +20,40 @@ function unwrapApiResponse<T>(data: ApiResponse<T>): T {
   return data.response;
 }
 
+async function rethrowApiError(error: unknown): Promise<never> {
+  if (!(error instanceof HTTPError)) {
+    throw error;
+  }
+
+  try {
+    const data = (await error.response.clone().json()) as ApiResponse<unknown>;
+    throw new Error(
+      data.error?.message ||
+        data.response?.toString() ||
+        `Request failed with status ${error.response.status}`,
+    );
+  } catch (parseError) {
+    if (parseError instanceof Error) {
+      throw parseError;
+    }
+    throw new Error(`Request failed with status ${error.response.status}`);
+  }
+}
+
 /**
  * ID/PW 로그인 — cama-plus-app `POST /api/auth`
  */
 export const loginCredentials = async (
   dto: LoginCredentialsDto,
 ): Promise<LoginResp> => {
-  const data = await publicApi
-    .post("api/auth", { json: dto })
-    .json<ApiResponse<LoginResp>>();
-  return unwrapApiResponse(data);
+  try {
+    const data = await publicApi
+      .post("api/auth", { json: dto })
+      .json<ApiResponse<LoginResp>>();
+    return unwrapApiResponse(data);
+  } catch (error) {
+    return rethrowApiError(error);
+  }
 };
 
 /** @deprecated 서버 미제공 — 로컬 토큰 삭제만 사용 */

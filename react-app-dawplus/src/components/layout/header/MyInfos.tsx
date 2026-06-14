@@ -3,9 +3,11 @@ import { useAtomValue } from "jotai";
 import { Building2, Calendar, Phone, User2 } from "lucide-react";
 import HeadType5 from "@/assets/images/character/head/type5.png";
 import { accountMeAtom } from "@/atoms/accountAtoms";
+import { useAuth } from "@/auth";
 import Popup from "@/components/ui/Popup";
 import { useWithdrawAccount } from "@/hooks/mutations";
 import { useDialog } from "@/hooks/useDialog";
+import { queryClient } from "@/lib/queryClient";
 
 type MyInfosProps = {
   open: boolean;
@@ -63,6 +65,7 @@ export default function MyInfos(props: MyInfosProps) {
 
   //  navi
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   //  회원 탈퇴
   const { mutate } = useWithdrawAccount();
@@ -108,9 +111,12 @@ export default function MyInfos(props: MyInfosProps) {
       },
       () => {
         mutate(accountData.loginId, {
-          onSuccess: () => {
-            // 탈퇴 성공 후 로그인 페이지로 이동 (컴포넌트 unmount로 팝업 자동 닫힘)
-            navigate({ to: "/login" });
+          onSuccess: async () => {
+            // 탈퇴 완료 후 인증/캐시를 먼저 비워야 로그인 페이지 진입이 막히지 않는다.
+            await logout();
+            queryClient.clear();
+            setOpen(false);
+            navigate({ to: "/login", replace: true });
           },
           onError: (error) => {
             console.error("회원 탈퇴 실패:", error);

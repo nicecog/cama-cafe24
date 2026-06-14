@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { BadgeInfo, ShieldCheck } from "lucide-react";
 import * as React from "react";
 import { z } from "zod";
-import { ShieldCheck, BadgeInfo } from "lucide-react";
-import SplitText from "@/components/SplitText";
 import {
   checkPatientEmail,
   checkPatientLoginId,
@@ -12,6 +11,7 @@ import {
 } from "@/apis/api/patientAuth";
 import type { PatientAvailabilityResponse } from "@/apis/types";
 import { AuthField } from "@/components/auth/AuthField";
+import SplitText from "@/components/SplitText";
 import { Button } from "@/components/ui/Button";
 import { DatePickerDrawer } from "@/components/ui/DatePickerDrawer";
 import { usePatientSession } from "@/hooks/auth/usePatientSession";
@@ -35,6 +35,12 @@ export const Route = createFileRoute("/signup")({
 });
 
 type FieldErrors = Partial<Record<keyof FormState, string | null>>;
+type DuplicateCheckKey =
+  | "loginId"
+  | "email"
+  | "phone"
+  | "patientManagementNumber";
+type DuplicateCheckState = Partial<Record<DuplicateCheckKey, string>>;
 
 interface FormState {
   loginId: string;
@@ -65,10 +71,36 @@ function SignUpPage() {
   const [errors, setErrors] = React.useState<FieldErrors>({});
   const [checking, setChecking] = React.useState<string | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
+  const [verified, setVerified] = React.useState<DuplicateCheckState>({});
+
+  const getComparableValue = React.useCallback(
+    (key: DuplicateCheckKey, source: FormState) => {
+      if (key === "loginId") return source.loginId.trim();
+      if (key === "email") return source.email.trim().toLowerCase();
+      if (key === "phone") return normalizePhone(source.phone);
+      return source.patientManagementNumber.trim();
+    },
+    [],
+  );
 
   const update = (key: keyof FormState, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({ ...prev, [key]: null }));
+    if (
+      key === "loginId" ||
+      key === "email" ||
+      key === "phone" ||
+      key === "patientManagementNumber"
+    ) {
+      setVerified((prev) => {
+        const comparable = getComparableValue(key, { ...form, [key]: value });
+        if (!prev[key] || prev[key] === comparable) {
+          return prev;
+        }
+
+        return { ...prev, [key]: undefined };
+      });
+    }
   };
 
   const runDuplicateCheck = async (
@@ -125,9 +157,14 @@ function SignUpPage() {
         description: result.message,
         variant: result.available ? "default" : "destructive",
       });
-      if (!result.available) {
-        setErrors((prev) => ({ ...prev, [key]: result.message }));
-      }
+      setErrors((prev) => ({
+        ...prev,
+        [key]: result.available ? null : result.message,
+      }));
+      setVerified((prev) => ({
+        ...prev,
+        [key]: result.available ? getComparableValue(key, form) : undefined,
+      }));
     } catch (error) {
       toast({
         variant: "destructive",
@@ -152,6 +189,37 @@ function SignUpPage() {
       name: validateName(form.name),
       phone: validatePhone(form.phone),
     };
+
+    if (
+      !nextErrors.loginId &&
+      verified.loginId !== getComparableValue("loginId", form)
+    ) {
+      nextErrors.loginId = "아이디 중복확인을 완료해 주세요.";
+    }
+
+    if (
+      !nextErrors.phone &&
+      verified.phone !== getComparableValue("phone", form)
+    ) {
+      nextErrors.phone = "전화번호 중복확인을 완료해 주세요.";
+    }
+
+    if (
+      form.email.trim() &&
+      !nextErrors.email &&
+      verified.email !== getComparableValue("email", form)
+    ) {
+      nextErrors.email = "이메일 중복확인을 완료해 주세요.";
+    }
+
+    if (
+      form.patientManagementNumber.trim() &&
+      verified.patientManagementNumber !==
+        getComparableValue("patientManagementNumber", form)
+    ) {
+      nextErrors.patientManagementNumber = "환자번호 중복확인을 완료해 주세요.";
+    }
+
     setErrors(nextErrors);
     return Object.values(nextErrors).every((value) => !value);
   };
@@ -159,7 +227,14 @@ function SignUpPage() {
   const onSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (submitting) return;
-    if (!validateAll()) return;
+    if (!validateAll()) {
+      toast({
+        variant: "destructive",
+        title: "회원가입 확인 필요",
+        description: "필수값과 중복확인 항목을 다시 확인해 주세요.",
+      });
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -183,7 +258,15 @@ function SignUpPage() {
         description: "가입이 완료되었습니다. 로그인합니다.",
       });
 
-      await completePatientLogin(form.loginId, form.password);
+      const route = await completePatientLogin(form.loginId, form.password);
+
+      if (route === "selectInfo") {
+        await navigate({
+          to: "/hospital/select",
+          search: search.redirect ? { redirect: search.redirect } : {},
+        });
+        return;
+      }
 
       await navigate({
         to: search.redirect || import.meta.env.VITE_DEFAULT_PAGE,
@@ -201,7 +284,8 @@ function SignUpPage() {
   };
 
   // 초고급스러운 입력창 디자인: 유리 효과 + 안쪽 그림자
-  const inputClass = "bg-slate-50/60 border border-white shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] h-14 rounded-2xl px-5 text-lg text-slate-900 focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all md:text-lg backdrop-blur-sm";
+  const inputClass =
+    "bg-slate-50/60 border border-white shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] h-14 rounded-2xl px-5 text-lg text-slate-900 focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all md:text-lg backdrop-blur-sm";
 
   // Framer Motion 애니메이션 프리셋
   return (
@@ -211,7 +295,6 @@ function SignUpPage() {
       <div className="fixed -left-20 bottom-40 -z-10 h-[250px] w-[250px] rounded-full bg-primary/10 blur-[80px]" />
 
       <div className="mx-auto w-full max-w-md px-6 pt-12">
-        
         {/* Header Section */}
         <div className="mb-10 pl-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <SplitText
@@ -239,19 +322,24 @@ function SignUpPage() {
         </div>
 
         <form className="space-y-6" onSubmit={onSubmit}>
-          
           {/* 필수 정보 카드 */}
-          <div className="bg-gradient-to-br from-white to-white/70 backdrop-blur-xl border border-white rounded-[2rem] shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-7 space-y-5 relative overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-1000 fill-mode-both" style={{ animationDelay: '150ms' }}>
+          <div
+            className="bg-gradient-to-br from-white to-white/70 backdrop-blur-xl border border-white rounded-[2rem] shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-7 space-y-5 relative overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-1000 fill-mode-both"
+            style={{ animationDelay: "150ms" }}
+          >
             {/* 장식용 그라데이션 보더 (상단) */}
             <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary to-emerald-300" />
-            
+
             <div className="flex items-center gap-2.5 mb-6">
               <div className="p-2 bg-primary/10 rounded-xl">
-                <ShieldCheck className="text-primary size-5" strokeWidth={2.5} />
+                <ShieldCheck
+                  className="text-primary size-5"
+                  strokeWidth={2.5}
+                />
               </div>
               <h3 className="text-xl font-bold text-slate-800">필수 정보</h3>
             </div>
-            
+
             <AuthField
               label="아이디"
               value={form.loginId}
@@ -309,14 +397,20 @@ function SignUpPage() {
           </div>
 
           {/* 선택 정보 카드 */}
-          <div className="bg-gradient-to-br from-white to-white/70 backdrop-blur-xl border border-white rounded-[2rem] shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-7 space-y-5 animate-in fade-in slide-in-from-bottom-6 duration-1000 fill-mode-both" style={{ animationDelay: '300ms' }}>
+          <div
+            className="bg-gradient-to-br from-white to-white/70 backdrop-blur-xl border border-white rounded-[2rem] shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-7 space-y-5 animate-in fade-in slide-in-from-bottom-6 duration-1000 fill-mode-both"
+            style={{ animationDelay: "300ms" }}
+          >
             <div className="flex items-center gap-2.5 mb-6">
               <div className="p-2 bg-slate-100 rounded-xl">
-                <BadgeInfo className="text-slate-500 size-5" strokeWidth={2.5} />
+                <BadgeInfo
+                  className="text-slate-500 size-5"
+                  strokeWidth={2.5}
+                />
               </div>
               <h3 className="text-xl font-bold text-slate-800">선택 정보</h3>
             </div>
-            
+
             <AuthField
               label="이메일"
               value={form.email}
@@ -338,9 +432,11 @@ function SignUpPage() {
               actionLoading={checking === "patientManagementNumber"}
               className={inputClass}
               onPressAction={() => runDuplicateCheck("patientManagementNumber")}
-              onChange={(e) => update("patientManagementNumber", e.target.value)}
+              onChange={(e) =>
+                update("patientManagementNumber", e.target.value)
+              }
             />
-            
+
             <label className="block space-y-1.5">
               <span className="text-sm font-semibold text-slate-500 ml-1">
                 생년월일
@@ -364,13 +460,18 @@ function SignUpPage() {
                 }}
               />
               {errors.birthday ? (
-                <p className="text-sm font-medium text-red-500 ml-1">{errors.birthday}</p>
+                <p className="text-sm font-medium text-red-500 ml-1">
+                  {errors.birthday}
+                </p>
               ) : null}
             </label>
           </div>
 
           {/* Buttons */}
-          <div className="pt-2 pb-6 flex gap-3 animate-in fade-in slide-in-from-bottom-6 duration-1000 fill-mode-both" style={{ animationDelay: '450ms' }}>
+          <div
+            className="pt-2 pb-6 flex gap-3 animate-in fade-in slide-in-from-bottom-6 duration-1000 fill-mode-both"
+            style={{ animationDelay: "450ms" }}
+          >
             <Button
               type="button"
               variant="outline"

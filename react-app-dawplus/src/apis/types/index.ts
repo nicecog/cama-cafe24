@@ -15,18 +15,6 @@ export type {
   User,
 } from "./auth.types";
 export type {
-  PatientAvailabilityRequest,
-  PatientAvailabilityResponse,
-  PatientFindLoginIdRequest,
-  PatientFindLoginIdResponse,
-  PatientFindPasswordRequest,
-  PatientFindPasswordResponse,
-  PatientRegisterRequest,
-  PatientResetPasswordRequest,
-  PatientResetPasswordResponse,
-} from "./patientAuth.types";
-// Axios compatibility types
-export type {
   CustomResponse,
   ResponseError,
   Stage,
@@ -53,7 +41,18 @@ export type {
   DiseaseTreatment,
 } from "./disease.types";
 // Hospital types
-export type { Hospital } from "./hospital.types";
+export type { Hospital, HospitalListItem } from "./hospital.types";
+export type {
+  PatientAvailabilityRequest,
+  PatientAvailabilityResponse,
+  PatientFindLoginIdRequest,
+  PatientFindLoginIdResponse,
+  PatientFindPasswordRequest,
+  PatientFindPasswordResponse,
+  PatientRegisterRequest,
+  PatientResetPasswordRequest,
+  PatientResetPasswordResponse,
+} from "./patientAuth.types";
 // User types
 export type {
   UpdateUserProfileRequest,

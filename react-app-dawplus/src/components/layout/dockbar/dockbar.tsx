@@ -50,9 +50,7 @@ const dockItems: DockItem[] = [
 ];
 
 export default function Dockbar() {
-  if (isReactNativeWebView()) {
-    return null;
-  }
+  const inWebView = isReactNativeWebView();
 
   // Navi
   const navigate = useNavigate();
@@ -63,6 +61,10 @@ export default function Dockbar() {
 
   // DockBar 보임여부
   const showDockBar = useAtomValue(ShowDockBarAtom);
+
+  if (inWebView) {
+    return null;
+  }
 
   const isActive = (path?: string) => {
     if (!path) return false;

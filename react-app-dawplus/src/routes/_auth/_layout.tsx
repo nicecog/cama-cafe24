@@ -1,13 +1,29 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useSetAtom } from "jotai";
+import { checkHospitalService } from "@/apis/api/hospital";
 import { isScrolledAtom } from "@/atoms/scrollAtom";
 import CancerInfoGuide from "@/components/CancerInfoGuide";
 import Dockbar from "@/components/layout/dockbar/dockbar";
 import Header from "@/components/layout/header/Header";
 import ThemeColorController from "@/components/ThemeColorController";
+import { getTokenEncryptedStorage } from "@/lib/encryptedStorage";
 import { isReactNativeWebView } from "@/lib/webview/rnBridge";
 
 export const Route = createFileRoute("/_auth/_layout")({
+  beforeLoad: async ({ location }) => {
+    const token = await getTokenEncryptedStorage();
+    if (!token) {
+      return;
+    }
+
+    const check = await checkHospitalService().catch(() => null);
+    if (check?.response === "NOT_SERVICE") {
+      throw redirect({
+        to: "/hospital/select",
+        search: { redirect: location.href },
+      });
+    }
+  },
   component: LayoutComponent,
 });
 

@@ -15,3 +15,16 @@ export interface Hospital {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface HospitalListItem {
+  seq: number;
+  name: string;
+  corpNumber?: string;
+  address?: string;
+  homepage?: string;
+  profName?: string;
+  profMajor?: string;
+  profEmail?: string;
+  profPhone?: string;
+  createdAt?: string;
+}

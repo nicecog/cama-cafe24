@@ -22,7 +22,9 @@ export function AuthField({
   return (
     <label className="block space-y-1.5">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-sm font-semibold text-slate-500 ml-1">{label}</span>
+        <span className="text-sm font-semibold text-slate-500 ml-1">
+          {label}
+        </span>
         {actionLabel && onPressAction ? (
           <button
             type="button"
@@ -42,7 +44,9 @@ export function AuthField({
         )}
         {...props}
       />
-      {error ? <p className="text-sm font-medium text-red-500 ml-1">{error}</p> : null}
+      {error ? (
+        <p className="text-sm font-medium text-red-500 ml-1">{error}</p>
+      ) : null}
     </label>
   );
 }

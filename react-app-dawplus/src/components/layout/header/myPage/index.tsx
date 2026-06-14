@@ -1,5 +1,14 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { Activity, Bell, FileText, LogOut, Plus, QrCode, Shield, User } from "lucide-react";
+import {
+  Activity,
+  Bell,
+  FileText,
+  LogOut,
+  Plus,
+  QrCode,
+  Shield,
+  User,
+} from "lucide-react";
 import { useState } from "react";
 import activity from "@/assets/images/character/activity.png";
 import HeadType5 from "@/assets/images/character/head/type5.png";
@@ -251,19 +260,25 @@ export default function MyPage() {
                     <QrCode size={22} />
                   </div>
                   <div className="flex flex-col items-start text-left">
-                    <span className="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">나의 QR 코드 보기</span>
-                    <span className="text-xs text-gray-500 font-medium mt-0.5">내 QR코드를 확인해보세요</span>
+                    <span className="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">
+                      나의 QR 코드 보기
+                    </span>
+                    <span className="text-xs text-gray-500 font-medium mt-0.5">
+                      내 QR코드를 확인해보세요
+                    </span>
                   </div>
                 </div>
                 <div className="w-8 h-8 flex items-center justify-center text-gray-400 group-hover:text-primary transition-colors">
-                  <span className="text-xl leading-none transition-transform group-hover:translate-x-0.5">›</span>
+                  <span className="text-xl leading-none transition-transform group-hover:translate-x-0.5">
+                    ›
+                  </span>
                 </div>
               </button>
             </div>
           </div>
 
           {/* 활동 로그 영역 - 작고 컴팩트하게 */}
-          <div className="px-4 pb-6">
+          <div className="px-4 pb-6 flex flex-col gap-5">
             <button
               type="button"
               onClick={onLogout}

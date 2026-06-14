@@ -1,4 +1,5 @@
 import type { DiseaseListResponse } from "@/apis/types/disease.types";
+import type { HospitalListItem } from "@/apis/types/hospital.types";
 import { api } from "../client";
 import type { ApiResponse } from "../types";
 
@@ -36,7 +37,9 @@ export const getHospitalDoctorList = async (
  * 병원 리스트 조회
  * GET /api/hospital/list
  */
-export const getHospitalList = async (): Promise<ApiResponse> => {
+export const getHospitalList = async (): Promise<
+  ApiResponse<HospitalListItem[]>
+> => {
   return api.get("api/hospital/list").json();
 };
 
@@ -61,8 +64,6 @@ export const applyHospitalService = async (
  * 병원 서비스 신청 확인 (JWT — cama-plus-app 과 동일)
  * POST /api/hospital/service/check
  */
-export const checkHospitalService = async (): Promise<
-  ApiResponse<string>
-> => {
+export const checkHospitalService = async (): Promise<ApiResponse<string>> => {
   return api.post("api/hospital/service/check").json();
 };

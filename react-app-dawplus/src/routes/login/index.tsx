@@ -61,8 +61,8 @@ function LoginComponent() {
       <div className="mx-auto flex flex-1 w-full max-w-md flex-col justify-between px-6 py-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <div className="absolute -right-20 -top-20 -z-10 h-[300px] w-[300px] rounded-full bg-primary/10 blur-[80px]" />
         <div className="absolute -left-20 bottom-40 -z-10 h-[250px] w-[250px] rounded-full bg-primary/10 blur-[80px]" />
-        
-        <div className="space-y-2 pt-4 z-10">
+
+        <div className=" pt-4 z-10">
           <SplitText
             text="안녕하세요"
             tag="p"
@@ -74,16 +74,16 @@ function LoginComponent() {
             text="CAMA입니다"
             tag="h1"
             textAlign="left"
-            className="text-5xl font-black tracking-tight text-primary drop-shadow-sm"
+            className="text-5xl font-black tracking-tight text-primary drop-shadow-sm -mt-5"
             delay={30}
             to={{ opacity: 1, y: 0, delay: 0.2 }}
           />
         </div>
 
         <div className="flex flex-1 items-center justify-center z-10 relative min-h-[200px]">
-          <motion.img 
-            src={welcomeImage} 
-            alt="Welcome Character" 
+          <motion.img
+            src={welcomeImage}
+            alt="Welcome Character"
             className="w-full max-w-[300px] object-contain relative z-10"
             animate={{ scale: [1, 1.03, 1] }}
             transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
@@ -103,7 +103,7 @@ function LoginComponent() {
           >
             로그인
           </Button>
-          <button
+          {/* <button
             type="button"
             className="w-full text-center text-sm font-bold text-slate-500 transition-colors hover:text-slate-800"
             onClick={() =>
@@ -115,7 +115,7 @@ function LoginComponent() {
             <span className="border-b border-slate-300 pb-0.5 transition-colors hover:border-slate-500">
               로그인 하지 않고 둘러보기
             </span>
-          </button>
+          </button> */}
         </div>
       </div>
     </section>

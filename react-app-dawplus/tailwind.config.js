@@ -98,6 +98,15 @@ export default {
         jalnan: ["Jalnan", "sans-serif"],
         jalnanGothic: ["JalnanGothic", "sans-serif"],
       },
+      keyframes: {
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-8px)" },
+        },
+      },
+      animation: {
+        float: "float 3.5s ease-in-out infinite",
+      },
     },
   },
   plugins: [
