@@ -10,9 +10,9 @@ import type5 from "@/assets/images/coaching/main/type5.png";
 import { accountMeAtom } from "@/atoms/accountAtoms";
 import { Each } from "@/components/common/Each";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PatientWebViewToolbarHeader } from "@/components/webview/PatientWebViewToolbarHeader";
 import { useCoachingProgressList } from "@/hooks/queries";
 import { usePageTranslation } from "@/hooks/usePageTranslation";
-import { PatientWebViewToolbarHeader } from "@/components/webview/PatientWebViewToolbarHeader";
 import { isReactNativeWebView } from "@/lib/webview/rnBridge";
 import { CoachingCard } from "./-components/CoachingCard";
 import { CoachingHeaderProgress } from "./-components/CoachingHeaderProgress";
@@ -107,6 +107,12 @@ function RouteComponent() {
     () => mergedData.filter((d) => d.categoryCd !== "E"),
     [mergedData],
   );
+  const allMainCategoriesCompleted = useMemo(
+    () =>
+      mainCategories.length === 4 &&
+      mainCategories.every((category) => category.progress >= 100),
+    [mainCategories],
+  );
 
   const exerciseCategory = useMemo(
     () => mergedData.find((d) => d.categoryCd === "E"),
@@ -148,6 +154,16 @@ function RouteComponent() {
 
       <div className={inRnWebView ? "flex-1 pb-4" : "flex-1 pb-20"}>
         <div className="flex flex-col gap-2 p-5">
+          {allMainCategoriesCompleted ? (
+            <div className="rounded-[24px] border border-emerald-100 bg-emerald-50 px-4 py-4 text-center shadow-sm">
+              <p className="text-sm font-bold text-emerald-700">
+                건강코칭 4가지 카테고리를 모두 완료했어요.
+              </p>
+              <p className="mt-1 text-xs font-medium text-emerald-600">
+                각 카테고리에서 이전 답변을 다시 확인할 수 있습니다.
+              </p>
+            </div>
+          ) : null}
           <div className="grid grid-cols-2 gap-2">
             <Each
               of={mainCategories}

@@ -44,11 +44,8 @@ export function ExerciseIntroCard({ onStart }: { onStart: () => void }) {
           onClick={onStart}
           whileHover={{ y: -1 }}
           whileTap={{ scale: 0.98 }}
-          className="mt-6 flex h-13 w-full items-center justify-center gap-2 rounded-md bg-primary text-md font-bold text-white transition hover:bg-primary/90"
+          className="mt-6 flex h-13 py-3 w-full items-center justify-center gap-2 rounded-md bg-primary text-md font-bold text-white transition hover:bg-primary/90"
         >
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/20 text-md">
-            ▶
-          </span>
           {pt("start")}
         </motion.button>
       </div>

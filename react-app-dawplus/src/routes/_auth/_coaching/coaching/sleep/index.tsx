@@ -31,15 +31,24 @@ function RouteComponent() {
   const [missionOutcome, setMissionOutcome] = useState<boolean | null>(null);
   const safeActiveIndex = Math.min(Math.max(currentDay - dayStart, 0), 16);
   const isPastDay = activeIndex < currentDay;
+  const isCompleted = currentDay >= 17;
   const missionDialogStartDay = 3;
   const shouldShowMissionDialog = activeIndex >= missionDialogStartDay;
   const ctaLabel = isPastDay ? "내가 했던 답변 보기" : "수면코칭 시작하기";
-  const ctaTo = `/coaching/sleep/day${activeIndex}`;
+  const answerReviewTo = `/coaching/sleep/${activeIndex}`;
+  const coachingDayTo = `/coaching/sleep/day${activeIndex}`;
 
   const handleCtaClick = async () => {
+    if (isPastDay) {
+      await navigate({
+        to: answerReviewTo,
+      });
+      return;
+    }
+
     if (!shouldShowMissionDialog) {
       await navigate({
-        to: ctaTo,
+        to: coachingDayTo,
       });
       return;
     }
@@ -91,7 +100,7 @@ function RouteComponent() {
   const handleMissionOutcomeAction = () => {
     setMissionOutcome(null);
     navigate({
-      to: ctaTo,
+      to: coachingDayTo,
     });
   };
 
@@ -151,6 +160,13 @@ function RouteComponent() {
 
       {/* 수면코칭 시작하기 버튼 Area */}
       <div className="mt-auto shrink-0 border-t border-slate-100 bg-white px-4 pb-[calc(env(safe-area-inset-bottom)+14px)] pt-3 z-20">
+        {isCompleted ? (
+          <div className="mb-3 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-center">
+            <p className="text-sm font-bold text-emerald-700">
+              수면 코칭을 모두 완료했어요. 이전 답변도 다시 확인할 수 있어요.
+            </p>
+          </div>
+        ) : null}
         <button
           type="button"
           onClick={handleCtaClick}

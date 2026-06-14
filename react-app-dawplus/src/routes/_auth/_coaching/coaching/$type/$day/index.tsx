@@ -12,6 +12,15 @@ import {
 } from "@/components/coaching/coachingData";
 import { useUserAnswerInfoList } from "@/hooks/queries";
 
+const COACHING_TYPE_ALIAS: Record<string, CoachingType> = {
+  sleep: "sleep",
+  meal: "meal",
+  exercise: "exercise",
+  physical: "exercise",
+  mind: "mind",
+  mental: "mind",
+};
+
 const COACHING_CATEGORY_CD: Record<CoachingType, string> = {
   sleep: "A",
   meal: "B",
@@ -20,7 +29,11 @@ const COACHING_CATEGORY_CD: Record<CoachingType, string> = {
 };
 
 const isCoachingType = (value: string): value is CoachingType => {
-  return value in COACHING_CATEGORY_CD;
+  return value in COACHING_TYPE_ALIAS;
+};
+
+const getCoachingType = (value: string): CoachingType | null => {
+  return COACHING_TYPE_ALIAS[value] ?? null;
 };
 
 const normalizeStepDayCd = (value: string) => {
@@ -48,15 +61,16 @@ function RouteComponent() {
   const { type, day } = Route.useLoaderData();
   const accountMe = useAtomValue(accountMeAtom);
   const loginId = accountMe.data?.loginId ?? "";
+  const coachingType = getCoachingType(type);
 
-  const categoryCd = isCoachingType(type) ? COACHING_CATEGORY_CD[type] : "";
+  const categoryCd = coachingType ? COACHING_CATEGORY_CD[coachingType] : "";
 
   const { data: answerList = [], isLoading } = useUserAnswerInfoList({
     loginId,
     categoryCd,
   });
 
-  const content = isCoachingType(type) ? COACHING_DATA[type] : null;
+  const content = coachingType ? COACHING_DATA[coachingType] : null;
   const dayIndex = Number(day);
   const isValidDay =
     !!content &&
