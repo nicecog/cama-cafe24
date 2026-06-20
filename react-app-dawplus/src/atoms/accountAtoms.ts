@@ -7,6 +7,7 @@ import type {
 } from "@/apis/types";
 import { authSessionAtom } from "@/atoms/authSessionAtom";
 import i18n from "@/i18n";
+import { isValidWebviewAccount } from "@/lib/auth/validateWebviewAccount";
 import { queryKeys } from "@/lib/queryClient";
 
 /**
@@ -18,7 +19,13 @@ export const accountMeAtom = atomWithQuery((get) => {
 
   return {
     queryKey: queryKeys.webview.account.me(loginId),
-    queryFn: () => getAccountMe(loginId),
+    queryFn: async () => {
+      const data = await getAccountMe(loginId);
+      if (!isValidWebviewAccount(data.response)) {
+        throw new Error("Invalid account session");
+      }
+      return data;
+    },
     enabled: !!loginId,
     initialData: session?.account
       ? ({

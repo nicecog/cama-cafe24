@@ -44,6 +44,7 @@ export const useLogin = () => {
 export const useLogout = () => {
   const queryClient = useQueryClient();
   const setAuthSession = useSetAtom(setAuthSessionAtom);
+  const webviewEntry = "/webview";
 
   return useMutation({
     mutationFn: logout,
@@ -51,8 +52,7 @@ export const useLogout = () => {
       await removeTokenEncryptedStorage();
       setAuthSession(null);
       queryClient.clear();
-      const loginPage = import.meta.env.VITE_LOGIN_PAGE || "/login";
-      window.location.href = loginPage;
+      window.location.href = webviewEntry;
     },
   });
 };

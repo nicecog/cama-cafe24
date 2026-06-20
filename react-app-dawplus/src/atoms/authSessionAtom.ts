@@ -16,7 +16,7 @@ export function readStoredWebviewSession(): AuthSession | null {
 
 function readStoredSession(): AuthSession | null {
   try {
-    const raw = sessionStorage.getItem(SESSION_KEY);
+    const raw = localStorage.getItem(SESSION_KEY);
     if (!raw) return null;
     return JSON.parse(raw) as AuthSession;
   } catch {
@@ -26,9 +26,9 @@ function readStoredSession(): AuthSession | null {
 
 function writeStoredSession(session: AuthSession | null) {
   if (session) {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
   } else {
-    sessionStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(SESSION_KEY);
   }
 }
 

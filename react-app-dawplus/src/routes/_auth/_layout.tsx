@@ -1,12 +1,19 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
+import * as React from "react";
 import { checkHospitalService } from "@/apis/api/hospital";
+import { accountMeAtom } from "@/atoms/accountAtoms";
+import { authSessionAtom, setAuthSessionAtom } from "@/atoms/authSessionAtom";
 import { isScrolledAtom } from "@/atoms/scrollAtom";
 import CancerInfoGuide from "@/components/CancerInfoGuide";
 import Dockbar from "@/components/layout/dockbar/dockbar";
 import Header from "@/components/layout/header/Header";
 import ThemeColorController from "@/components/ThemeColorController";
-import { getTokenEncryptedStorage } from "@/lib/encryptedStorage";
+import {
+  getTokenEncryptedStorage,
+  removeTokenEncryptedStorage,
+} from "@/lib/encryptedStorage";
+import { queryClient } from "@/lib/queryClient";
 import { isReactNativeWebView } from "@/lib/webview/rnBridge";
 
 export const Route = createFileRoute("/_auth/_layout")({
@@ -29,7 +36,38 @@ export const Route = createFileRoute("/_auth/_layout")({
 
 function LayoutComponent() {
   const setIsScrolled = useSetAtom(isScrolledAtom);
+  const setAuthSession = useSetAtom(setAuthSessionAtom);
   const inRnWebView = isReactNativeWebView();
+  const session = useAtomValue(authSessionAtom);
+  const accountMe = useAtomValue(accountMeAtom);
+  const hasHandledInvalidSession = React.useRef(false);
+
+  React.useEffect(() => {
+    if (!session?.loginId) {
+      hasHandledInvalidSession.current = false;
+      return;
+    }
+
+    if (accountMe.isPending || accountMe.isFetching) {
+      return;
+    }
+
+    if (accountMe.isError && !hasHandledInvalidSession.current) {
+      hasHandledInvalidSession.current = true;
+      void (async () => {
+        await removeTokenEncryptedStorage();
+        setAuthSession(null);
+        queryClient.clear();
+        window.location.href = "/webview";
+      })();
+    }
+  }, [
+    accountMe.isError,
+    accountMe.isFetching,
+    accountMe.isPending,
+    session?.loginId,
+    setAuthSession,
+  ]);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const scrollTop = e.currentTarget.scrollTop;

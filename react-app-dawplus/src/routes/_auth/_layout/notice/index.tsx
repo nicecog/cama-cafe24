@@ -19,7 +19,7 @@ function RouteComponent() {
           <p>1. Default 페이지 - 기본</p>
 
           <Link
-            to="/report"
+            to="/reporting"
             className="flex items-center bg-primary p-3 rounded-lg text-white"
           >
             <TabletSmartphone /> 레포트페이지 이동
@@ -29,7 +29,7 @@ function RouteComponent() {
           <p>2. Portlet 페이지 - D&D 로 위치변경가능</p>
 
           <Link
-            to="/report/portlet"
+            to="/reporting"
             className="flex items-center bg-primary p-3 rounded-lg text-white"
           >
             <TabletSmartphone /> 레포트(Portlet)페이지 이동

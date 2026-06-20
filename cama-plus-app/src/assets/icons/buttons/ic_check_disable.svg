@@ -1,7 +1,0 @@
-<svg id="check1_default" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-  <g id="사각형_28" data-name="사각형 28" fill="#fff" stroke="#f0f0f0" stroke-width="1">
-    <rect width="24" height="24" rx="6" stroke="none"/>
-    <rect x="0.5" y="0.5" width="23" height="23" rx="5.5" fill="none"/>
-  </g>
-  <path id="check_box_FILL0_wght300_GRAD0_opsz20" d="M178.848-774.59l-2.864-2.821a1.1,1.1,0,0,0-.765-.364,1.071,1.071,0,0,0-.782.364,1.115,1.115,0,0,0-.372.795,1.115,1.115,0,0,0,.372.795l3.456,3.456a1.275,1.275,0,0,0,.947.421,1.325,1.325,0,0,0,.962-.421l5.9-5.9a1.124,1.124,0,0,0,.364-.787,1.091,1.091,0,0,0-.364-.8,1.1,1.1,0,0,0-.773-.372,1.1,1.1,0,0,0-.773.372Z" transform="translate(-168.066 788.226)" fill="#eaeaea"/>
-</svg>

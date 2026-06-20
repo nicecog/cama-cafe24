@@ -117,7 +117,7 @@ const beforeErrorInterceptor = async (error: HTTPError) => {
     );
     await removeTokenEncryptedStorage();
     // 로그인 페이지로 리다이렉트
-    const loginPage = import.meta.env.VITE_LOGIN_PAGE || "/login";
+    const loginPage = "/webview";
     if (window.location.pathname !== loginPage) {
       window.location.href = loginPage;
     }

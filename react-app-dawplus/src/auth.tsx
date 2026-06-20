@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (token) {
       return;
     }
-    // RN WebView: loginId 부트스트랩 세션은 JWT 없이 sessionStorage에 유지
+    // RN WebView: loginId 부트스트랩 세션은 JWT 없이 localStorage에 유지
     const stored = readStoredWebviewSession();
     if (stored?.loginId) {
       setAuthSession(stored);

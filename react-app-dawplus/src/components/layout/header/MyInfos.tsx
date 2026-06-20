@@ -116,7 +116,7 @@ export default function MyInfos(props: MyInfosProps) {
             await logout();
             queryClient.clear();
             setOpen(false);
-            navigate({ to: "/login", replace: true });
+            navigate({ to: "/webview", replace: true });
           },
           onError: (error) => {
             console.error("회원 탈퇴 실패:", error);
