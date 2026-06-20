@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:55432/cama
+    username: cama
+    password: cama
+
+cama:
+  tablet:
+    cors-origins: "http://localhost:5175,http://10.0.2.2:5175"
+    qr:
+      allow-dev-issue: true
+      dev-issue-key: local-dev

@@ -132,6 +132,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/account/patient/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/files/**").permitAll()
                         .requestMatchers(HttpMethod.HEAD, "/files/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/apk_down/**").permitAll()
+                        .requestMatchers(HttpMethod.HEAD, "/apk_down/**").permitAll()
                         .requestMatchers("/api/team/**").hasAnyRole("USER")
                         .requestMatchers("/api/firebase/**").hasAnyRole("USER")
                         .requestMatchers("/api/design/**").hasAnyRole("USER")

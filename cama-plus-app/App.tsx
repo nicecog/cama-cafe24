@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   BackHandler,
@@ -12,13 +12,28 @@ import {
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import RNBootSplash from 'react-native-bootsplash';
+import messaging from '@react-native-firebase/messaging';
 import { WEBVIEW_URL } from '@/config/webviewShell';
+import {
+  createWebViewMessageHandler,
+  getCamaWebViewInjectedJavaScript,
+} from '@/utils/webviewBridge';
 
 function App() {
   const webViewRef = useRef<WebView | null>(null);
   const [canGoBack, setCanGoBack] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+
+  const onWebViewMessage = useMemo(
+    () => createWebViewMessageHandler(webViewRef),
+    [],
+  );
+
+  const injectedJavaScript = useMemo(
+    () => getCamaWebViewInjectedJavaScript(),
+    [],
+  );
 
   useEffect(() => {
     Promise.resolve(RNBootSplash.hide({fade: true})).catch(() => undefined);
@@ -44,6 +59,13 @@ function App() {
     return () => subscription.remove();
   }, [canGoBack]);
 
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      console.log('FCM foreground message', remoteMessage?.messageId);
+    });
+    return unsubscribe;
+  }, []);
+
   const handleRetry = useCallback(() => {
     setHasError(false);
     setReloadKey(current => current + 1);
@@ -61,6 +83,9 @@ function App() {
           javaScriptEnabled
           domStorageEnabled
           startInLoadingState
+          injectedJavaScript={injectedJavaScript}
+          onMessage={onWebViewMessage}
+          webViewDebuggingEnabled={__DEV__}
           onError={() => setHasError(true)}
           onHttpError={() => setHasError(true)}
           onLoadStart={() => setHasError(false)}

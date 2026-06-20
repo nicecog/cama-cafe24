@@ -1,0 +1,22 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: cama-tablet-server
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+cama:
+  tablet:
+    cors-origins: "*"
+    qr:
+      secret: ${CAMA_TABLET_QR_SECRET:dev-tablet-qr-secret-change-me}
+      issuer: cama-tablet-qr
+      ttl-seconds: 300
+      require-signed: false
+      allow-dev-issue: false
+      dev-issue-key: ${CAMA_TABLET_QR_DEV_KEY:}

@@ -54,6 +54,8 @@ cama:
     local-storage-path: ${FILE_STORAGE_PATH:/opt/cama/data/files}
     image-cdn-base-url: ${IMAGE_CDN_BASE_URL}
     cors-allowed-origins: ${CAMA_CORS_ORIGINS:}
+    apk-storage-path: ${APK_STORAGE_PATH:/opt/cama/data/apk_down}
+    apk-public-base-url: ${APK_PUBLIC_BASE_URL:https://camaplus.cafe24.com/apk_down}
 
 logging:
   level:

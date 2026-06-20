@@ -40,7 +40,12 @@
         "id": 11,
         "menuNm": "menu.bookmarkStats",
         "url": "/main/contentMng/statistics"
-      } 
+      },
+      {
+        "id": 14,
+        "menuNm": "menu.apkManagement",
+        "url": "/main/contentMng/apkMng"
+      }
     ]
   },
   {
@@ -62,6 +67,11 @@
         "id": 12,
         "menuNm": "menu.coachingProgress",
         "url": "/main/monitoring/coachingProgress"
+      },
+      {
+        "id": 15,
+        "menuNm": "menu.notificationMsg",
+        "url": "/main/monitoring/notificationMsg"
       }
     ]
   }

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cama.back.mapper.VitalMapper">
+
+    <update id="saveVitalRecord">
+        with upsert as (
+            update account_vital_history
+               set value_num = #{valueNum}
+                  ,unit = #{unit}
+                  ,source_cd = #{sourceCd}
+                  ,memo = #{memo}
+                  ,updated_at = now()
+             where account_seq = #{accountSeq}
+               and vital_type_cd = #{vitalTypeCd}
+               and measured_at = #{measuredAt}::timestamptz
+             returning *
+        )
+        insert into account_vital_history (
+            account_seq, measured_at, vital_type_cd, value_num, unit, source_cd, memo
+        )
+        select #{accountSeq}
+              ,#{measuredAt}::timestamptz
+              ,#{vitalTypeCd}
+              ,#{valueNum}
+              ,#{unit}
+              ,#{sourceCd}
+              ,#{memo}
+         where not exists (select 1 from upsert)
+    </update>
+
+    <select id="getVitalRecordList" resultType="com.cama.back.dto.track.VitalRecordDto">
+        select seq
+              ,account_seq as accountSeq
+              ,to_char(measured_at at time zone 'Asia/Seoul', 'YYYY-MM-DD HH24:MI:SS') as measuredAt
+              ,vital_type_cd as vitalTypeCd
+              ,value_num as valueNum
+              ,unit
+              ,source_cd as sourceCd
+              ,memo
+              ,to_char(created_at at time zone 'Asia/Seoul', 'YYYY-MM-DD HH24:MI:SS') as createdAt
+          from account_vital_history
+         where account_seq = #{accountSeq}
+        <if test='vitalTypeCd != null and vitalTypeCd != ""'>
+           and vital_type_cd = #{vitalTypeCd}
+        </if>
+        <if test='fromDate != null and fromDate != ""'>
+           and measured_at &gt;= (#{fromDate}::date at time zone 'Asia/Seoul')
+        </if>
+        <if test='toDate != null and toDate != ""'>
+           and measured_at &lt; ((#{toDate}::date + interval '1 day') at time zone 'Asia/Seoul')
+        </if>
+         order by measured_at desc
+        <if test='limit != null and limit &gt; 0'>
+         limit #{limit}
+        </if>
+    </select>
+
+</mapper>

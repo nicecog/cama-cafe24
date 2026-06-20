@@ -15,6 +15,9 @@
                     <if test='searchType == "name"'>
                         AND ac.name ILIKE CONCAT('%', #{searchText}, '%')
                     </if>
+                    <if test='searchType == "loginId"'>
+                        AND ac.login_id ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
                 </if>
             </if>
         </where>
@@ -55,6 +58,17 @@
                 AND ts.account_seq = ac.seq
                 and ts.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq}))
         ) as progress,
+        (
+            SELECT EXISTS (
+                SELECT 1
+                FROM firebase_token ft
+                WHERE ft.account_seq = ac.seq
+                  AND ft.token IS NOT NULL
+                  AND btrim(ft.token) != ''
+                  AND ft.token NOT IN ('test', 'web-no-fcm')
+                  AND length(ft.token) > 10
+            )
+        ) AS hasFcmToken,
         to_char(cast(ts.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt
         from (select * from track_service 
                where is_enabled and status = 'ACTIVE'
@@ -66,6 +80,9 @@
                 <if test='searchText != null and searchText != ""'>
                     <if test='searchType == "name"'>
                         AND ac.name ILIKE CONCAT('%', #{searchText}, '%')
+                    </if>
+                    <if test='searchType == "loginId"'>
+                        AND ac.login_id ILIKE CONCAT('%', #{searchText}, '%')
                     </if>
                 </if>
             </if>
@@ -312,7 +329,60 @@
 		     set user_type_cd = #{userTypeCd}
 		        , updated_at = now()
 		   where seq = #{seq}
-  	 </update> 	 
+  	 </update>
+
+    <select id="getMonitorPatientAccountDetail" resultType="com.cama.back.dto.monitor.MonitorPatientAccountDetailRsp">
+        select
+            ac.seq,
+            ac.login_id as loginId,
+            ac.email,
+            ac.name,
+            ac.phone,
+            ac.birth,
+            ac.gender,
+            ac.sign_type as signType,
+            case ac.sign_type
+                when 'GENERAL' then '일반'
+                when 'DEFAULT' then '기본'
+                when 'KAKAO' then '카카오'
+                when 'NAVER' then '네이버'
+                when 'APPLE' then '애플'
+                when 'GOOGLE' then '구글'
+                else ac.sign_type
+            end as signTypeNm,
+            ac.user_type_cd as userTypeCd,
+            (select val from sys_code_det a where a.code = 'USER_TYPE_CD' and a.cd = ac.user_type_cd and a.use_yn = 'Y') as userTypeNm,
+            to_char(cast(ac.created_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as createdAt,
+            to_char(cast(ac.updated_at at time zone 'kst' AS timestamp), 'YYYY-MM-DD HH24:MI:SS') as updatedAt,
+            (ac.sign_type in ('GENERAL', 'DEFAULT')) as passwordResetSupported
+        from account ac
+        where ac.seq = #{acSeq}
+          and ac.is_enabled = true
+          and ac.is_dropped = false
+          and (
+              exists (
+                  select 1
+                  from track_service ts
+                  where ts.account_seq = ac.seq
+                    and ts.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq})
+                    and ts.is_enabled
+                    and ts.status = 'ACTIVE'
+              )
+              or exists (
+                  select 1
+                  from hospital_service hs
+                  where hs.account_seq = ac.seq
+                    and hs.hospital_seq = (select hospital_seq from cm_doctor where seq = #{dSeq})
+              )
+          )
+    </select>
+
+    <update id="updatePatientEmail">
+        update account
+           set email = #{email},
+               updated_at = now()
+         where seq = #{acSeq}
+    </update> 	 
 	
 	<select id="getSearchTextList" resultType="com.cama.back.dto.monitor.MonitorSearchDTO">
  	    select to_char(a.created_at ,'yyyy-mm-dd HH24:MI:SS') as search_dt

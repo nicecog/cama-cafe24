@@ -9,3 +9,4 @@ export * from "./contents";
 export * from "./notification";
 export * from "./schedule";
 export * from "./track";
+export * from "./vital";

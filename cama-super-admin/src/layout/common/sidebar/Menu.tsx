@@ -16,6 +16,7 @@ import {
   FcStatistics,
   FcLineChart,
   FcAndroidOs,
+  FcSms,
 } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 
@@ -49,6 +50,8 @@ export default function Menus({ menu }: { menu: any }) {
     11: <FcStatistics />, // 통계카테고리
     12: <FcLineChart />, // 건강코칭진행률
     13: <FcAndroidOs />, // 실험실
+    14: <FcAndroidOs />, // APK 관리
+    15: <FcSms />, // 알림메시지
   };
 
   return (

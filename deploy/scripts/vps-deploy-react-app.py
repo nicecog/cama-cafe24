@@ -119,28 +119,11 @@ def main() -> None:
         print(f"Uploaded {n} files.")
 
         snippet = DEPLOY_ROOT / "nginx" / "cama-patient-spa-locations.conf"
-        apply_py = SCRIPT_DIR / "apply-patient-spa-nginx.py"
-        sftp = client.open_sftp()
-        try:
-            sftp.put(str(snippet), "/tmp/cama-patient-spa-locations.conf")
-            sftp.put(str(apply_py), "/tmp/apply-patient-spa-nginx.py")
-        finally:
-            sftp.close()
-
-        cmd = (
-            "python3 /tmp/apply-patient-spa-nginx.py /tmp/cama-patient-spa-locations.conf "
-            "&& nginx -t && systemctl reload nginx"
-        )
-        print("Applying nginx ...")
-        stdin, stdout, stderr = client.exec_command(cmd)
-        out = stdout.read().decode("utf-8", errors="replace")
-        err = stderr.read().decode("utf-8", errors="replace")
-        code = stdout.channel.recv_exit_status()
-        if out:
-            print(out.strip())
-        if code != 0:
-            print(err.strip(), file=sys.stderr)
-            raise SystemExit(f"remote command failed: {code}")
+        nginx_full = SCRIPT_DIR / "vps-deploy-nginx-full.py"
+        print("Applying full nginx site config (preserves /admin/ proxy)...")
+        r = subprocess.run([sys.executable, str(nginx_full)], cwd=REPO_ROOT)
+        if r.returncode != 0:
+            raise SystemExit(r.returncode)
 
         print("Smoke test (local curl on VPS) ...")
         host_header = "-H 'Host: camaplus.cafe24.com'"

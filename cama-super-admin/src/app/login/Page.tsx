@@ -1,5 +1,4 @@
 import { FloatInput } from "@/components/forms";
-import { useNavigate } from "react-router-dom";
 import { FormEvent, useEffect } from "react";
 import { HiLockClosed, HiMiniUserCircle } from "react-icons/hi2";
 import useAuth from "@/hooks/useAuth";
@@ -16,12 +15,14 @@ export default function LoginPage() {
   // Translation
   const { t } = useTranslation();
   const { i18n } = useTranslation();
-  // Navi
-  const navigate = useNavigate();
+  const goToAdminMain = () => {
+    window.location.assign(`/admin${import.meta.env.VITE_DEFAULT_PAGE}`);
+  };
+
   // 로그인 되어 있을 경우는 메인으로 이동
   useEffect(() => {
     if (isAuthLogin()) {
-      navigate(import.meta.env.VITE_DEFAULT_PAGE);
+      goToAdminMain();
     }
   }, []);
 
@@ -55,7 +56,7 @@ export default function LoginPage() {
     if (!isLogin) {
       alert(message);
     } else {
-      navigate(import.meta.env.VITE_DEFAULT_PAGE);
+      goToAdminMain();
     }
   };
   return (

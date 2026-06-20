@@ -4,6 +4,8 @@
 server:
   port: ${DOCTOR_WEB_PORT:8081}
   shutdown: graceful
+  servlet:
+    context-path: ${DOCTOR_WEB_CONTEXT_PATH:/legacy}
 
 spring:
   datasource:

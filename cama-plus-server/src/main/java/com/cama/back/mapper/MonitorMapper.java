@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.cama.back.dto.SearchParam;
 import com.cama.back.dto.monitor.MonitorAcctStatDTO;
 import com.cama.back.dto.monitor.MonitorCoachingDTO;
+import com.cama.back.dto.monitor.MonitorPatientAccountDetailRsp;
 import com.cama.back.dto.monitor.MonitorPatientRsp;
 import com.cama.back.dto.monitor.MonitorSearchDTO;
 import com.cama.back.dto.monitor.MonitorContentsDTO;
@@ -35,6 +36,10 @@ public interface MonitorMapper {
     int deleteUserAnswerInfo(MonitorCoachingDTO monitorCoachingDTO);
     
     int updateAccountInfo(MonitorPatientRsp monitorPatientRsp);
+
+    Optional<MonitorPatientAccountDetailRsp> getMonitorPatientAccountDetail(@Param("acSeq") Long acSeq, @Param("dSeq") Long dSeq);
+
+    int updatePatientEmail(@Param("acSeq") Long acSeq, @Param("email") String email);
     
     List<MonitorSearchDTO> getSearchTextList(MonitorSearchDTO monitorSearchDTO);
     

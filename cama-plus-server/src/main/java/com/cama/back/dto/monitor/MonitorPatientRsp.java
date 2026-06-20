@@ -34,6 +34,9 @@ public class MonitorPatientRsp {
     
     private String lang;
 
+    /** FCM 푸시 가능 여부 (firebase_token) */
+    private Boolean hasFcmToken;
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.JSON_STYLE).toString();

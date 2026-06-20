@@ -6,7 +6,6 @@ import { ShowDockBarAtom } from "@/atoms/CommonAtoms";
 import { Each } from "@/components/common/Each";
 import { useDialog } from "@/hooks/useDialog";
 import { cn } from "@/lib/utils";
-import { isReactNativeWebView } from "@/lib/webview/rnBridge";
 
 interface DockItem {
   id: string;
@@ -50,8 +49,6 @@ const dockItems: DockItem[] = [
 ];
 
 export default function Dockbar() {
-  const inWebView = isReactNativeWebView();
-
   // Navi
   const navigate = useNavigate();
   // Location
@@ -61,10 +58,6 @@ export default function Dockbar() {
 
   // DockBar 보임여부
   const showDockBar = useAtomValue(ShowDockBarAtom);
-
-  if (inWebView) {
-    return null;
-  }
 
   const isActive = (path?: string) => {
     if (!path) return false;

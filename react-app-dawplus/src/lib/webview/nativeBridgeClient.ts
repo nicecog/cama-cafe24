@@ -1,0 +1,175 @@
+import type {
+  BiometricAuthOptions,
+  BiometricAuthResult,
+  BiometricAvailability,
+  CameraCaptureOptions,
+  CameraCaptureResult,
+  DeviceCapabilities,
+  LocationOptions,
+  LocationResult,
+  NativeBridgeResponseBase,
+  NativeBridgeResult,
+  VitalReadingResult,
+  VitalTypeCd,
+} from "@/lib/webview/nativeBridge.types";
+import type { CamaFirebase } from "@/apis/types/auth.types";
+
+function getReactNativeWebView() {
+  return (
+    window as unknown as {
+      ReactNativeWebView?: { postMessage: (msg: string) => void };
+    }
+  ).ReactNativeWebView;
+}
+
+export function postMessageToNative(payload: Record<string, unknown>) {
+  getReactNativeWebView()?.postMessage(JSON.stringify(payload));
+}
+
+export function isReactNativeWebView(): boolean {
+  return Boolean(getReactNativeWebView()) || Boolean(window.__CAMA_NATIVE_BRIDGE__);
+}
+
+function createRequestId(prefix: string): string {
+  return typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `${prefix}-${Date.now()}`;
+}
+
+function waitForNativeResponse<T extends NativeBridgeResponseBase & { type: string }>(
+  responseType: T["type"],
+  requestId: string,
+  timeoutMs: number,
+): Promise<NativeBridgeResult<T>> {
+  return new Promise((resolve) => {
+    const onNative = (event: Event) => {
+      const detail = (event as CustomEvent<T>).detail;
+      if (!detail || detail.type !== responseType || detail.requestId !== requestId) {
+        return;
+      }
+      window.removeEventListener("cama-native", onNative as EventListener);
+      clearTimeout(timer);
+      if (detail.ok) {
+        const { requestId: _rid, ok: _ok, error: _err, type: _type, ...data } = detail;
+        resolve({ ok: true, data });
+      } else {
+        resolve({ ok: false, error: detail.error ?? "UNKNOWN" });
+      }
+    };
+
+    const timer = window.setTimeout(() => {
+      window.removeEventListener("cama-native", onNative as EventListener);
+      resolve({ ok: false, error: "TIMEOUT" });
+    }, timeoutMs);
+
+    window.addEventListener("cama-native", onNative as EventListener);
+  });
+}
+
+async function requestBridge<T extends NativeBridgeResponseBase & { type: string }>(
+  request: Record<string, unknown>,
+  responseType: T["type"],
+  timeoutMs = 10000,
+): Promise<NativeBridgeResult<T>> {
+  if (!isReactNativeWebView()) {
+    return { ok: false, error: "UNAVAILABLE" };
+  }
+  const requestId = createRequestId(String(request.type ?? "bridge"));
+  const pending = waitForNativeResponse<T>(responseType, requestId, timeoutMs);
+  postMessageToNative({ ...request, requestId });
+  return pending;
+}
+
+export function requestNativeCapabilities(timeoutMs = 8000) {
+  return requestBridge<
+    NativeBridgeResponseBase & { type: "capabilities"; capabilities?: DeviceCapabilities }
+  >({ type: "getCapabilities" }, "capabilities", timeoutMs);
+}
+
+export function requestNativeCapturePhoto(
+  options: CameraCaptureOptions = {},
+  timeoutMs = 30000,
+) {
+  return requestBridge<
+    NativeBridgeResponseBase & { type: "cameraCapture" } & CameraCaptureResult
+  >({ type: "capturePhoto", options }, "cameraCapture", timeoutMs);
+}
+
+export function requestNativePickPhoto(
+  options: CameraCaptureOptions = {},
+  timeoutMs = 30000,
+) {
+  return requestBridge<
+    NativeBridgeResponseBase & { type: "cameraCapture" } & CameraCaptureResult
+  >({ type: "pickPhoto", options }, "cameraCapture", timeoutMs);
+}
+
+export function requestNativeLocation(
+  options: LocationOptions = {},
+  timeoutMs = 15000,
+) {
+  return requestBridge<
+    NativeBridgeResponseBase & { type: "location" } & LocationResult
+  >({ type: "getCurrentLocation", options }, "location", timeoutMs);
+}
+
+export function requestNativeVitalReading(
+  vitalTypeCd: VitalTypeCd,
+  timeoutMs = 15000,
+) {
+  return requestBridge<
+    NativeBridgeResponseBase & { type: "vitalReading" } & VitalReadingResult
+  >({ type: "readVital", vitalTypeCd }, "vitalReading", timeoutMs);
+}
+
+export function requestNativeBiometricAvailability(timeoutMs = 8000) {
+  return requestBridge<
+    NativeBridgeResponseBase & {
+      type: "biometric";
+      mode?: "availability";
+    } & BiometricAvailability
+  >({ type: "checkBiometricAvailable" }, "biometric", timeoutMs);
+}
+
+export function requestNativeBiometricAuth(
+  options: BiometricAuthOptions = {},
+  timeoutMs = 30000,
+) {
+  return requestBridge<
+    NativeBridgeResponseBase & {
+      type: "biometric";
+      mode?: "authenticate";
+    } & BiometricAuthResult
+  >({ type: "authenticateBiometric", options }, "biometric", timeoutMs);
+}
+
+export function requestNativeStepCount(timeoutMs = 8000): Promise<number | null> {
+  if (!isReactNativeWebView()) {
+    return Promise.resolve(null);
+  }
+  return requestBridge<
+    NativeBridgeResponseBase & { type: "stepCount"; steps?: number }
+  >({ type: "getStepCount" }, "stepCount", timeoutMs).then((result) => {
+    if (result.ok && typeof result.data.steps === "number" && result.data.steps >= 0) {
+      return Math.floor(result.data.steps);
+    }
+    return null;
+  });
+}
+
+export function requestNativeFcmToken(timeoutMs = 10000): Promise<CamaFirebase | null> {
+  if (!isReactNativeWebView()) {
+    return Promise.resolve(null);
+  }
+  return requestBridge<
+    NativeBridgeResponseBase & { type: "fcmToken"; firebase?: CamaFirebase }
+  >({ type: "getFcmToken" }, "fcmToken", timeoutMs).then((result) => {
+    if (result.ok && result.data.firebase?.token) {
+      return result.data.firebase;
+    }
+    return null;
+  });
+}
+
+/** @deprecated use requestNativeCapturePhoto */
+export { requestNativeCapturePhoto as requestNativeCamera };

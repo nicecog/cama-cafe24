@@ -10,10 +10,8 @@ import type5 from "@/assets/images/coaching/main/type5.png";
 import { accountMeAtom } from "@/atoms/accountAtoms";
 import { Each } from "@/components/common/Each";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { PatientWebViewToolbarHeader } from "@/components/webview/PatientWebViewToolbarHeader";
 import { useCoachingProgressList } from "@/hooks/queries";
 import { usePageTranslation } from "@/hooks/usePageTranslation";
-import { isReactNativeWebView } from "@/lib/webview/rnBridge";
 import { CoachingCard } from "./-components/CoachingCard";
 import { CoachingHeaderProgress } from "./-components/CoachingHeaderProgress";
 
@@ -78,7 +76,6 @@ function RouteComponent() {
   const { pt } = usePageTranslation("home");
   const accountMe = useAtomValue(accountMeAtom);
   const navigate = useNavigate();
-  const inRnWebView = isReactNativeWebView();
 
   const { data: progressList } = useCoachingProgressList(
     accountMe.data?.loginId,
@@ -121,13 +118,6 @@ function RouteComponent() {
 
   return (
     <div className="flex flex-1 flex-col min-h-screen bg-gray-50/50">
-      {inRnWebView && (
-        <PatientWebViewToolbarHeader
-          hubMode
-          title="건강코칭"
-          homeConfirmMessage={"건강코칭을 중단하고\n홈으로 가시겠습니까?"}
-        />
-      )}
       <PageHeader
         title={pt("MSG_17")}
         description={pt("MSG_18")}
@@ -152,7 +142,7 @@ function RouteComponent() {
         </div>
       </PageHeader>
 
-      <div className={inRnWebView ? "flex-1 pb-4" : "flex-1 pb-20"}>
+      <div className="flex-1 pb-20">
         <div className="flex flex-col gap-2 p-5">
           {allMainCategoriesCompleted ? (
             <div className="rounded-[24px] border border-emerald-100 bg-emerald-50 px-4 py-4 text-center shadow-sm">

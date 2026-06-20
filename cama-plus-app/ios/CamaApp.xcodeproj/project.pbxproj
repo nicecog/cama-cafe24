@@ -12,6 +12,7 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		A1B2C3D41A68108700A75B9B /* CamaNativeBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D41A68108700A75B9C /* CamaNativeBridge.m */; };
 		1BEBA43734BC4FB9B65A9654 /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 13D6852957E648AE85639CB8 /* Inter-Bold.ttf */; };
 		279568D5CC0043DA9789DC39 /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 55AB45EEB39B49808BD47CF1 /* Inter-Medium.ttf */; };
 		304C51BFEA184BDA929BC241 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9D1F1ADA1B354D43A8AB2A57 /* Inter-Regular.ttf */; };
@@ -47,6 +48,8 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = CamaApp/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = CamaApp/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = CamaApp/main.m; sourceTree = "<group>"; };
+		A1B2C3D41A68108700A75B9C /* CamaNativeBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CamaNativeBridge.m; path = CamaApp/CamaNativeBridge.m; sourceTree = "<group>"; };
+		A1B2C3D41A68108700A75B9D /* CamaNativeBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CamaNativeBridge.h; path = CamaApp/CamaNativeBridge.h; sourceTree = "<group>"; };
 		13D6852957E648AE85639CB8 /* Inter-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Bold.ttf"; path = "../src/assets/fonts/Inter-Bold.ttf"; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-CamaApp-CamaAppTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-CamaApp-CamaAppTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		215635B46C3049888066BEBA /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-SemiBold.ttf"; path = "../src/assets/fonts/Inter-SemiBold.ttf"; sourceTree = "<group>"; };
@@ -118,6 +121,8 @@
 				79FA661A2AA6F7A5009D6CAA /* BootSplash.storyboard */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				A1B2C3D41A68108700A75B9D /* CamaNativeBridge.h */,
+				A1B2C3D41A68108700A75B9C /* CamaNativeBridge.m */,
 			);
 			name = CamaApp;
 			sourceTree = "<group>";
@@ -482,6 +487,7 @@
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				A1B2C3D41A68108700A75B9B /* CamaNativeBridge.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

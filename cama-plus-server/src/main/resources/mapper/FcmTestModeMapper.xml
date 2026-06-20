@@ -1,0 +1,82 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cama.back.mapper.FcmTestModeMapper">
+
+    <update id="ensureBackupTable">
+        CREATE TABLE IF NOT EXISTS fcm_batch_schedule_backup (
+            id BIGSERIAL PRIMARY KEY,
+            session_id VARCHAR(64) NOT NULL,
+            orig_seq BIGINT NOT NULL,
+            account_seq BIGINT,
+            schedule_seq BIGINT,
+            start_date VARCHAR(20),
+            end_date VARCHAR(20),
+            time VARCHAR(20),
+            is_done BOOLEAN,
+            is_enabled BOOLEAN,
+            created_at TIMESTAMP NOT NULL DEFAULT NOW()
+        )
+    </update>
+
+    <update id="ensureTestModeTable">
+        CREATE TABLE IF NOT EXISTS fcm_test_mode (
+            session_id VARCHAR(64) PRIMARY KEY,
+            backed_up_count INTEGER NOT NULL DEFAULT 0,
+            prepared_at TIMESTAMP NOT NULL DEFAULT NOW()
+        )
+    </update>
+
+    <select id="countActiveBackupSession" resultType="int">
+        SELECT count(*)::int FROM fcm_test_mode
+    </select>
+
+    <select id="findActiveSessionId" resultType="java.lang.String">
+        SELECT session_id FROM fcm_test_mode LIMIT 1
+    </select>
+
+    <insert id="backupEnabledBatchSchedules">
+        INSERT INTO fcm_batch_schedule_backup (
+            session_id, orig_seq, account_seq, schedule_seq,
+            start_date, end_date, time, is_done, is_enabled
+        )
+        SELECT
+            #{sessionId}, seq, account_seq, schedule_seq,
+            start_date, end_date, time, is_done, is_enabled
+        FROM account_batch_schedule
+        WHERE is_enabled = true
+    </insert>
+
+    <update id="disableEnabledBatchSchedules">
+        UPDATE account_batch_schedule SET is_enabled = false WHERE is_enabled = true
+    </update>
+
+    <update id="restoreBatchSchedules">
+        UPDATE account_batch_schedule abs
+        SET is_enabled = b.is_enabled
+        FROM fcm_batch_schedule_backup b
+        WHERE abs.seq = b.orig_seq
+          AND b.session_id = #{sessionId}
+    </update>
+
+    <delete id="deleteBackupSession">
+        DELETE FROM fcm_batch_schedule_backup WHERE session_id = #{sessionId}
+    </delete>
+
+    <insert id="insertTestModeSession">
+        INSERT INTO fcm_test_mode (session_id, backed_up_count, prepared_at)
+        VALUES (#{sessionId}, #{backedUpCount}, NOW())
+    </insert>
+
+    <delete id="deleteTestModeSession">
+        DELETE FROM fcm_test_mode WHERE session_id = #{sessionId}
+    </delete>
+
+    <select id="findActiveTestMode" resultType="com.cama.back.mapper.FcmTestModeRow">
+        SELECT session_id AS sessionId,
+               backed_up_count AS backedUpCount,
+               to_char(prepared_at AT TIME ZONE 'Asia/Seoul', 'YYYY-MM-DD HH24:MI:SS') AS preparedAt
+        FROM fcm_test_mode
+        LIMIT 1
+    </select>
+
+</mapper>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.CamaTablet" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#22c55e</item>
+        <item name="android:statusBarColor">#0f172a</item>
+        <item name="android:navigationBarColor">#0f172a</item>
+    </style>
+    <style name="Theme.CamaTablet.Fullscreen" parent="Theme.CamaTablet">
+        <item name="android:windowFullscreen">true</item>
+    </style>
+</resources>

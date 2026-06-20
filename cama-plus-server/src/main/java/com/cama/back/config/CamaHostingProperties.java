@@ -23,6 +23,12 @@ public class CamaHostingProperties {
     /** CORS 허용 origin */
     private List<String> corsAllowedOrigins = new ArrayList<>(List.of("*"));
 
+    /** APK 저장 루트 (local) */
+    private String apkStoragePath = "./data/apk_down";
+
+    /** APK 공개 다운로드 URL prefix */
+    private String apkPublicBaseUrl = "https://camaplus.cafe24.com/apk_down";
+
     public String getStorageType() {
         return storageType;
     }
@@ -61,5 +67,21 @@ public class CamaHostingProperties {
 
     public void setCorsAllowedOrigins(List<String> corsAllowedOrigins) {
         this.corsAllowedOrigins = corsAllowedOrigins;
+    }
+
+    public String getApkStoragePath() {
+        return apkStoragePath;
+    }
+
+    public void setApkStoragePath(String apkStoragePath) {
+        this.apkStoragePath = apkStoragePath;
+    }
+
+    public String getApkPublicBaseUrl() {
+        return apkPublicBaseUrl;
+    }
+
+    public void setApkPublicBaseUrl(String apkPublicBaseUrl) {
+        this.apkPublicBaseUrl = apkPublicBaseUrl;
     }
 }

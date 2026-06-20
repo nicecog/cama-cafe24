@@ -95,7 +95,7 @@ function LayoutComponent() {
         >
           <Outlet />
         </div>
-        {!inRnWebView && <Dockbar />}
+        <Dockbar />
       </main>
 
       {/* 전역 암정보 가이드 팝업 */}

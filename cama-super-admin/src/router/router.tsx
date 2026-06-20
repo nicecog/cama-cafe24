@@ -1,11 +1,11 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import App from "@/app/App";
 import Layout, { loader as mainLoader } from "@/layout/Layout";
 import Login from "@/app/login/Page";
 import React from "react";
 
 import { ProtectedRoute } from "./ProtectedRoute";
-import NotFound from "@/app/NotFound";
+import AdminRouteFallback from "./AdminRouteFallback";
 
 import Webview from "@/layout/Webview";
 import { webviewRouters } from "./webview";
@@ -24,7 +24,8 @@ const routes = Object.keys(ROUTES).map((route) => {
     .replace(/\/src\/app|Page|\.tsx$/g, "")
     .replace(/\[\.{3}.+\]/, "*")
     .replace(/\[(.+)\]/, ":$1")
-    .replace(/\/$/, "");
+    .replace(/\/$/, "")
+    .replace(/^\/main\//, "");
 
   const modules = ROUTES[route] as RouteModule;
 
@@ -36,13 +37,22 @@ const routes = Object.keys(ROUTES).map((route) => {
   };
 });
 
+/** /login 은 basename 없이, /admin/* 은 기존 basename 유지 */
+export function resolveBasename(): string {
+  if (typeof window === "undefined") {
+    return "/admin";
+  }
+  const path = window.location.pathname;
+  return path === "/login" || path.startsWith("/login?") ? "/" : "/admin";
+}
+
 //  Create Routers
 export const router = createBrowserRouter(
   [
   {
     path: "/",
     element: <App />,
-    errorElement: <NotFound />,
+    errorElement: <AdminRouteFallback />,
     children: [
       {
         path: "/login",
@@ -59,9 +69,12 @@ export const router = createBrowserRouter(
         loader: mainLoader,
         children: routes,
       },
+      {
+        path: "*",
+        element: <Navigate to="/login" replace />,
+      },
     ],
   },
-  // { path: "*", element: <NotFound /> },
   ],
-  { basename: "/admin" },
+  { basename: resolveBasename() },
 );

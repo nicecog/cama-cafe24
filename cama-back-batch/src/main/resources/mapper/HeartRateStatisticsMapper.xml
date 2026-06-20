@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cama.batch.mapper.HeartRateStatisticsMapper">
+
+    <insert id="upsertDailyStatistics">
+        INSERT INTO public.account_heart_rate_statistics (
+            account_seq,
+            stat_date,
+            sample_count,
+            min_bpm,
+            max_bpm,
+            avg_bpm,
+            first_measured_at,
+            last_measured_at,
+            created_at,
+            updated_at
+        )
+        SELECT v.account_seq,
+               #{statDate}::date,
+               COUNT(*)::integer,
+               MIN(v.value_num),
+               MAX(v.value_num),
+               ROUND(AVG(v.value_num), 2),
+               MIN(v.measured_at),
+               MAX(v.measured_at),
+               now(),
+               now()
+          FROM public.account_vital_history v
+         WHERE v.vital_type_cd = 'HEART_RATE'
+           AND (v.measured_at AT TIME ZONE 'Asia/Seoul')::date = #{statDate}::date
+         GROUP BY v.account_seq
+        ON CONFLICT (account_seq, stat_date)
+        DO UPDATE SET
+            sample_count = EXCLUDED.sample_count,
+            min_bpm = EXCLUDED.min_bpm,
+            max_bpm = EXCLUDED.max_bpm,
+            avg_bpm = EXCLUDED.avg_bpm,
+            first_measured_at = EXCLUDED.first_measured_at,
+            last_measured_at = EXCLUDED.last_measured_at,
+            updated_at = now()
+    </insert>
+
+</mapper>

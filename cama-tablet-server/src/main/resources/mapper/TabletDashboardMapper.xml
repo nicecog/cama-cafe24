@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cama.tablet.mapper.TabletDashboardMapper">
+
+    <select id="findPatientBySeq" resultType="com.cama.tablet.dto.PatientSummaryDto">
+        SELECT ac.seq,
+               ac.login_id AS loginId,
+               ac.name,
+               ac.birth,
+               ac.gender::text AS gender,
+               (SELECT val FROM sys_code_det WHERE code = 'USER_TYPE_CD' AND cd = ac.user_type_cd) AS userTypeNm,
+               ts.disease::json->>'name' AS diseaseName
+        FROM account ac
+        LEFT JOIN track_service ts ON ts.account_seq = ac.seq AND ts.status = 'ACTIVE' AND ts.is_enabled
+        WHERE ac.seq = #{accountSeq}
+          AND ac.is_enabled = true
+          AND ac.is_dropped = false
+        LIMIT 1
+    </select>
+
+    <select id="findPatientByLoginId" resultType="com.cama.tablet.dto.PatientSummaryDto">
+        SELECT ac.seq,
+               ac.login_id AS loginId,
+               ac.name,
+               ac.birth,
+               ac.gender::text AS gender,
+               (SELECT val FROM sys_code_det WHERE code = 'USER_TYPE_CD' AND cd = ac.user_type_cd) AS userTypeNm,
+               ts.disease::json->>'name' AS diseaseName
+        FROM account ac
+        LEFT JOIN track_service ts ON ts.account_seq = ac.seq AND ts.status = 'ACTIVE' AND ts.is_enabled
+        WHERE ac.login_id = #{loginId}
+          AND ac.is_enabled = true
+          AND ac.is_dropped = false
+        LIMIT 1
+    </select>
+
+    <select id="findRecentSteps" resultType="com.cama.tablet.dto.StepDailyDto">
+        SELECT execution_date AS executionDate,
+               step_num AS stepNum
+        FROM account_step_history
+        WHERE account_seq = #{accountSeq}
+        ORDER BY execution_date DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="findTodaySteps" resultType="java.lang.Long">
+        SELECT COALESCE(step_num, 0)
+        FROM account_step_history
+        WHERE account_seq = #{accountSeq}
+          AND execution_date = to_char(CURRENT_DATE, 'YYYY-MM-DD')
+        LIMIT 1
+    </select>
+
+    <select id="findAvgSteps7d" resultType="java.lang.Long">
+        SELECT COALESCE(ROUND(AVG(step_num)), 0)::bigint
+        FROM account_step_history
+        WHERE account_seq = #{accountSeq}
+          AND execution_date::date >= CURRENT_DATE - INTERVAL '6 days'
+    </select>
+
+    <!-- 코칭 카테고리별 진행률 (MonitorMapper getCoachingList 패턴 단순화) -->
+    <select id="findCoachingProgress" resultType="com.cama.tablet.dto.CoachingCategoryDto">
+        SELECT scd.cd AS categoryCd,
+               scd.val AS categoryNm,
+               CASE WHEN tot_q = 0 THEN 0
+                    ELSE ROUND(tot_a::decimal / tot_q * 100, 1)
+               END AS progress
+        FROM sys_code_det scd
+        CROSS JOIN LATERAL (
+            SELECT
+                (SELECT count(*)
+                 FROM coaching_question_info cqi
+                 WHERE cqi.progress_type_cd IN ('A1','E01','K01')
+                   AND cqi.category_cd = scd.cd) AS tot_q,
+                (SELECT count(DISTINCT step_day_cd)
+                 FROM coaching_user_answer_info cuai
+                 WHERE cuai.account_seq = #{accountSeq}
+                   AND cuai.category_cd = scd.cd) AS tot_a
+        ) x
+        WHERE scd.code = 'CATEGORY_CD'
+          AND scd.use_yn = 'Y'
+          AND scd.cd IN ('A','B','C','D','E')
+        ORDER BY scd.cd
+    </select>
+
+  <!-- 환자에게 배정된 치료정보(의료진 Q&A 콘텐츠) — 미리보기 -->
+    <select id="findTreatmentInquiries" resultType="com.cama.tablet.dto.InquiryDto">
+        SELECT cc.seq AS contentsSeq,
+               cc.title,
+               LEFT(REGEXP_REPLACE(cc.contents, '<[^>]+>', '', 'g'), 120) AS preview,
+               to_char(cc.updated_at AT TIME ZONE 'Asia/Seoul', 'YYYY-MM-DD HH24:MI') AS updatedAt
+        FROM cm_contents cc
+        INNER JOIN hospital_service hs ON hs.account_seq = #{accountSeq}
+        WHERE cc.is_enabled = true
+        ORDER BY cc.updated_at DESC
+        LIMIT #{limit}
+    </select>
+
+</mapper>

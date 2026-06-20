@@ -1,12 +1,22 @@
-/** RN WebView postMessage 호환 (cama-plus-app handleOnMessage) */
+/**
+ * RN WebView 네이티브 브릿지 (re-export)
+ * @see nativeBridgeClient.ts · nativeBridge.types.ts
+ */
 
-export type CamaNativeStepCountDetail = {
-  type: "stepCount";
-  requestId: string;
-  ok: boolean;
-  steps?: number;
-  error?: string;
-};
+export * from "@/lib/webview/nativeBridge.types";
+export {
+  isReactNativeWebView,
+  postMessageToNative,
+  requestNativeBiometricAuth,
+  requestNativeBiometricAvailability,
+  requestNativeCapabilities,
+  requestNativeCapturePhoto,
+  requestNativeFcmToken,
+  requestNativeLocation,
+  requestNativePickPhoto,
+  requestNativeStepCount,
+  requestNativeVitalReading,
+} from "@/lib/webview/nativeBridgeClient";
 
 function getReactNativeWebView() {
   return (
@@ -20,54 +30,25 @@ export function notifyWebViewNavigation() {
   getReactNativeWebView()?.postMessage("navigationStateChange");
 }
 
-export function postMessageToNative(payload: Record<string, unknown>) {
-  getReactNativeWebView()?.postMessage(JSON.stringify(payload));
-}
-
-/** RN 앱 메인(홈) 탭으로 복귀 — WebView 안에서 SPA /home 으로 가면 탭바가 사라짐 */
+/** RN 앱 메인(홈) 탭으로 복귀 */
 export function requestNativeHome() {
-  postMessageToNative({ type: "goNativeHome" });
+  getReactNativeWebView()?.postMessage(JSON.stringify({ type: "goNativeHome" }));
 }
 
-export function isReactNativeWebView(): boolean {
-  return Boolean(getReactNativeWebView()) || Boolean(window.__CAMA_NATIVE_BRIDGE__);
-}
+/** @deprecated StepCountPopup 등 기존 import 호환 */
+export type CamaNativeStepCountDetail = {
+  type: "stepCount";
+  requestId: string;
+  ok: boolean;
+  steps?: number;
+  error?: string;
+};
 
-/**
- * Android 네이티브 걸음수 (TYPE_STEP_COUNTER) — WebView에서 RN 모듈 요청
- */
-export function requestNativeStepCount(timeoutMs = 8000): Promise<number | null> {
-  const rn = getReactNativeWebView();
-  if (!rn) {
-    return Promise.resolve(null);
-  }
-
-  const requestId =
-    typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID()
-      : `step-${Date.now()}`;
-
-  return new Promise((resolve) => {
-    const onNative = (event: Event) => {
-      const detail = (event as CustomEvent<CamaNativeStepCountDetail>).detail;
-      if (!detail || detail.type !== "stepCount" || detail.requestId !== requestId) {
-        return;
-      }
-      window.removeEventListener("cama-native", onNative as EventListener);
-      clearTimeout(timer);
-      if (detail.ok && typeof detail.steps === "number" && detail.steps >= 0) {
-        resolve(Math.floor(detail.steps));
-      } else {
-        resolve(null);
-      }
-    };
-
-    const timer = window.setTimeout(() => {
-      window.removeEventListener("cama-native", onNative as EventListener);
-      resolve(null);
-    }, timeoutMs);
-
-    window.addEventListener("cama-native", onNative as EventListener);
-    postMessageToNative({ type: "getStepCount", requestId });
-  });
-}
+/** @deprecated 기존 import 호환 */
+export type CamaNativeFcmTokenDetail = {
+  type: "fcmToken";
+  requestId: string;
+  ok: boolean;
+  firebase?: import("@/apis/types/auth.types").CamaFirebase;
+  error?: string;
+};

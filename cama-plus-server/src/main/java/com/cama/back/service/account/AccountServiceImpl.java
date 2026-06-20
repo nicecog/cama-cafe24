@@ -297,39 +297,51 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void firebaseToken(Account account, Firebase firebase) {
 
-        if (firebase != null) {
-
-            String token = firebase.getToken();
-            Platform platform = firebase.getPlatform();
-            String device = firebase.getDevice();
-
-            if (!token.equals("test")) {
-
-                if (firebaseTokenRepository.findByAccountSeqAndEnabled(account.getSeq(), true).isPresent()) {
-                    FirebaseToken firebaseToken = firebaseTokenRepository.findByAccountSeqAndEnabled(account.getSeq(), true).get();
-
-                    if (!firebaseToken.getToken().equals(token)) {
-                        firebaseToken.setPlatform(platform);
-                        firebaseToken.setDevice(device);
-                        firebaseToken.setToken(token);
-                        firebaseTokenRepository.saveAndFlush(firebaseToken);
-                    }
-                } else {
-                    firebaseTokenRepository.saveAndFlush(
-                            FirebaseToken.builder()
-                                    .accountSeq(account.getSeq())
-                                    .platform(platform)
-                                    .device(device)
-                                    .token(token)
-                                    .enabled(true)
-                                    .build());
-                }
-
-            }
-
+        if (firebase == null) {
+            return;
         }
 
+        String token = firebase.getToken();
+        Platform platform = firebase.getPlatform();
+        String device = firebase.getDevice();
 
+        if (token == null || token.isBlank() || token.equals("test")) {
+            return;
+        }
+
+        // Web SPA stub must not overwrite an existing deliverable native FCM token.
+        if ("web-no-fcm".equals(token)) {
+            var existing = firebaseTokenRepository.findByAccountSeqAndEnabled(account.getSeq(), true);
+            if (existing.isPresent()) {
+                String existingToken = existing.get().getToken();
+                if (existingToken != null
+                        && !existingToken.isBlank()
+                        && !"test".equals(existingToken)
+                        && !"web-no-fcm".equals(existingToken)) {
+                    return;
+                }
+            }
+        }
+
+        if (firebaseTokenRepository.findByAccountSeqAndEnabled(account.getSeq(), true).isPresent()) {
+            FirebaseToken firebaseToken = firebaseTokenRepository.findByAccountSeqAndEnabled(account.getSeq(), true).get();
+
+            if (!firebaseToken.getToken().equals(token)) {
+                firebaseToken.setPlatform(platform);
+                firebaseToken.setDevice(device);
+                firebaseToken.setToken(token);
+                firebaseTokenRepository.saveAndFlush(firebaseToken);
+            }
+        } else {
+            firebaseTokenRepository.saveAndFlush(
+                    FirebaseToken.builder()
+                            .accountSeq(account.getSeq())
+                            .platform(platform)
+                            .device(device)
+                            .token(token)
+                            .enabled(true)
+                            .build());
+        }
     }
 
     @Override

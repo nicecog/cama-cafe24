@@ -138,6 +138,7 @@ services:
       - --spring.profiles.active=cafe24
     environment:
       SERVER_PORT: "8081"
+      SERVER_SERVLET_CONTEXT_PATH: "/legacy"
       DOCTOR_DB_URL: jdbc:postgresql://postgres:5432/cama_doctor
       DOCTOR_DB_USER: ${POSTGRES_USER:-cama}
       DOCTOR_DB_PASSWORD: ${POSTGRES_PASSWORD}

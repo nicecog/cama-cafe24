@@ -121,16 +121,10 @@ def main() -> None:
     out = stdout.read().decode(errors="replace") + stderr.read().decode(errors="replace")
     print(out.strip() or "(compose up issued)")
 
-    apply_py = REPO_ROOT / "deploy" / "scripts" / "apply-super-admin-nginx.py"
-    sftp = client.open_sftp()
-    sftp.put(str(apply_py), "/tmp/apply-super-admin-nginx.py")
-    sftp.close()
-    _, stdout, stderr = client.exec_command(
-        "python3 /tmp/apply-super-admin-nginx.py /opt/cama/deploy/nginx/cama-super-admin-locations.conf "
-        "&& nginx -t && systemctl reload nginx"
-    )
-    out = stdout.read().decode(errors="replace") + stderr.read().decode(errors="replace")
-    print(out.strip() or "(nginx reload)")
+    apply_py = REPO_ROOT / "deploy" / "scripts" / "vps-deploy-nginx-full.py"
+    r = subprocess.run([sys.executable, str(apply_py)], cwd=REPO_ROOT)
+    if r.returncode != 0:
+        raise SystemExit(r.returncode)
 
     _, stdout, _ = client.exec_command(
         "curl -sk -o /dev/null -w 'public_admin:%{http_code}\\n' "

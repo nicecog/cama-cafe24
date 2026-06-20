@@ -1,8 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import Advice from "@/assets/images/character/advice2.png";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { PatientWebViewToolbarHeader } from "@/components/webview/PatientWebViewToolbarHeader";
-import { isReactNativeWebView } from "@/lib/webview/rnBridge";
 import FilterButtons from "./-components/FilterButtons";
 import List from "./-components/List";
 import WellbeingDetail from "./-page/WellbeingDetail";
@@ -12,17 +10,8 @@ export const Route = createFileRoute("/_auth/_layout/wellbeing/")({
 });
 
 function RouteComponent() {
-  const inRnWebView = isReactNativeWebView();
-
   return (
     <div className="flex flex-1 flex-col h-dvh ">
-      {inRnWebView && (
-        <PatientWebViewToolbarHeader
-          hubMode
-          title="웰빙자원"
-          showHomeButton={false}
-        />
-      )}
       {/* 헤더 */}
       <PageHeader
         title="웰빙자원"
@@ -36,7 +25,7 @@ function RouteComponent() {
 
       {/* 컨텐츠 영역 */}
       <div className="flex-1 bg-white">
-        <div className={inRnWebView ? "px-6 pt-3 pb-4" : "px-6 pt-3 pb-20"}>
+        <div className="px-6 pt-3 pb-20">
           <List />
         </div>
       </div>

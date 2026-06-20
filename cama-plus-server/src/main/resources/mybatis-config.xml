@@ -21,6 +21,8 @@
         <mapper resource="mapper/CareTrackMapper.xml"/>
         <mapper resource="mapper/ScheduleMapper.xml"/>
         <mapper resource="mapper/MonitorMapper.xml"/>
+        <mapper resource="mapper/FcmTestModeMapper.xml"/>
+        <mapper resource="mapper/VitalMapper.xml"/>
         <mapper resource="mapper/DiseaseMapper.xml"/>
         <mapper resource="mapper/CoachingMapper.xml"/>
     </mappers>

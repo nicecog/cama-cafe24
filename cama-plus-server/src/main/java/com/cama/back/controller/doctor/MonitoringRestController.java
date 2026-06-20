@@ -18,8 +18,15 @@ import com.cama.back.dto.Pagination;
 import com.cama.back.dto.SearchParam;
 import com.cama.back.dto.coaching.ExerciseSurveyResult;
 import com.cama.back.dto.coaching.UserAnswerInfo;
+import com.cama.back.dto.monitor.AdminNotificationSendRequest;
+import com.cama.back.dto.monitor.AdminNotificationSendResult;
+import com.cama.back.dto.monitor.FcmTestModeStatusRsp;
 import com.cama.back.dto.monitor.MonitorAcctStatDTO;
 import com.cama.back.dto.monitor.MonitorCoachingDTO;
+import com.cama.back.dto.monitor.MonitorPatientAccountDetailRsp;
+import com.cama.back.dto.monitor.MonitorPatientEmailUpdateRequest;
+import com.cama.back.dto.monitor.MonitorPatientPasswordUpdateRequest;
+import com.cama.back.dto.monitor.MonitorPatientPasswordUpdateResponse;
 import com.cama.back.dto.monitor.MonitorPatientRsp;
 import com.cama.back.dto.monitor.MonitorSearchDTO;
 import com.cama.back.dto.monitor.MonitorContentsDTO;
@@ -29,6 +36,8 @@ import com.cama.back.exception.account.AccountNotFoundException;
 import com.cama.back.mapper.MonitorMapper;
 import com.cama.back.mapper.CareTrackMapper;
 import com.cama.back.security.JwtAuthentication;
+import com.cama.back.service.monitor.MonitorPatientAccountService;
+import com.cama.back.service.notification.FcmTestModeService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,11 +51,17 @@ public class MonitoringRestController {
 
     private final MonitorMapper monitorMapper;
     private final CareTrackMapper careTrackMapper;
+    private final FcmTestModeService fcmTestModeService;
+    private final MonitorPatientAccountService monitorPatientAccountService;
 
     public MonitoringRestController(MonitorMapper monitorMapper,
-    		CareTrackMapper careTrackMapper) {
+    		CareTrackMapper careTrackMapper,
+    		FcmTestModeService fcmTestModeService,
+    		MonitorPatientAccountService monitorPatientAccountService) {
         this.monitorMapper = monitorMapper;
         this.careTrackMapper = careTrackMapper;
+        this.fcmTestModeService = fcmTestModeService;
+        this.monitorPatientAccountService = monitorPatientAccountService;
     }
 
     @GetMapping(path = "monitoring/patient")
@@ -72,6 +87,25 @@ public class MonitoringRestController {
 
         return new ApiResult<>(collect, pagination);
 
+    }
+
+    @GetMapping(path = "monitoring/notification/fcm-test-status")
+    @Operation(summary = "FCM 테스트 모드 상태")
+    public ApiResult<FcmTestModeStatusRsp> getFcmTestStatus() {
+        return new ApiResult<>(fcmTestModeService.getStatus());
+    }
+
+    @PostMapping(path = "monitoring/notification/restore-fcm-test")
+    @Operation(summary = "FCM 테스트 모드 해제 및 배치 복원")
+    public ApiResult<FcmTestModeStatusRsp> restoreFcmTest() {
+        return new ApiResult<>(fcmTestModeService.restoreTestMode());
+    }
+
+    @PostMapping(path = "monitoring/notification/send")
+    @Operation(summary = "관리자 선택 환자 FCM 알림 전송")
+    public ApiResult<AdminNotificationSendResult> sendAdminNotification(
+            @RequestBody AdminNotificationSendRequest request) {
+        return new ApiResult<>(fcmTestModeService.sendAdminNotification(request));
     }
 
     @GetMapping(path = "monitoring/{seq}/patient")
@@ -236,7 +270,34 @@ public class MonitoringRestController {
         
         return new ApiResult<>(chk);
 
-    }   
+    }
+
+    @GetMapping(path = "monitoring/account/{acSeq}")
+    @Operation(summary = "환자 계정 상세 (관리자)")
+    public ApiResult<MonitorPatientAccountDetailRsp> getPatientAccountDetail(
+            @AuthenticationPrincipal JwtAuthentication authentication,
+            @PathVariable Long acSeq) {
+        Long doctorSeq = authentication.id.value();
+        return new ApiResult<>(monitorPatientAccountService.getAccountDetail(doctorSeq, acSeq));
+    }
+
+    @PutMapping(path = "monitoring/account/updateEmail")
+    @Operation(summary = "환자 이메일 변경 (관리자)")
+    public ApiResult<Boolean> updatePatientEmail(
+            @AuthenticationPrincipal JwtAuthentication authentication,
+            @RequestBody MonitorPatientEmailUpdateRequest request) {
+        Long doctorSeq = authentication.id.value();
+        return new ApiResult<>(monitorPatientAccountService.updateEmail(doctorSeq, request));
+    }
+
+    @PutMapping(path = "monitoring/account/updatePassword")
+    @Operation(summary = "환자 비밀번호 변경 (관리자)")
+    public ApiResult<MonitorPatientPasswordUpdateResponse> updatePatientPassword(
+            @AuthenticationPrincipal JwtAuthentication authentication,
+            @RequestBody MonitorPatientPasswordUpdateRequest request) {
+        Long doctorSeq = authentication.id.value();
+        return new ApiResult<>(monitorPatientAccountService.updatePassword(doctorSeq, request));
+    }
     
     @PostMapping(path = "monitoring/account/getSearchTextList")
     @Operation(summary = "사용자별 암정보 검색어 입력 리스트 ")

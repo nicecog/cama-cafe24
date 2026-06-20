@@ -4,7 +4,7 @@ import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import axios from "@/utils/axios";
 import RadialBarChart from "@/components/charts/RadialBarChart";
 import AgGrid from "@/components/grid/AgGrid";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import DetailModal from "./Modal";
 import Button from "@/components/button/DefaultButton";
 import useExcelDownload, { ColumnDefsType } from "@/hooks/useExcelDownload";
@@ -35,6 +35,7 @@ export default function CoachingMonitoring() {
     [t, i18n.language],
   );
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const { alert, confirm } = useAlert();
 
@@ -223,6 +224,15 @@ export default function CoachingMonitoring() {
                 {t("patientMng_coachingMonitoring.coaching.excelDownload")}
               </Button>
 
+              <Button
+                onClick={() => {
+                  navigate(
+                    `/main/patientMng/patientAccount?seq=${seq}&name=${encodeURIComponent(name)}`,
+                  );
+                }}
+              >
+                {t("patientMng_coachingMonitoring.coaching.manageAccount")}
+              </Button>
               <Button
                 onClick={onDeleteAnswer}
                 className="!bg-[#ff7f0e] !border-camaColor1"

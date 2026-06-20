@@ -24,7 +24,7 @@ export const Route = createFileRoute("/webview/")({
     }
 
     throw redirect({
-      to: "/login",
+      to: "/login/",
       search: search.redirect?.trim()
         ? { redirect: search.redirect.trim() }
         : {},
