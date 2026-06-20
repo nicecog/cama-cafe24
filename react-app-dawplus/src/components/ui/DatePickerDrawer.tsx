@@ -4,7 +4,6 @@ import { isValid, parseISO } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import * as React from "react";
 
-import { Button } from "@/components/ui/Button";
 import { Calendar } from "@/components/ui/Calendar";
 import {
   Drawer,
@@ -12,7 +11,6 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/Drawer";
-import { Input } from "@/components/ui/Input";
 import { cn } from "@/lib/utils";
 
 type DateFormat = "yyyy년 MM월 dd일" | "yyyy.MM.dd" | "yyyy-MM-dd";
@@ -153,30 +151,36 @@ export function DatePickerDrawer({
     setTimeout(() => setOpen(false), 200);
   };
 
+  const openPicker = () => setOpen(true);
+
+  const triggerClassName = cn(
+    "relative flex h-9 w-full items-center rounded-md border border-input bg-background px-3 py-1 text-base shadow-sm transition-colors",
+    "cursor-pointer touch-manipulation select-none [-webkit-tap-highlight-color:transparent]",
+    "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:text-sm",
+    className,
+  );
+
   return (
     <>
-      {/* Input 필드 */}
-      <div className="relative flex gap-2">
-        <Input
-          value={displayValue}
-          placeholder={getPlaceholder(format)}
-          className={cn("bg-background pr-10 cursor-pointer", className)}
-          readOnly
-          onClick={() => setOpen(true)}
-        />
-        <Button
-          type="button"
-          variant="ghost"
-          className="absolute top-1/2 right-2 size-6 -translate-y-1/2"
-          onClick={() => setOpen(true)}
+      <button
+        type="button"
+        className={triggerClassName}
+        onClick={openPicker}
+        aria-label="날짜 선택"
+      >
+        <span
+          className={cn(
+            "min-w-0 flex-1 truncate text-left",
+            !displayValue && "text-muted-foreground",
+          )}
         >
-          <CalendarIcon className="size-3.5" />
-          <span className="sr-only">날짜 선택</span>
-        </Button>
-      </div>
+          {displayValue || getPlaceholder(format)}
+        </span>
+        <CalendarIcon className="ml-2 size-3.5 shrink-0 text-muted-foreground" />
+      </button>
 
-      {/* Drawer */}
-      <Drawer open={open} onOpenChange={setOpen}>
+      {/* Popup(z-201) 위에 표시; iOS WebView 중첩 모달 시 배경 스케일 비활성화 */}
+      <Drawer open={open} onOpenChange={setOpen} shouldScaleBackground={false}>
         <DrawerContent className="h-auto">
           <DrawerHeader className="border-b border-gray-100 pb-3">
             <DrawerTitle className="text-center text-base font-semibold text-gray-800">

@@ -10,7 +10,6 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/Drawer";
-import { Input } from "@/components/ui/Input";
 import { cn } from "@/lib/utils";
 
 interface TimePickerDrawerProps {
@@ -18,7 +17,19 @@ interface TimePickerDrawerProps {
   onChange?: (time: string) => void;
 }
 
-function formatTime(hour: number, minute: number): string {
+function formatTimeWithSeconds(hour: number, minute: number): string {
+  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:00`;
+}
+
+/** 배치 FCM 매칭용 HH:mm:ss (입력은 HH:mm / HH:mm:ss 모두 허용) */
+export function normalizeScheduleTime(value: string | undefined): string {
+  const { hour, minute } = parseTimeValue(value);
+  return formatTimeWithSeconds(hour, minute);
+}
+
+function formatTimeDisplay(value: string | undefined): string {
+  if (!value) return "";
+  const { hour, minute } = parseTimeValue(value);
   return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
 }
 
@@ -64,7 +75,9 @@ export function TimePickerDrawer({ value, onChange }: TimePickerDrawerProps) {
   const [selectedMinute, setSelectedMinute] = React.useState<number>(
     parsedTime.minute,
   );
-  const [displayValue, setDisplayValue] = React.useState(value || "");
+  const [displayValue, setDisplayValue] = React.useState(
+    formatTimeDisplay(value),
+  );
 
   const hourRef = React.useRef<HTMLDivElement>(null);
   const minuteRef = React.useRef<HTMLDivElement>(null);
@@ -75,7 +88,7 @@ export function TimePickerDrawer({ value, onChange }: TimePickerDrawerProps) {
       const parsed = parseTimeValue(value);
       setSelectedHour(parsed.hour);
       setSelectedMinute(parsed.minute);
-      setDisplayValue(value);
+      setDisplayValue(formatTimeDisplay(value));
     }
   }, [value]);
 
@@ -104,8 +117,8 @@ export function TimePickerDrawer({ value, onChange }: TimePickerDrawerProps) {
   }, [open, selectedMinute]);
 
   const handleConfirm = () => {
-    const timeString = formatTime(selectedHour, selectedMinute);
-    setDisplayValue(timeString);
+    const timeString = formatTimeWithSeconds(selectedHour, selectedMinute);
+    setDisplayValue(formatTimeDisplay(timeString));
     onChange?.(timeString);
     setOpen(false);
   };
@@ -113,30 +126,34 @@ export function TimePickerDrawer({ value, onChange }: TimePickerDrawerProps) {
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const minutes = Array.from({ length: 60 }, (_, i) => i);
 
+  const openPicker = () => setOpen(true);
+
+  const triggerClassName = cn(
+    "relative flex h-9 w-full items-center rounded-md border border-input bg-background px-3 py-1 text-base shadow-sm transition-colors",
+    "cursor-pointer touch-manipulation select-none [-webkit-tap-highlight-color:transparent]",
+    "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:text-sm",
+  );
+
   return (
     <>
-      {/* Input 필드 */}
-      <div className="relative flex gap-2">
-        <Input
-          value={displayValue}
-          placeholder="09:00"
-          className="bg-background pr-10 cursor-pointer"
-          readOnly
-          onClick={() => setOpen(true)}
-        />
-        <Button
-          type="button"
-          variant="ghost"
-          className="absolute top-1/2 right-2 size-6 -translate-y-1/2"
-          onClick={() => setOpen(true)}
+      <button
+        type="button"
+        className={triggerClassName}
+        onClick={openPicker}
+        aria-label="시간 선택"
+      >
+        <span
+          className={cn(
+            "min-w-0 flex-1 truncate text-left",
+            !displayValue && "text-muted-foreground",
+          )}
         >
-          <Clock className="size-3.5" />
-          <span className="sr-only">시간 선택</span>
-        </Button>
-      </div>
+          {displayValue || "09:00"}
+        </span>
+        <Clock className="ml-2 size-3.5 shrink-0 text-muted-foreground" />
+      </button>
 
-      {/* Drawer */}
-      <Drawer open={open} onOpenChange={setOpen}>
+      <Drawer open={open} onOpenChange={setOpen} shouldScaleBackground={false}>
         <DrawerContent className="h-auto">
           <DrawerHeader className="border-b border-gray-100 pb-3">
             <DrawerTitle className="text-center text-base font-semibold text-gray-800">

@@ -14,7 +14,7 @@ import { DatePickerDrawer } from "@/components/ui/DatePickerDrawer";
 import { Label } from "@/components/ui/Label";
 import Popup from "@/components/ui/Popup";
 import { Switch } from "@/components/ui/switch";
-import { TimePickerDrawer } from "@/components/ui/TimePickerDrawer";
+import { TimePickerDrawer, normalizeScheduleTime } from "@/components/ui/TimePickerDrawer";
 import { useUpdateSchedule } from "@/hooks/mutations/webview";
 import { useDialog } from "@/hooks/useDialog";
 import { useResetState } from "@/hooks/useResetState";
@@ -196,6 +196,7 @@ export default function EditSchedule(props: EditScheduleProps) {
     const submitData = {
       ...scheduleForm,
       acSeq: accountInfo.seq,
+      time: normalizeScheduleTime(scheduleForm.time),
       endDate: scheduleForm.repeat
         ? scheduleForm.endDate
         : scheduleForm.startDate,

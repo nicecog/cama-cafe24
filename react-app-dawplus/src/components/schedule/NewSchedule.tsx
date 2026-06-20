@@ -13,7 +13,7 @@ import { DatePickerDrawer } from "@/components/ui/DatePickerDrawer";
 import { Label } from "@/components/ui/Label";
 import Popup from "@/components/ui/Popup";
 import { Switch } from "@/components/ui/switch";
-import { TimePickerDrawer } from "@/components/ui/TimePickerDrawer";
+import { TimePickerDrawer, normalizeScheduleTime } from "@/components/ui/TimePickerDrawer";
 import { useCreateSchedule } from "@/hooks/mutations/webview/useScheduleMutations";
 import { useDialog } from "@/hooks/useDialog";
 import { useResetState } from "@/hooks/useResetState";
@@ -189,6 +189,7 @@ export default function NewSchedule(props: NewScheduleProps) {
     const submitData = {
       ...scheduleForm,
       acSeq: accountInfo.seq,
+      time: normalizeScheduleTime(scheduleForm.time),
       // 반복이 아닐 때는 종료일을 시작일과 동일하게 보정
       endDate: scheduleForm.repeat
         ? scheduleForm.endDate
