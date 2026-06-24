@@ -245,6 +245,9 @@ export function DayStepFlow({
                     )}
                     <motion.button
                       type="button"
+                      data-testid={
+                        isLastStep ? "coaching-day-complete" : "coaching-day-next"
+                      }
                       onClick={handleNext}
                       whileHover={{ y: -1 }}
                       whileTap={{ scale: 0.985 }}

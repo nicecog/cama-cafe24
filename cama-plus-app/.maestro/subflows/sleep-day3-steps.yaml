@@ -1,0 +1,24 @@
+appId: com.camaplus.app
+---
+- extendedWaitUntil:
+    visible: "목표 취침시간"
+    timeout: 45000
+# 취침 22:00
+- tapOn:
+    text: "시"
+    below: "목표 취침시간"
+- tapOn: "22"
+- tapOn: "00"
+# 기상 07:00
+- tapOn:
+    text: "시"
+    below: "목표 기상시간"
+- tapOn: "07"
+- tapOn: "00"
+- runFlow: sleep-tap-next.yaml
+- extendedWaitUntil:
+    visible: "이전보다"
+    timeout: 25000
+    optional: true
+- runFlow: sleep-tap-next.yaml
+- runFlow: sleep-tap-complete.yaml

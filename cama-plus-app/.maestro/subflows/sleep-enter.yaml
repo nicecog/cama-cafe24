@@ -1,0 +1,31 @@
+appId: com.camaplus.app
+---
+# 건강코칭 → 수면 메인 진입 (이미 수면 화면이면 스킵)
+- extendedWaitUntil:
+    visible: "리스트형"
+    timeout: 5000
+    optional: true
+- runFlow:
+    when:
+      notVisible: "리스트형"
+    commands:
+      - runFlow:
+          when:
+            visible: "시작하기|충분히 잘|하루 평균|목표 취침"
+          commands:
+            - back
+            - waitForAnimationToEnd:
+                timeout: 2000
+      - runFlow:
+          when:
+            notVisible: "건강한 습관을 관리하세요"
+          commands:
+            - tapOn: "건강코칭"
+      - extendedWaitUntil:
+          visible: "건강한 습관을 관리하세요"
+          timeout: 60000
+      - tapOn:
+          point: "25%,58%"
+      - extendedWaitUntil:
+          visible: "리스트형"
+          timeout: 30000

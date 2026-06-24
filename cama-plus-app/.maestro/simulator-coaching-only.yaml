@@ -1,0 +1,14 @@
+appId: com.camaplus.app
+---
+# 일정 테스트 완료 후: 로그인 세션 유지, 건강코칭 5영역만 검증
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible: "일정관리"
+    timeout: 45000
+    optional: true
+- extendedWaitUntil:
+    visible: "건강코칭"
+    timeout: 45000
+- runFlow: subflows/coaching-five-areas.yaml
+- takeScreenshot: 56-coaching-done

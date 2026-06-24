@@ -132,6 +132,10 @@ export default function List() {
   const {
     data: resourceData,
     isLoading,
+    isError,
+    error,
+    refetch,
+    isFetching,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
@@ -152,6 +156,34 @@ export default function List() {
             <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
           <p className="text-gray-600 font-medium">자원을 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // API 오류 (네트워크/서버 실패 시 빈 목록과 구분)
+  if (isError) {
+    const message =
+      error instanceof Error ? error.message : "자원 목록을 불러오지 못했습니다.";
+
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="text-center px-4">
+          <div className="w-20 h-20 bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
+            <Building2 className="w-10 h-10 text-red-400" />
+          </div>
+          <p className="text-gray-900 font-semibold mb-1">
+            자원을 불러오지 못했습니다
+          </p>
+          <p className="text-gray-500 text-sm mb-4">{message}</p>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+          >
+            {isFetching ? "다시 불러오는 중..." : "다시 시도"}
+          </button>
         </div>
       </div>
     );

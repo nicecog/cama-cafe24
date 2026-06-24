@@ -1,0 +1,54 @@
+appId: com.camaplus.app
+---
+# iOS 글자 크기 +/- 버튼 테스트 (수면 코칭 Day 화면 헤더)
+- runFlow: subflows/login-if-needed.yaml
+- extendedWaitUntil:
+    visible: "리스트형|수면 시간 확인하기|가족의 행복"
+    timeout: 45000
+- runFlow:
+    when:
+      visible: "건강한 습관을 관리하세요"
+    commands:
+      - tapOn:
+          point: "25%,58%"
+      - extendedWaitUntil:
+          visible: "리스트형"
+          timeout: 30000
+- runFlow:
+    when:
+      visible: "리스트형"
+    commands:
+      - tapOn: "수면코칭 시작하기"
+- extendedWaitUntil:
+    visible: "수면 시간 확인하기|가족의 행복|예|5시간"
+    timeout: 45000
+- takeScreenshot: ios-font-size-before
+
+# 헤더 우측: ZoomOut(-) / Reset / ZoomIn(+)
+- tapOn:
+    text: "글자 크기 키우기"
+    optional: true
+- tapOn:
+    point: "86%,5%"
+- takeScreenshot: ios-font-size-large
+
+- tapOn:
+    text: "글자 크기 키우기"
+    optional: true
+- tapOn:
+    point: "86%,5%"
+- takeScreenshot: ios-font-size-xlarge
+
+- tapOn:
+    text: "글자 크기 줄이기"
+    optional: true
+- tapOn:
+    point: "72%,5%"
+- takeScreenshot: ios-font-size-decreased
+
+- tapOn:
+    text: "기본 크기로 되돌리기"
+    optional: true
+- tapOn:
+    point: "79%,5%"
+- takeScreenshot: ios-font-size-reset

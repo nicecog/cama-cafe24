@@ -1,0 +1,34 @@
+appId: com.camaplus.app
+---
+- extendedWaitUntil:
+    visible: "충분히 잘 자고 있나요"
+    timeout: 45000
+- repeat:
+    times: 2
+    commands:
+      - tapOn:
+          point: "50%,58%"
+      - tapOn:
+          text: "예"
+          optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- runFlow: sleep-tap-next.yaml
+- extendedWaitUntil:
+    visible: "세계보건기구"
+    timeout: 25000
+- runFlow: sleep-tap-next.yaml
+- extendedWaitUntil:
+    visible: "잠을 잘 자면 좋은 점"
+    timeout: 30000
+- scrollUntilVisible:
+    element: "잠을 잘 자면 좋은 점"
+    direction: DOWN
+    timeout: 8000
+    optional: true
+- tapOn:
+    point: "50%,65%"
+- eraseText: 40
+- inputText: "Maestro수면1일차"
+- hideKeyboard
+- runFlow: sleep-tap-complete.yaml

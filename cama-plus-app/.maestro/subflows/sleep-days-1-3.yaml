@@ -1,0 +1,14 @@
+appId: com.camaplus.app
+---
+# 1~3일차 완료: 현재 Day가 4 미만일 때 활성 일차를 순차 완료
+- repeat:
+    times: 5
+    while:
+      notVisible: "현재 Day 4"
+    commands:
+      - runFlow:
+          when:
+            visible: "수면코칭 시작하기"
+          commands:
+            - runFlow: sleep-complete-one.yaml
+- takeScreenshot: 60-sleep-day3-done

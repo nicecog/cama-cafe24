@@ -1,0 +1,37 @@
+appId: com.camaplus.app
+---
+# 하단 '다음' 버튼 (testid → 텍스트 → 좌표)
+- waitForAnimationToEnd:
+    timeout: 2000
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: "coaching-day-next"
+    commands:
+      - tapOn:
+          id: "coaching-day-next"
+- runFlow:
+    when:
+      notVisible:
+        id: "coaching-day-next"
+    commands:
+      - scrollUntilVisible:
+          element: "다음"
+          direction: DOWN
+          timeout: 5000
+          optional: true
+      - runFlow:
+          when:
+            visible: "다음"
+          commands:
+            - tapOn: "다음"
+      - runFlow:
+          when:
+            notVisible: "다음"
+          commands:
+            - tapOn:
+                point: "50%,93%"
+            - tapOn:
+                point: "75%,93%"
+                optional: true

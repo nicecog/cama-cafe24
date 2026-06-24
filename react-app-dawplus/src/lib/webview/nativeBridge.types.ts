@@ -114,7 +114,7 @@ export type NativeBridgeResponseBase = {
 };
 
 export type NativeBridgeResult<T extends NativeBridgeResponseBase> =
-  | { ok: true; data: Omit<T, "requestId" | "ok" | "error"> }
+  | { ok: true; data: Omit<T, "requestId" | "ok" | "error" | "type"> }
   | { ok: false; error: string };
 
 declare global {

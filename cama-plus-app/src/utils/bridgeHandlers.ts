@@ -16,8 +16,12 @@ import {
   getCurrentLocation,
   getDeviceCapabilities,
   isBiometricAvailable,
+  pauseSpeech,
   pickPhotoFromLibrary,
   readVital,
+  resumeSpeech,
+  speakText,
+  stopSpeech,
 } from '@/native/NativeBridgeModule';
 import { toNativeBridgeError } from '@/native/bridgeErrors';
 import { generateFirebaseInfo } from '@/utils/infos';
@@ -161,6 +165,57 @@ export async function dispatchBridgeRequest(
         });
         return;
       }
+      case 'speakText': {
+        injectNativeEvent(webviewRef, {
+          type: 'speech',
+          requestId,
+          ok: true,
+          event: 'started',
+        });
+        try {
+          await speakText(message.text, message.rate ?? 0.9);
+        } catch (error) {
+          respondError(webviewRef, 'speech', requestId, error);
+          return;
+        }
+        injectNativeEvent(webviewRef, {
+          type: 'speech',
+          requestId,
+          ok: true,
+          event: 'ended',
+        });
+        return;
+      }
+      case 'stopSpeech': {
+        await stopSpeech();
+        injectNativeEvent(webviewRef, {
+          type: 'speech',
+          requestId,
+          ok: true,
+          event: 'ended',
+        });
+        return;
+      }
+      case 'pauseSpeech': {
+        await pauseSpeech();
+        injectNativeEvent(webviewRef, {
+          type: 'speech',
+          requestId,
+          ok: true,
+          event: 'paused',
+        });
+        return;
+      }
+      case 'resumeSpeech': {
+        await resumeSpeech();
+        injectNativeEvent(webviewRef, {
+          type: 'speech',
+          requestId,
+          ok: true,
+          event: 'resumed',
+        });
+        return;
+      }
       default:
         return;
     }
@@ -175,6 +230,10 @@ export async function dispatchBridgeRequest(
       readVital: 'vitalReading',
       checkBiometricAvailable: 'biometric',
       authenticateBiometric: 'biometric',
+      speakText: 'speech',
+      stopSpeech: 'speech',
+      pauseSpeech: 'speech',
+      resumeSpeech: 'speech',
     };
     respondError(
       webviewRef,

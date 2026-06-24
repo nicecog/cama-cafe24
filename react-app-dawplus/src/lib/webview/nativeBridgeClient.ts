@@ -50,7 +50,8 @@ function waitForNativeResponse<T extends NativeBridgeResponseBase & { type: stri
       window.removeEventListener("cama-native", onNative as EventListener);
       clearTimeout(timer);
       if (detail.ok) {
-        const { requestId: _rid, ok: _ok, error: _err, type: _type, ...data } = detail;
+        const { requestId: _rid, ok: _ok, error: _err, type: _type, ...data } =
+          detail;
         resolve({ ok: true, data });
       } else {
         resolve({ ok: false, error: detail.error ?? "UNKNOWN" });
@@ -173,3 +174,28 @@ export function requestNativeFcmToken(timeoutMs = 10000): Promise<CamaFirebase |
 
 /** @deprecated use requestNativeCapturePhoto */
 export { requestNativeCapturePhoto as requestNativeCamera };
+
+type NativeSpeechCommand =
+  | { type: "speakText"; text: string; rate?: number }
+  | { type: "stopSpeech" }
+  | { type: "pauseSpeech" }
+  | { type: "resumeSpeech" };
+
+export function postNativeSpeechCommand(command: NativeSpeechCommand) {
+  if (!isReactNativeWebView()) {
+    return null;
+  }
+
+  const requestId = createRequestId("speech");
+  postMessageToNative({ ...command, requestId });
+  return requestId;
+}
+
+export function shouldUseNativeSpeechSynthesis(): boolean {
+  if (!isReactNativeWebView()) {
+    return false;
+  }
+
+  // iOS/Android WebView 모두 speechSynthesis 미지원 → RN 네이티브 TTS 브릿지 사용
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+}

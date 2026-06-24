@@ -125,7 +125,16 @@ export type WebToNativeRequest =
       type: 'authenticateBiometric';
       requestId: string;
       options?: BiometricAuthOptions;
-    };
+    }
+  | {
+      type: 'speakText';
+      requestId: string;
+      text: string;
+      rate?: number;
+    }
+  | { type: 'stopSpeech'; requestId: string }
+  | { type: 'pauseSpeech'; requestId: string }
+  | { type: 'resumeSpeech'; requestId: string };
 
 /** RN → SPA 응답 이벤트 (cama-native detail.type) */
 export type NativeBridgeResponseType =
@@ -135,7 +144,8 @@ export type NativeBridgeResponseType =
   | 'cameraCapture'
   | 'location'
   | 'vitalReading'
-  | 'biometric';
+  | 'biometric'
+  | 'speech';
 
 export type NativeBridgeResponseBase = {
   requestId: string;

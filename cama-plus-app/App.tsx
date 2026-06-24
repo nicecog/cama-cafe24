@@ -60,10 +60,15 @@ function App() {
   }, [canGoBack]);
 
   useEffect(() => {
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      console.log('FCM foreground message', remoteMessage?.messageId);
-    });
-    return unsubscribe;
+    try {
+      const unsubscribe = messaging().onMessage(async remoteMessage => {
+        console.log('FCM foreground message', remoteMessage?.messageId);
+      });
+      return unsubscribe;
+    } catch (error) {
+      console.log('FCM foreground listener skipped', error);
+      return undefined;
+    }
   }, []);
 
   const handleRetry = useCallback(() => {

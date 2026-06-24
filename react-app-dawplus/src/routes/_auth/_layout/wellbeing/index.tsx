@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_auth/_layout/wellbeing/")({
 
 function RouteComponent() {
   return (
-    <div className="flex flex-1 flex-col h-dvh ">
+    <div className="flex flex-1 flex-col bg-white">
       {/* 헤더 */}
       <PageHeader
         title="웰빙자원"

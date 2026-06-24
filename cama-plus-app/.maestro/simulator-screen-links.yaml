@@ -1,0 +1,35 @@
+appId: com.camaplus.app
+---
+# B. 자격증명 화면 링크(회원가입 / ID·PW 찾기) 이동 검증
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "로그인"
+    timeout: 30000
+- tapOn: "로그인"
+- extendedWaitUntil:
+    visible: "계정 정보를 입력해 로그인해 주세요"
+    timeout: 20000
+
+# 회원가입 화면
+- tapOn: "회원가입"
+- extendedWaitUntil:
+    visible: "CAMA 회원가입"
+    timeout: 20000
+- assertVisible: "아이디"
+- takeScreenshot: 11-signup-screen
+- scrollUntilVisible:
+    element: "이전"
+    direction: DOWN
+- tapOn: "이전"
+- extendedWaitUntil:
+    visible: "계정 정보를 입력해 로그인해 주세요"
+    timeout: 20000
+
+# ID/PW 찾기 화면
+- tapOn: "ID/PW 찾기"
+- extendedWaitUntil:
+    visible: "계정 정보 찾기"
+    timeout: 20000
+- assertVisible: "ID 찾기"
+- takeScreenshot: 12-find-account-screen

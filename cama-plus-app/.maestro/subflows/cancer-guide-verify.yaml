@@ -1,0 +1,6 @@
+appId: com.camaplus.app
+---
+# 암정보가이드 설정 완료 계정: 미설정 배너 없음 확인
+- assertNotVisible: "암정보가이드 설정이 필요해요"
+- assertNotVisible: "맞춤형 건강정보를 받아보세요"
+- takeScreenshot: 38-cancer-guide-configured

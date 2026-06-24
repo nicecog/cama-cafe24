@@ -1,0 +1,66 @@
+appId: com.camaplus.app
+---
+# Android 글자 크기 +/- 버튼 테스트 (수면 코칭 Day 화면 헤더)
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+    optional: true
+- runFlow: subflows/login-if-needed-android.yaml
+
+# 홈 → 건강코칭 탭 → 수면
+- tapOn:
+    text: "건강코칭"
+- extendedWaitUntil:
+    visible: "Sleep|수면"
+    timeout: 90000
+- tapOn:
+    text: "Sleep"
+    optional: true
+- tapOn:
+    text: "수면"
+    optional: true
+- tapOn:
+    point: "22%,62%"
+- extendedWaitUntil:
+    visible: "Start sleep coaching|수면코칭 시작하기|List view|리스트형"
+    timeout: 45000
+- tapOn:
+    text: "Start sleep coaching"
+    optional: true
+- tapOn:
+    text: "수면코칭 시작하기"
+    optional: true
+- extendedWaitUntil:
+    visible: "Current Sleep Time Check|수면 시간 확인하기|how many hours|Less than 5|5시간|가족의 행복|예"
+    timeout: 45000
+- takeScreenshot: android-font-size-before
+
+# 헤더 우측: ZoomOut(-) / Reset / ZoomIn(+)
+- tapOn:
+    text: "글자 크기 키우기"
+    optional: true
+- tapOn:
+    point: "86%,5%"
+- takeScreenshot: android-font-size-large
+
+- tapOn:
+    text: "글자 크기 키우기"
+    optional: true
+- tapOn:
+    point: "86%,5%"
+- takeScreenshot: android-font-size-xlarge
+
+- tapOn:
+    text: "글자 크기 줄이기"
+    optional: true
+- tapOn:
+    point: "72%,5%"
+- takeScreenshot: android-font-size-decreased
+
+- tapOn:
+    text: "기본 크기로 되돌리기"
+    optional: true
+- tapOn:
+    point: "79%,5%"
+- takeScreenshot: android-font-size-reset

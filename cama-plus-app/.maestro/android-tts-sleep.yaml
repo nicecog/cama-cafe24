@@ -1,0 +1,51 @@
+appId: com.camaplus.app
+---
+# Android TTS 테스트: 수면 코칭 Day 화면 읽어주기
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+    optional: true
+- runFlow: subflows/login-if-needed-android.yaml
+- tapOn:
+    text: "건강코칭"
+- extendedWaitUntil:
+    visible: "Sleep|수면"
+    timeout: 90000
+- tapOn:
+    text: "Sleep"
+    optional: true
+- tapOn:
+    point: "22%,62%"
+- extendedWaitUntil:
+    visible: "Start sleep coaching|수면코칭 시작하기|List view|리스트형"
+    timeout: 45000
+- tapOn:
+    text: "수면코칭 시작하기"
+    optional: true
+- extendedWaitUntil:
+    visible: "Current Sleep Time Check|수면 시간 확인하기|Read aloud|읽어주기"
+    timeout: 45000
+- takeScreenshot: android-tts-before
+# 헤더 스피커(TTS) — showLabel=false라 좌표 탭
+- tapOn:
+    text: "읽어주기"
+    optional: true
+- tapOn:
+    text: "Read aloud"
+    optional: true
+- tapOn:
+    point: "58%,5%"
+- extendedWaitUntil:
+    visible: "일시정지|Pause"
+    timeout: 20000
+    optional: true
+- takeScreenshot: android-tts-speaking
+# 일시정지 전환: 스피커 재탭 또는 aria-label
+- tapOn:
+    text: "일시정지"
+    optional: true
+- tapOn:
+    point: "58%,5%"
+    optional: true
+- takeScreenshot: android-tts-paused

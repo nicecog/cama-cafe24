@@ -1,0 +1,52 @@
+appId: com.camaplus.app
+---
+# 현재 활성 일차 1회 완료 (시작 버튼 → 일차별 스텝 → 저장)
+- tapOn: "수면코칭 시작하기"
+- runFlow: sleep-handle-mission-dialog.yaml
+- extendedWaitUntil:
+    notVisible: "수면코칭 시작하기"
+    timeout: 30000
+- extendedWaitUntil:
+    visible: "시작하기"
+    timeout: 30000
+    optional: true
+- extendedWaitUntil:
+    visible: "16일차"
+    timeout: 30000
+    optional: true
+- extendedWaitUntil:
+    visible: "어제 몇 시간"
+    timeout: 30000
+    optional: true
+- runFlow:
+    when:
+      visible: "시작하기"
+    commands:
+      - runFlow: sleep-day0-steps.yaml
+- runFlow:
+    when:
+      visible: "충분히 잘 자고 있나요"
+    commands:
+      - runFlow: sleep-day1-steps.yaml
+- runFlow:
+    when:
+      visible: "하루 평균 몇 시간"
+    commands:
+      - runFlow: sleep-day2-steps.yaml
+- runFlow:
+    when:
+      visible: "목표 취침시간"
+    commands:
+      - runFlow: sleep-day3-steps.yaml
+- runFlow:
+    when:
+      visible: "어제 몇 시간"
+    commands:
+      - tapOn: "6~7시간"
+      - tapOn:
+          point: "50%,92%"
+      - tapOn:
+          point: "75%,92%"
+      - tapOn:
+          point: "85%,88%"
+- runFlow: sleep-dismiss-save.yaml

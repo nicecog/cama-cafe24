@@ -1,0 +1,58 @@
+appId: com.camaplus.app
+---
+# 로그인 → 병원 선택 → 홈 진입 (공통 서브플로우)
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 15000
+- extendedWaitUntil:
+    visible: "안녕하세요"
+    timeout: 60000
+- tapOn: "로그인"
+- extendedWaitUntil:
+    visible: "계정 정보를 입력해 로그인해 주세요"
+    timeout: 20000
+- tapOn:
+    point: "50%,54%"
+- eraseText: 40
+- inputText: "iosqa06231407"
+- tapOn: "비밀번호 보기"
+- tapOn:
+    point: "45%,62%"
+- eraseText: 40
+- inputText: "Test1234!"
+- tapOn:
+    text: "계정 정보를 입력해 로그인해 주세요"
+- tapOn:
+    point: "50%,84%"
+- tapOn:
+    text: "허용"
+    optional: true
+- tapOn:
+    text: "허용 안 함"
+    optional: true
+- extendedWaitUntil:
+    visible: "안녕하세요"
+    timeout: 60000
+    optional: true
+- runFlow:
+    when:
+      visible: "병원을 선택해 주세요"
+    commands:
+      - extendedWaitUntil:
+          notVisible: "병원 목록을 불러오는 중..."
+          timeout: 30000
+      - tapOn:
+          point: "50%,68%"
+      - tapOn:
+          point: "50%,92%"
+      - tapOn:
+          text: "허용"
+          optional: true
+      - tapOn:
+          text: "허용 안 함"
+          optional: true
+      - extendedWaitUntil:
+          visible: "안녕하세요"
+          timeout: 60000
+- assertVisible: "안녕하세요"

@@ -146,6 +146,7 @@ export default function CoachingWelcomePage({
               <motion.button
                 key={option}
                 type="button"
+                data-testid={`coaching-option-${option}`}
                 onClick={() => handleSelect(option)}
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.975 }}

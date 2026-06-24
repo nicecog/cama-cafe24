@@ -1,0 +1,18 @@
+appId: com.camaplus.app
+---
+# 일정 등록 (시뮬레이터 날짜/시간 반영 + 폼에서 날짜·시간 변경)
+# 사전 실행: scripts/set-simulator-datetime.sh
+- runFlow: subflows/login-to-home.yaml
+- tapOn:
+    text: "허용"
+    optional: true
+- extendedWaitUntil:
+    visible: "일정관리"
+    timeout: 30000
+- takeScreenshot: 20-home-before-schedule
+- runFlow: subflows/schedule-create-verify.yaml
+- tapOn: "홈"
+- extendedWaitUntil:
+    visible: "일정관리"
+    timeout: 25000
+- takeScreenshot: 42-home-after-schedule

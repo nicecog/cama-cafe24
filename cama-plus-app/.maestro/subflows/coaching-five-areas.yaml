@@ -1,0 +1,96 @@
+appId: com.camaplus.app
+---
+# 건강코칭 메인 → 5개 영역 진입 검증
+- tapOn: "건강코칭"
+- extendedWaitUntil:
+    visible: "건강한 습관을 관리하세요"
+    timeout: 60000
+- takeScreenshot: 50-coaching-main
+
+# 1. 수면
+- tapOn:
+    point: "25%,58%"
+- extendedWaitUntil:
+    visible: "수면 코칭 진행도"
+    timeout: 30000
+    optional: true
+- extendedWaitUntil:
+    visible: "리스트형"
+    timeout: 30000
+- takeScreenshot: 51-coaching-sleep
+- runFlow: coaching-back-to-main.yaml
+
+# 2. 식습관
+- tapOn:
+    point: "75%,58%"
+- extendedWaitUntil:
+    visible: "식습관 코칭 진행도"
+    timeout: 30000
+    optional: true
+- extendedWaitUntil:
+    visible: "식습관코칭 시작하기"
+    timeout: 30000
+    optional: true
+- takeScreenshot: 52-coaching-meal
+- runFlow: coaching-back-to-main.yaml
+
+# 3. 신체활동
+- tapOn:
+    point: "25%,72%"
+- extendedWaitUntil:
+    visible: "운동코칭 시작하기"
+    timeout: 30000
+    optional: true
+- extendedWaitUntil:
+    visible: "리스트형"
+    timeout: 30000
+    optional: true
+- takeScreenshot: 53-coaching-physical
+- runFlow: coaching-back-to-main.yaml
+
+# 4. 심리
+- tapOn:
+    point: "75%,72%"
+- extendedWaitUntil:
+    visible: "암 진단을 받고"
+    timeout: 30000
+    optional: true
+- takeScreenshot: 54-coaching-mental
+- runFlow: coaching-back-to-main.yaml
+
+# 5. 운동하기 (하단 전체폭 카드)
+- repeat:
+    times: 2
+    commands:
+      - swipe:
+          start: "50%,72%"
+          end: "50%,48%"
+- tapOn:
+    point: "50%,80%"
+- extendedWaitUntil:
+    notVisible: "건강한 습관을 관리하세요"
+    timeout: 20000
+- tapOn:
+    text: "확인"
+    optional: true
+- extendedWaitUntil:
+    visible: "평가시작"
+    timeout: 60000
+    optional: true
+- runFlow:
+    when:
+      notVisible: "평가시작"
+    commands:
+      - extendedWaitUntil:
+          visible: "운동 콘텐츠"
+          timeout: 20000
+          optional: true
+      - extendedWaitUntil:
+          visible: "운동평가"
+          timeout: 30000
+          optional: true
+      - extendedWaitUntil:
+          visible: "운동코칭"
+          timeout: 30000
+- takeScreenshot: 55-coaching-exercise
+- runFlow: coaching-back-to-main.yaml

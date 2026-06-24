@@ -47,10 +47,11 @@ export default function ChallengeQuestion(props: {
             : value === option.value;
 
           return (
-            <motion.button
-              key={option.value}
-              type="button"
-              onClick={() => onChange(option.value)}
+              <motion.button
+                key={option.value}
+                type="button"
+                data-testid={`coaching-option-${option.value}`}
+                onClick={() => onChange(option.value)}
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.975 }}
               className={cn(

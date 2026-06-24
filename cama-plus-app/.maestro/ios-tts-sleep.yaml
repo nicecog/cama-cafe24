@@ -1,0 +1,33 @@
+appId: com.camaplus.app
+---
+# iOS TTS 로컬 테스트: 수면 코칭 Day 화면 상단 읽어주기
+# 사전: Release 빌드 + 프로덕션 SPA (네이티브 TTS 브릿지)
+- extendedWaitUntil:
+    visible: "안녕하세요|리스트형|수면 시간 확인하기"
+    timeout: 30000
+- runFlow:
+    when:
+      visible: "안녕하세요"
+    commands:
+      - tapOn: "건강코칭"
+      - extendedWaitUntil:
+          visible: "건강한 습관을 관리하세요"
+          timeout: 30000
+      - tapOn: "수면"
+      - extendedWaitUntil:
+          visible: "리스트형"
+          timeout: 30000
+- runFlow:
+    when:
+      visible: "리스트형"
+    commands:
+      - tapOn: "수면코칭 시작하기"
+- extendedWaitUntil:
+    visible: "수면 시간 확인하기"
+    timeout: 45000
+- takeScreenshot: ios-tts-before
+- tapOn: "읽어주기"
+- extendedWaitUntil:
+    visible: "일시정지"
+    timeout: 15000
+- takeScreenshot: ios-tts-speaking

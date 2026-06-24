@@ -1,4 +1,4 @@
-export const DEV_WEBVIEW_URL = 'http://localhost:5173/';
+export const DEV_WEBVIEW_URL = 'http://127.0.0.1:5173/';
 export const PROD_WEBVIEW_URL = 'https://camaplus.cafe24.com/webview';
 
 export function resolveWebViewUrl(isDev: boolean = __DEV__): string {

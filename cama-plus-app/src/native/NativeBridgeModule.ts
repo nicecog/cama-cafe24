@@ -27,6 +27,10 @@ type CamaNativeBridgeNative = {
   authenticateBiometric: (
     options: BiometricAuthOptions,
   ) => Promise<BiometricAuthResult>;
+  speakText: (text: string, rate: number) => Promise<boolean>;
+  stopSpeech: () => Promise<boolean>;
+  pauseSpeech: () => Promise<boolean>;
+  resumeSpeech: () => Promise<boolean>;
 };
 
 const NativeBridge = NativeModules.CamaNativeBridge as
@@ -47,8 +51,12 @@ export function getJsFallbackCapabilities(): DeviceCapabilities {
     location: stubCapability(),
     biometrics: stubCapability(),
     stepCounter: {
-      available: platform === 'android',
-      implemented: platform === 'android',
+      available: true,
+      implemented: true,
+      permissionRequired:
+        platform === 'android'
+          ? ['android.permission.ACTIVITY_RECOGNITION']
+          : ['NSMotionUsageDescription', 'NSHealthShareUsageDescription'],
     },
     vitals: {
       HEART_RATE: stubCapability(),
@@ -120,4 +128,20 @@ export function authenticateBiometric(
   options: BiometricAuthOptions = {},
 ): Promise<BiometricAuthResult> {
   return invokeNative('authenticateBiometric', options);
+}
+
+export function speakText(text: string, rate = 0.9): Promise<boolean> {
+  return invokeNative('speakText', text, rate);
+}
+
+export function stopSpeech(): Promise<boolean> {
+  return invokeNative('stopSpeech');
+}
+
+export function pauseSpeech(): Promise<boolean> {
+  return invokeNative('pauseSpeech');
+}
+
+export function resumeSpeech(): Promise<boolean> {
+  return invokeNative('resumeSpeech');
 }

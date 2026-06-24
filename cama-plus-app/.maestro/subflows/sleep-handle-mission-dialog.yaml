@@ -1,0 +1,11 @@
+appId: com.camaplus.app
+---
+- runFlow:
+    when:
+      visible: "어제의 미션"
+    commands:
+      - tapOn: "미션을 완료했어요!"
+      - extendedWaitUntil:
+          visible: "미션 완료"
+          timeout: 15000
+      - tapOn: "미션 완료"

@@ -1,0 +1,132 @@
+appId: com.camaplus.app
+---
+# C. 홈 → 암정보가이드 / 일정 데이터 / 건강코칭 5영역 / 하단 탭 검증
+- runFlow: subflows/login-to-home.yaml
+
+- tapOn:
+    text: "허용"
+    optional: true
+- extendedWaitUntil:
+    visible: "일정관리"
+    timeout: 30000
+- takeScreenshot: 20-home
+
+# --- 암정보가이드: 미설정 시 6단계 설정 / 설정 완료 시 마이페이지 확인 ---
+- runFlow:
+    when:
+      visible: "암정보가이드 설정이 필요해요"
+    commands:
+      - runFlow: subflows/cancer-guide-setup.yaml
+- runFlow:
+    when:
+      notVisible: "암정보가이드 설정이 필요해요"
+    commands:
+      - runFlow: subflows/cancer-guide-verify.yaml
+
+# --- 일정 등록 + 데이터 확인 ---
+- runFlow: subflows/schedule-create-verify.yaml
+
+# --- 홈에서 등록 일정 노출 확인 ---
+- tapOn: "홈"
+- extendedWaitUntil:
+    visible: "일정관리"
+    timeout: 25000
+- extendedWaitUntil:
+    visible: "Maestro일정검증"
+    timeout: 30000
+    optional: true
+- takeScreenshot: 42-home-schedule-data
+
+# --- 건강코칭: 5개 영역 ---
+- tapOn: "건강코칭"
+- extendedWaitUntil:
+    visible: "건강한 습관을 관리하세요"
+    timeout: 60000
+- takeScreenshot: 50-coaching-main
+
+# 1. 수면
+- tapOn:
+    point: "25%,58%"
+- extendedWaitUntil:
+    visible: "수면 코칭 진행도"
+    timeout: 30000
+    optional: true
+- extendedWaitUntil:
+    visible: "리스트형"
+    timeout: 30000
+- takeScreenshot: 51-coaching-sleep
+- runFlow: subflows/coaching-back-to-main.yaml
+
+# 2. 식습관
+- tapOn:
+    point: "75%,58%"
+- extendedWaitUntil:
+    visible: "식습관 코칭 진행도"
+    timeout: 30000
+    optional: true
+- extendedWaitUntil:
+    visible: "식습관코칭 시작하기"
+    timeout: 30000
+    optional: true
+- takeScreenshot: 52-coaching-meal
+- runFlow: subflows/coaching-back-to-main.yaml
+
+# 3. 신체활동
+- tapOn:
+    point: "25%,72%"
+- extendedWaitUntil:
+    visible: "운동코칭 시작하기"
+    timeout: 30000
+    optional: true
+- extendedWaitUntil:
+    visible: "리스트형"
+    timeout: 30000
+    optional: true
+- takeScreenshot: 53-coaching-physical
+- runFlow: subflows/coaching-back-to-main.yaml
+
+# 4. 심리
+- tapOn:
+    point: "75%,72%"
+- extendedWaitUntil:
+    visible: "암 진단을 받고"
+    timeout: 30000
+    optional: true
+- takeScreenshot: 54-coaching-mental
+- runFlow: subflows/coaching-back-to-main.yaml
+
+# 5. 운동하기
+- tapOn:
+    point: "50%,82%"
+- extendedWaitUntil:
+    visible: "운동코칭"
+    timeout: 30000
+- extendedWaitUntil:
+    visible: "평가시작"
+    timeout: 30000
+    optional: true
+- takeScreenshot: 55-coaching-exercise
+- runFlow: subflows/coaching-back-to-main.yaml
+
+# --- 웰빙자원 ---
+- tapOn:
+    point: "70%,95%"
+- extendedWaitUntil:
+    visible: "전체"
+    timeout: 25000
+- takeScreenshot: 60-tab-wellbeing
+
+# --- 즐겨찾기 ---
+- tapOn:
+    point: "90%,95%"
+- extendedWaitUntil:
+    visible: "즐겨찾기"
+    timeout: 25000
+- takeScreenshot: 61-tab-favorite
+
+# --- 홈 복귀 ---
+- tapOn: "홈"
+- extendedWaitUntil:
+    visible: "일정관리"
+    timeout: 20000
+- takeScreenshot: 62-home-final

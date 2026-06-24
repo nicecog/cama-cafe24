@@ -42,7 +42,7 @@ export const useWellbeingResourceList = (
     enabled,
     select: (data) => {
       // 모든 페이지의 데이터를 하나로 합침
-      const allItems = data.pages.flatMap((page) => page.response);
+      const allItems = data.pages.flatMap((page) => page.response ?? []);
       // 첫 페이지의 pagination 정보 사용
       const pagination = data.pages[0]?.pagination;
 

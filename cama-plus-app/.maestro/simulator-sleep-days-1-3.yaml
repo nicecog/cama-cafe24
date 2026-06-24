@@ -1,0 +1,11 @@
+appId: com.camaplus.app
+---
+# 건강코칭 → 수면 1~3일차 완료 (앱은 외부 simctl launch 권장)
+- waitForAnimationToEnd:
+    timeout: 10000
+    optional: true
+- runFlow: subflows/login-if-needed.yaml
+- runFlow: subflows/sleep-enter.yaml
+- takeScreenshot: 58-sleep-main-before
+- runFlow: subflows/sleep-days-1-3.yaml
+- takeScreenshot: 59-sleep-days-1-3-done

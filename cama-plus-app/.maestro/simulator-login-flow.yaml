@@ -1,0 +1,45 @@
+appId: com.camaplus.app
+---
+# A. 로그인 환영 → 자격증명 → 로그인 → 병원 선택
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "안녕하세요"
+    timeout: 30000
+- assertVisible: "Cama+입니다"
+- assertVisible: "로그인"
+- takeScreenshot: 01-login-welcome
+- tapOn: "로그인"
+- extendedWaitUntil:
+    visible: "계정 정보를 입력해 로그인해 주세요"
+    timeout: 20000
+- takeScreenshot: 02-login-credentials
+- tapOn:
+    point: "50%,54%"
+- eraseText: 40
+- inputText: "iosqa06231407"
+- tapOn: "비밀번호 보기"
+- tapOn:
+    point: "45%,62%"
+- eraseText: 40
+- inputText: "Test1234!"
+- tapOn:
+    text: "계정 정보를 입력해 로그인해 주세요"
+- tapOn:
+    point: "50%,84%"
+- extendedWaitUntil:
+    visible: "병원을 선택해 주세요"
+    timeout: 45000
+- takeScreenshot: 03-hospital-select
+- extendedWaitUntil:
+    notVisible: "병원 목록을 불러오는 중..."
+    timeout: 30000
+- takeScreenshot: 04-hospital-list
+- tapOn:
+    point: "50%,68%"
+- tapOn:
+    point: "50%,92%"
+- extendedWaitUntil:
+    visible: "안녕하세요"
+    timeout: 45000
+- takeScreenshot: 06-home-after-hospital

@@ -1,0 +1,112 @@
+appId: com.camaplus.app
+---
+# 일정관리 탭 → 날짜/시간 변경 → 일정 등록 → 목록 데이터 확인
+- tapOn:
+    point: "30%,95%"
+- extendedWaitUntil:
+    visible: "나의 건강 일정을 관리하세요"
+    timeout: 25000
+- scrollUntilVisible:
+    element: "일정추가"
+    direction: UP
+    timeout: 15000
+    optional: true
+- tapOn: "일정추가"
+- extendedWaitUntil:
+    visible: "일정 등록"
+    timeout: 15000
+- takeScreenshot: 40-schedule-form
+- tapOn: "내원"
+
+# 시작일: 25일 선택 (캘린더 드로어)
+- tapOn: "날짜 선택"
+- extendedWaitUntil:
+    visible: "날짜 선택"
+    timeout: 15000
+- tapOn:
+    point: "62%,82%"
+- tapOn:
+    point: "50%,35%"
+    optional: true
+- takeScreenshot: 40b-schedule-date
+
+# 시간: 14:30 (WebView nested scroll — 좌표 스와이프)
+- tapOn:
+    point: "75%,48%"
+- extendedWaitUntil:
+    visible: "시간 선택"
+    timeout: 15000
+# 시 컬럼: 08 → 14
+- repeat:
+    times: 8
+    while:
+      notVisible:
+        text: "14"
+        leftOf: "분"
+    commands:
+      - swipe:
+          start: "25%,65%"
+          end: "25%,40%"
+- tapOn:
+    point: "25%,55%"
+# 분 컬럼: 00 → 30
+- repeat:
+    times: 12
+    while:
+      notVisible: "30"
+    commands:
+      - swipe:
+          start: "75%,65%"
+          end: "75%,40%"
+- tapOn:
+    point: "75%,55%"
+- tapOn: "확인"
+- takeScreenshot: 40c-schedule-time
+
+# 메모 입력
+- scrollUntilVisible:
+    element: "메모"
+    direction: DOWN
+    timeout: 15000
+- tapOn: "일정에 대한 메모를 입력하세요"
+- eraseText: 40
+- inputText: "Maestro일정검증"
+- tapOn: "내원"
+- scrollUntilVisible:
+    element: "일정 등록"
+    direction: DOWN
+    timeout: 10000
+- tapOn: "일정 등록"
+- tapOn:
+    point: "75%,86%"
+    optional: true
+- extendedWaitUntil:
+    visible: "일정을 등록하시겠습니까?"
+    timeout: 10000
+    optional: true
+- tapOn:
+    text: "확인"
+    optional: true
+- extendedWaitUntil:
+    notVisible: "일정 등록"
+    timeout: 30000
+# 등록한 날짜(25일)로 캘린더 선택
+- scrollUntilVisible:
+    element: "2026년 6월 25일 목요일"
+    direction: DOWN
+    timeout: 15000
+    visibilityPercentage: 50
+- tapOn: "2026년 6월 25일 목요일"
+- extendedWaitUntil:
+    notVisible: "등록된 일정이 없습니다"
+    timeout: 60000
+- swipe:
+    start: "50%,75%"
+    end: "50%,35%"
+- swipe:
+    start: "50%,75%"
+    end: "50%,35%"
+- extendedWaitUntil:
+    visible: "Maestro일정검증"
+    timeout: 60000
+- takeScreenshot: 41-schedule-created

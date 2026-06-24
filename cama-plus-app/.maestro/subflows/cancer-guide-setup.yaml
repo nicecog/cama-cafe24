@@ -1,0 +1,65 @@
+appId: com.camaplus.app
+---
+# 암정보가이드 6단계 설정 (미설정 계정용)
+- tapOn: "암정보가이드 설정하기 맞춤형 건강정보를 받아보세요"
+- extendedWaitUntil:
+    visible: "어떤 질환인가요?"
+    timeout: 25000
+- takeScreenshot: 31-cancer-step1
+- tapOn:
+    below: "어떤 질환인가요?"
+    index: 0
+- tapOn: "다음"
+- scrollUntilVisible:
+    element: "치료시기를 선택하세요."
+    direction: DOWN
+    timeout: 20000
+    visibilityPercentage: 50
+- takeScreenshot: 32-cancer-step2
+- tapOn:
+    below: "치료시기를 선택하세요."
+    index: 0
+- tapOn: "다음"
+- scrollUntilVisible:
+    element: "를 선택해 주세요."
+    direction: DOWN
+    timeout: 20000
+    visibilityPercentage: 50
+- takeScreenshot: 33-cancer-step3
+- tapOn:
+    below: "를 선택해 주세요."
+    index: 0
+- tapOn: "다음"
+- scrollUntilVisible:
+    element: "그 외 고려사항을 선택해주세요."
+    direction: DOWN
+    timeout: 20000
+    visibilityPercentage: 50
+- takeScreenshot: 34-cancer-step4
+- tapOn: "해당 사항 없음"
+- tapOn: "다음"
+- scrollUntilVisible:
+    element: "관심있는 영역을 선택해주세요."
+    direction: DOWN
+    timeout: 20000
+    visibilityPercentage: 50
+- takeScreenshot: 35-cancer-step5
+- tapOn: "모두 선택하기"
+- tapOn: "다음"
+- scrollUntilVisible:
+    element: "추천 컨텐츠를 며칠에 걸쳐 보시겠어요?"
+    direction: DOWN
+    timeout: 20000
+    visibilityPercentage: 50
+- takeScreenshot: 36-cancer-step6
+- tapOn: "60"
+- tapOn: "완료"
+- extendedWaitUntil:
+    visible: "암정보 가이드를 설정하시겠습니까?"
+    timeout: 15000
+- tapOn: "암정보가이드 시작하기"
+- extendedWaitUntil:
+    visible: "암정보가이드 설정이 완료되었습니다."
+    timeout: 60000
+- tapOn: "확인"
+- takeScreenshot: 37-cancer-setup-done

@@ -1,4 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
+import {
+  postNativeSpeechCommand,
+  shouldUseNativeSpeechSynthesis,
+} from "@/lib/webview/nativeBridgeClient";
 
 interface TTSOptions {
   lang?: string;
@@ -15,9 +19,14 @@ export const useTTS = () => {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] =
     useState<SpeechSynthesisVoice | null>(null);
+  const useNativeBridge = shouldUseNativeSpeechSynthesis();
 
-  // 음성 목록 로드
   useEffect(() => {
+    if (useNativeBridge) {
+      setIsSupported(true);
+      return;
+    }
+
     setIsSupported("speechSynthesis" in window);
 
     if ("speechSynthesis" in window) {
@@ -25,30 +34,67 @@ export const useTTS = () => {
         const availableVoices = window.speechSynthesis.getVoices();
         setVoices(availableVoices);
 
-        // 한국어 음성 중 가장 좋은 음성 자동 선택
         const koreanVoices = availableVoices.filter((voice) =>
           voice.lang.startsWith("ko"),
         );
 
         if (koreanVoices.length > 0) {
-          // 우선순위: Google > Microsoft > 기타
           const preferredVoice =
             koreanVoices.find((v) => v.name.includes("Google")) ||
             koreanVoices.find((v) => v.name.includes("Microsoft")) ||
-            koreanVoices.find((v) => v.name.includes("Female")) || // 여성 음성 선호
+            koreanVoices.find((v) => v.name.includes("Female")) ||
             koreanVoices[0];
 
           setSelectedVoice(preferredVoice);
         }
       };
 
-      // 음성 목록이 비동기로 로드될 수 있음
       loadVoices();
       window.speechSynthesis.onvoiceschanged = loadVoices;
     }
-  }, []);
+  }, [useNativeBridge]);
 
-  // 한국어 음성 목록 가져오기
+  useEffect(() => {
+    if (!useNativeBridge) {
+      return undefined;
+    }
+
+    const onNativeSpeech = (event: Event) => {
+      const detail = (event as CustomEvent<{
+        type?: string;
+        event?: string;
+      }>).detail;
+
+      if (!detail || detail.type !== "speech") {
+        return;
+      }
+
+      switch (detail.event) {
+        case "started":
+          setIsSpeaking(true);
+          setIsPaused(false);
+          break;
+        case "ended":
+          setIsSpeaking(false);
+          setIsPaused(false);
+          break;
+        case "paused":
+          setIsPaused(true);
+          break;
+        case "resumed":
+          setIsPaused(false);
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener("cama-native", onNativeSpeech as EventListener);
+    return () => {
+      window.removeEventListener("cama-native", onNativeSpeech as EventListener);
+    };
+  }, [useNativeBridge]);
+
   const getKoreanVoices = useCallback(() => {
     return voices.filter((voice) => voice.lang.startsWith("ko"));
   }, [voices]);
@@ -60,14 +106,21 @@ export const useTTS = () => {
         return;
       }
 
-      // 이미 말하고 있으면 중지
+      if (useNativeBridge) {
+        postNativeSpeechCommand({
+          type: "speakText",
+          text,
+          rate: options?.rate ?? 1.0,
+        });
+        return;
+      }
+
       if (window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
       }
 
       const utterance = new SpeechSynthesisUtterance(text);
 
-      // 음성 설정 (선택된 음성 또는 옵션의 음성)
       if (options?.voiceName) {
         const voice = voices.find((v) => v.name === options.voiceName);
         if (voice) utterance.voice = voice;
@@ -75,7 +128,6 @@ export const useTTS = () => {
         utterance.voice = selectedVoice;
       }
 
-      // 한국어 설정
       utterance.lang = options?.lang || "ko-KR";
       utterance.rate = options?.rate || 1.0;
       utterance.pitch = options?.pitch || 1.0;
@@ -92,7 +144,6 @@ export const useTTS = () => {
       };
 
       utterance.onerror = (event) => {
-        // 사용자가 중지한 경우는 에러로 처리하지 않음
         if (event.error !== "interrupted" && event.error !== "canceled") {
           console.error("TTS 오류:", event.error);
         }
@@ -110,27 +161,45 @@ export const useTTS = () => {
 
       window.speechSynthesis.speak(utterance);
     },
-    [isSupported, voices, selectedVoice],
+    [isSupported, useNativeBridge, voices, selectedVoice],
   );
 
   const stop = useCallback(() => {
     if (!isSupported) return;
+
+    if (useNativeBridge) {
+      postNativeSpeechCommand({ type: "stopSpeech" });
+      return;
+    }
+
     window.speechSynthesis.cancel();
     setIsSpeaking(false);
     setIsPaused(false);
-  }, [isSupported]);
+  }, [isSupported, useNativeBridge]);
 
   const pause = useCallback(() => {
     if (!isSupported) return;
+
+    if (useNativeBridge) {
+      postNativeSpeechCommand({ type: "pauseSpeech" });
+      return;
+    }
+
     window.speechSynthesis.pause();
     setIsPaused(true);
-  }, [isSupported]);
+  }, [isSupported, useNativeBridge]);
 
   const resume = useCallback(() => {
     if (!isSupported) return;
+
+    if (useNativeBridge) {
+      postNativeSpeechCommand({ type: "resumeSpeech" });
+      return;
+    }
+
     window.speechSynthesis.resume();
     setIsPaused(false);
-  }, [isSupported]);
+  }, [isSupported, useNativeBridge]);
 
   return {
     speak,
