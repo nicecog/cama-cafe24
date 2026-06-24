@@ -1,0 +1,80 @@
+appId: com.camaplus.app
+---
+# iOS 건강코칭: 수면 제외 4영역(식습관·신체활동·심리·운동하기) 진입 검증
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+    optional: true
+- runFlow: subflows/login-if-needed.yaml
+- tapOn: "건강코칭"
+- extendedWaitUntil:
+    visible: "건강한 습관을 관리하세요"
+    timeout: 60000
+- takeScreenshot: ios-coaching-main
+
+# 1. 식습관 (우상단 카드)
+- tapOn:
+    point: "75%,58%"
+- extendedWaitUntil:
+    visible: "식습관코칭 시작하기"
+    timeout: 30000
+- takeScreenshot: ios-coaching-meal
+- runFlow: subflows/coaching-back-to-main.yaml
+
+# 2. 신체활동 (좌하단 카드)
+- tapOn:
+    point: "25%,72%"
+- extendedWaitUntil:
+    visible: "운동코칭 시작하기"
+    timeout: 30000
+- takeScreenshot: ios-coaching-physical
+- runFlow: subflows/coaching-back-to-main.yaml
+
+# 3. 심리 (우하단 카드)
+- tapOn:
+    point: "75%,72%"
+- extendedWaitUntil:
+    visible: "진단 시작하기"
+    timeout: 45000
+    optional: true
+- assertNotVisible: "건강한 습관을 관리하세요"
+- takeScreenshot: ios-coaching-mental
+- runFlow: subflows/coaching-back-to-main.yaml
+
+# 4. 운동하기 (하단 전체폭 카드)
+- repeat:
+    times: 2
+    commands:
+      - swipe:
+          start: "50%,72%"
+          end: "50%,48%"
+- tapOn:
+    point: "50%,80%"
+- tapOn:
+    text: "확인"
+    optional: true
+- extendedWaitUntil:
+    visible: "평가시작"
+    timeout: 60000
+    optional: true
+- runFlow:
+    when:
+      notVisible: "평가시작"
+    commands:
+      - extendedWaitUntil:
+          visible: "운동 콘텐츠"
+          timeout: 20000
+          optional: true
+      - extendedWaitUntil:
+          visible: "운동평가"
+          timeout: 30000
+          optional: true
+      - extendedWaitUntil:
+          visible: "운동코칭"
+          timeout: 30000
+          optional: true
+- assertNotVisible: "건강한 습관을 관리하세요"
+- takeScreenshot: ios-coaching-exercise
+- runFlow: subflows/coaching-back-to-main.yaml
+- takeScreenshot: ios-coaching-non-sleep-done

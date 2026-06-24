@@ -1,0 +1,9 @@
+appId: com.camaplus.app
+---
+- extendedWaitUntil:
+    visible: "저장되었어요"
+    timeout: 90000
+- tapOn: "닫기"
+- extendedWaitUntil:
+    visible: "식습관 코칭 진행도"
+    timeout: 45000

@@ -1,0 +1,35 @@
+appId: com.camaplus.app
+---
+# 현재 활성 일차 1회 완료 (시작 버튼 → 일차별 스텝 → 저장)
+- tapOn: "식습관코칭 시작하기"
+- extendedWaitUntil:
+    notVisible: "식습관코칭 시작하기"
+    timeout: 30000
+- extendedWaitUntil:
+    visible: "시작하기"
+    timeout: 30000
+    optional: true
+- extendedWaitUntil:
+    visible: "변화를 위해 시작해 볼까요"
+    timeout: 30000
+    optional: true
+- extendedWaitUntil:
+    visible: "건강한 식단으로"
+    timeout: 30000
+    optional: true
+- runFlow:
+    when:
+      visible: "가족의 행복"
+    commands:
+      - runFlow: meal-day0-steps.yaml
+- runFlow:
+    when:
+      visible: "변화를 위해 시작해 볼까요"
+    commands:
+      - runFlow: meal-day1-steps.yaml
+- runFlow:
+    when:
+      visible: "건강한 식단으로"
+    commands:
+      - runFlow: meal-day2-steps.yaml
+- runFlow: meal-dismiss-save.yaml

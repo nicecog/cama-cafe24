@@ -1,0 +1,14 @@
+appId: com.camaplus.app
+---
+- takeScreenshot: ios-meal-before-days
+- repeat:
+    times: 3
+    commands:
+      - runFlow: meal-complete-one.yaml
+      - extendedWaitUntil:
+          visible: "식습관코칭 시작하기|내가 했던 답변 보기"
+          timeout: 90000
+- extendedWaitUntil:
+    visible: "현재 Day 3"
+    timeout: 45000
+- takeScreenshot: ios-meal-day2-done

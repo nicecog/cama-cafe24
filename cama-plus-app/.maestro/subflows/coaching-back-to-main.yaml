@@ -1,19 +1,10 @@
 appId: com.camaplus.app
 ---
 - tapOn:
-    text: "건강코칭"
-    optional: true
+    point: "12%,9%"
 - tapOn:
     text: "확인"
-    optional: true
-- tapOn:
-    text: "취소"
     optional: true
 - extendedWaitUntil:
     visible: "건강한 습관을 관리하세요"
     timeout: 20000
-    optional: true
-- extendedWaitUntil:
-    visible: "수면"
-    timeout: 20000
-    optional: true

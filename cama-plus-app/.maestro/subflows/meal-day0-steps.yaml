@@ -1,0 +1,39 @@
+appId: com.camaplus.app
+---
+- extendedWaitUntil:
+    visible: "가족의 행복"
+    timeout: 45000
+- scrollUntilVisible:
+    element: "가족의 행복"
+    direction: DOWN
+    timeout: 10000
+    optional: true
+- repeat:
+    times: 2
+    commands:
+      - tapOn:
+          point: "50%,76%"
+      - tapOn:
+          text: "가족의 행복"
+          optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- runFlow: sleep-tap-next.yaml
+- extendedWaitUntil:
+    visible: "인생의 기반"
+    timeout: 25000
+- runFlow: sleep-tap-next.yaml
+- extendedWaitUntil:
+    visible: "오늘 할 수 있는"
+    timeout: 30000
+- scrollUntilVisible:
+    element: "오늘 할 수 있는"
+    direction: DOWN
+    timeout: 8000
+    optional: true
+- tapOn:
+    point: "50%,65%"
+- eraseText: 40
+- inputText: "야채 많이 먹기"
+- hideKeyboard
+- runFlow: sleep-tap-complete.yaml

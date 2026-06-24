@@ -1,0 +1,11 @@
+appId: com.camaplus.app
+---
+# 건강코칭 → 식습관 Day 0~2 완료
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+    optional: true
+- runFlow: subflows/login-if-needed.yaml
+- runFlow: subflows/meal-enter.yaml
+- runFlow: subflows/meal-days-0-2.yaml

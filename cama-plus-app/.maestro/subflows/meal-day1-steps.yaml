@@ -1,0 +1,20 @@
+appId: com.camaplus.app
+---
+- extendedWaitUntil:
+    visible: "변화를 위해 시작해 볼까요"
+    timeout: 45000
+- tapOn: "네"
+- waitForAnimationToEnd:
+    timeout: 2000
+- runFlow: sleep-tap-next.yaml
+- tapOn:
+    text: "확인"
+    optional: true
+- extendedWaitUntil:
+    visible: "영양 상태를 잘 유지"
+    timeout: 25000
+- runFlow: sleep-tap-next.yaml
+- extendedWaitUntil:
+    visible: "냉장고에 있는"
+    timeout: 30000
+- runFlow: sleep-tap-complete.yaml
