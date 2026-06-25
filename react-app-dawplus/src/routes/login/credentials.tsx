@@ -167,7 +167,18 @@ function LoginCredentialsPage() {
               </label>
             </div>
           </form>
-          <div className="mt-5 grid grid-cols-2 gap-2">
+
+          <Button
+            type="button"
+            disabled={submitting}
+            data-testid="login-submit"
+            onClick={() => void onSubmit()}
+            className="mt-5 h-12 w-full rounded-[0.95rem] text-base font-bold shadow-[0_14px_28px_rgba(92,148,111,0.22)] transition-transform hover:scale-[1.01] active:scale-[0.99]"
+          >
+            {submitting ? "로그인 중..." : "로그인"}
+          </Button>
+
+          <div className="mt-3 grid grid-cols-2 gap-2">
             <Button
               type="button"
               variant="outline"
@@ -195,17 +206,6 @@ function LoginCredentialsPage() {
               ID/PW 찾기
             </Button>
           </div>
-        </div>
-
-        <div className="mt-5">
-          <Button
-            type="button"
-            disabled={submitting}
-            onClick={() => void onSubmit()}
-            className="h-12 w-full rounded-[0.95rem] text-base font-bold shadow-[0_14px_28px_rgba(92,148,111,0.22)] transition-transform hover:scale-[1.01] active:scale-[0.99]"
-          >
-            {submitting ? "로그인 중..." : "로그인"}
-          </Button>
         </div>
       </div>
     </section>
