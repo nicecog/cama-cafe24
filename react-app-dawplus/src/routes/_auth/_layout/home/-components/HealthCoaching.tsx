@@ -22,6 +22,7 @@ const coachingData = [
     categoryCd: "A", // 수면
     titleKey: "MSG_19",
     descriptionKey: "MSG_20",
+    screenId: "/coaching/sleep",
     image: type1,
     color: "from-blue-500/20 to-blue-600/10",
   },
@@ -30,6 +31,7 @@ const coachingData = [
     categoryCd: "B", // 식습관
     titleKey: "MSG_21",
     descriptionKey: "MSG_22",
+    screenId: "/coaching/meal",
     image: type2,
     color: "from-green-500/20 to-green-600/10",
   },
@@ -38,6 +40,7 @@ const coachingData = [
     categoryCd: "C", // 신체활동
     titleKey: "MSG_23",
     descriptionKey: "MSG_24",
+    screenId: "/coaching/physical",
     image: type3,
     color: "from-orange-500/20 to-orange-600/10",
   },
@@ -46,6 +49,7 @@ const coachingData = [
     categoryCd: "D", // 심리
     titleKey: "MSG_25",
     descriptionKey: "MSG_26",
+    screenId: "/coaching/mental",
     image: type4,
     color: "from-purple-500/20 to-purple-600/10",
   },
@@ -54,6 +58,7 @@ const coachingData = [
     categoryCd: "E", // 운동하기
     titleKey: "MSG_27",
     descriptionKey: "MSG_28",
+    screenId: "/coaching/exercise",
     image: type5,
     color: "from-red-500/20 to-red-600/10",
   },
@@ -100,7 +105,7 @@ export default function HealthCoaching() {
                   "bg-white",
                   "border border-primary ",
                 )}
-                onClick={() => navigate({ to: "/home" })}
+                onClick={() => navigate({ to: coaching.screenId })}
               >
                 {/* 배경 그라데이션 */}
                 <div
