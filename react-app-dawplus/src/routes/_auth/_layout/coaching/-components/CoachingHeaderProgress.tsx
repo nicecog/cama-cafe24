@@ -14,16 +14,13 @@ interface CoachingHeaderProgressProps {
 
 export function CoachingHeaderProgress({
   id,
-  categoryCd,
   image,
   progress,
   titleKey,
   idx,
   pt,
-  msgProgress04,
 }: CoachingHeaderProgressProps) {
   const isCompleted = progress === 100;
-  const isExercise = categoryCd === "E";
 
   // 원형 진행바 계산
   const radius = 22;
@@ -129,11 +126,7 @@ export function CoachingHeaderProgress({
             </span>
           ) : (
             <span className="text-[11px] font-black text-white">
-              {progress > 0
-                ? isExercise
-                  ? `${progress}%`
-                  : `${progress}${msgProgress04}`
-                : "대기"}
+              {progress > 0 ? `${progress}%` : "대기"}
             </span>
           )}
         </div>
