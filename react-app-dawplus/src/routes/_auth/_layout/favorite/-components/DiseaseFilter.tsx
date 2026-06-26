@@ -16,7 +16,7 @@ const diseaseOptions = [
   { key: "3", value: "폐암" },
   { key: "4", value: "대장암" },
   { key: "6", value: "갑상선암" },
-  { key: "8", value: "암(General)" },
+  { key: "8", value: "공통" },
 ];
 
 interface DiseaseFilterProps {
@@ -48,7 +48,7 @@ export function DiseaseFilter({
                 "3": Waves, // 폐암 (파동 - 호흡)
                 "4": Stethoscope, // 대장암 (청진기)
                 "6": Zap, // 갑상선암 (번개 - 에너지/대사)
-                "8": Cross, // 암(General) (십자가 - 의료)
+                "8": Cross, // 공통 (십자가 - 의료)
               }[option.key] || LayoutGrid;
 
             return (
