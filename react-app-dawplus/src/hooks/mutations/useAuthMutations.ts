@@ -44,7 +44,7 @@ export const useLogin = () => {
 export const useLogout = () => {
   const queryClient = useQueryClient();
   const setAuthSession = useSetAtom(setAuthSessionAtom);
-  const webviewEntry = "/webview";
+  const webviewEntry = "/webview/";
 
   return useMutation({
     mutationFn: logout,

@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 import { readStoredWebviewSession } from "@/atoms/authSessionAtom";
+import { LoginLanding } from "@/components/auth/LoginLanding";
 import { getDevAuthBypassLoginId, isDevAuthBypassEnabled } from "@/lib/devAuth";
 import { getTokenEncryptedStorage } from "@/lib/encryptedStorage";
 
@@ -22,12 +23,12 @@ export const Route = createFileRoute("/webview/")({
     if (isDevAuthBypassEnabled()) {
       throw redirect({ to: "/" });
     }
-
-    throw redirect({
-      to: "/login",
-      search: search.redirect?.trim()
-        ? { redirect: search.redirect.trim() }
-        : {},
-    });
   },
+  component: WebviewEntryComponent,
 });
+
+function WebviewEntryComponent() {
+  const search = Route.useSearch();
+
+  return <LoginLanding redirect={search.redirect} />;
+}

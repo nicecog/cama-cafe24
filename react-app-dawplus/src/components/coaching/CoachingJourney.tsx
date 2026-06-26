@@ -23,10 +23,12 @@ export function CoachingJourney({
   const content = COACHING_DATA[type];
   const missions = content.missions;
   const dayStart = content.dayStart ?? 1;
+  const maxDay = dayStart + missions.length - 1;
+  const displayDay = Math.min(currentDay, maxDay);
   const currentDayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const targetDay = currentDay;
+    const targetDay = displayDay;
 
     if (targetDay >= dayStart) {
       currentDayRef.current?.scrollIntoView({
@@ -35,7 +37,7 @@ export function CoachingJourney({
         inline: "nearest",
       });
     }
-  }, [currentDay, dayStart]);
+  }, [dayStart, displayDay]);
 
   return (
     <div className={cn("min-h-0 flex-1 bg-white flex flex-col", className)}>
@@ -44,7 +46,7 @@ export function CoachingJourney({
         <p className="text-sm font-semibold text-slate-500">
           {content.journeyTitle}
         </p>
-        <p className="text-sm font-bold text-primary">현재 Day {currentDay}</p>
+        <p className="text-sm font-bold text-primary">현재 Day {displayDay}</p>
       </div>
 
       <div className="h-full overflow-y-auto pr-1 px-4 py-3">

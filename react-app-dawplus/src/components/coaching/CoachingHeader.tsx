@@ -17,6 +17,7 @@ export function CoachingHeader({
   const content = COACHING_DATA[type];
   const dayStart = content.dayStart ?? 1;
   const maxDay = content.missions.length - 1 + dayStart;
+  const displayDay = Math.min(currentDay, maxDay);
   const totalProgressSpan = Math.max(maxDay - dayStart, 1);
   const progressedDays = Math.min(
     Math.max(currentDay - dayStart, 0),
@@ -73,7 +74,7 @@ export function CoachingHeader({
                 )}
               >
                 <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
-                  Day {currentDay} / {maxDay}
+                  Day {displayDay} / {maxDay}
                 </span>
                 <div className="w-10 text-right">
                   <IncrementNumber target={progress} />%

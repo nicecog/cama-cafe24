@@ -32,7 +32,7 @@ function RouteComponent() {
   const safeActiveIndex = Math.min(Math.max(currentDay - dayStart, 0), 16);
   const isPastDay = activeIndex < currentDay;
   const isCompleted = currentDay >= 17;
-  const missionDialogStartDay = 3;
+  const missionDialogStartDay = 1;
   const shouldShowMissionDialog = activeIndex >= missionDialogStartDay;
   const ctaLabel = isPastDay ? "내가 했던 답변 보기" : "수면코칭 시작하기";
   const answerReviewTo = `/coaching/sleep/${activeIndex}`;

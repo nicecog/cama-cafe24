@@ -52,3 +52,31 @@ deploy/.env.cafe24
 
 # Deploy artifacts
 deploy/jars/
+react-app-dawplus/docs/IDPW_AUTH_DECISION.md
+react-app-dawplus/docs/auth/2026-06-13-idpw-login-handoff.md
+react-app-dawplus/docs/mental/2026-06-10-mental-flow-migration-reference.md
+react-app-dawplus/docs/mental/2026-06-13-mental-section6-handoff.md
+react-app-dawplus/docs/superpowers/plans/2026-06-13-idpw-auth-migration.md
+react-app-dawplus/docs/superpowers/plans/2026-06-13-mental-section6.md
+react-app-dawplus/docs/superpowers/specs/2026-06-07-exercise-coaching-design.md
+react-app-dawplus/docs/superpowers/specs/2026-06-13-idpw-auth-migration-design.md
+react-app-dawplus/docs/superpowers/specs/2026-06-13-mental-section6-design.md
+react-app-dawplus/docs/testing/README.md
+react-app-dawplus/docs/testing/test-matrix.md
+react-app-dawplus/docs/testing/checklists/manual-checklist.md
+react-app-dawplus/docs/testing/prompts/agent-a-nav.md
+react-app-dawplus/docs/testing/prompts/agent-b-coaching.md
+react-app-dawplus/docs/testing/prompts/agent-c-auth.md
+react-app-dawplus/docs/testing/prompts/copy-agent-a-nav.md
+react-app-dawplus/docs/testing/prompts/copy-agent-b-coaching.md
+react-app-dawplus/docs/testing/prompts/copy-agent-c-auth.md
+react-app-dawplus/docs/testing/prompts/generic-agent-template.md
+react-app-dawplus/docs/testing/results/result-template.md
+.gitignore
+docs/CAFE24_REACT_APP_DEPLOY.md
+docs/superpowers/plans/2026-06-19-cama-plus-webview-shell.md
+docs/superpowers/specs/2026-06-19-cama-plus-webview-shell-design.md
+docs/CAFE24_REACT_APP_DEPLOY.md
+react-app-dawplus/docs/superpowers/specs/2026-06-07-exercise-coaching-design.md
+react-app-dawplus/.playwright-mcp/page-2026-06-14T04-20-04-635Z.yml
+react-app-dawplus/.playwright-mcp/page-2026-06-14T04-22-50-648Z.yml

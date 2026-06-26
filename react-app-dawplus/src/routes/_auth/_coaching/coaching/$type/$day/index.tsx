@@ -11,6 +11,7 @@ import {
   type CoachingType,
 } from "@/components/coaching/coachingData";
 import { useUserAnswerInfoList } from "@/hooks/queries";
+import { getDisplayValue, toDisplayableAnswers } from "./answerDisplay";
 
 const COACHING_TYPE_ALIAS: Record<string, CoachingType> = {
   sleep: "sleep",
@@ -84,8 +85,10 @@ function RouteComponent() {
       return [];
     }
 
-    return answerList.filter(
-      (item) => normalizeStepDayCd(item.stepDayCd) === selectedStepDayCd,
+    return toDisplayableAnswers(
+      answerList.filter(
+        (item) => normalizeStepDayCd(item.stepDayCd) === selectedStepDayCd,
+      ),
     );
   }, [answerList, isValidDay, selectedStepDayCd]);
 
@@ -209,11 +212,7 @@ function RouteComponent() {
         ) : (
           <div className="flex flex-col gap-4">
             {targetAnswers.map((answer, index) => {
-              const displayValue =
-                answer.answerChoice?.trim() ||
-                answer.refVal1?.trim() ||
-                answer.refVal2?.trim() ||
-                "답변 없음";
+              const displayValue = getDisplayValue(answer);
 
               const answerKey = [
                 answer.categoryCd,

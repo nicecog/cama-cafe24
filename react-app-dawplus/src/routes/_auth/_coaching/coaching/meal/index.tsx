@@ -34,7 +34,7 @@ function RouteComponent() {
   const safeActiveIndex = Math.min(Math.max(currentDay - dayStart, 0), 16);
   const isPastDay = activeIndex < currentDay;
   const isCompleted = currentDay >= 17;
-  const missionDialogStartDay = 3;
+  const missionDialogStartDay = 1;
   const shouldShowMissionDialog = activeIndex >= missionDialogStartDay;
   const ctaLabel = isPastDay ? pt("cta_view") : pt("cta_start");
   const answerReviewTo = `/coaching/meal/${activeIndex}`;
