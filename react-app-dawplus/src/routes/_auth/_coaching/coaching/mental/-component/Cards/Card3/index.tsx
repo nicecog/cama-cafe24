@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useDialog } from "@/hooks/useDialog";
-import { useAuth } from "@/auth";
 import { fetchMentalVideoInfoList } from "@/apis/api/webview/coaching";
+import { accountMeAtom } from "@/atoms/accountAtoms";
+import { useAtomValue } from "jotai";
 import advice1Image from "@/assets/images/coaching/mental/advice1.png";
 import card3Image from "@/assets/images/coaching/mental/58.png";
 import mentalImage from "@/assets/images/coaching/mental/mental.png";
@@ -42,7 +43,7 @@ const meditationVideos = [
     label: "호흡명상",
     description: "이완을 위한 집중명상",
     image: mentalHeaderImage,
-    url: "https://www.youtube.com/embed/o42JtHKTcew",
+    url: "https://www.youtube.com/embed/o42JtHKTcew2",
   },
   {
     type: "V3",
@@ -74,7 +75,8 @@ export default function MentalCard3({
   title = "카마코칭",
   type,
 }: MentalCardProps) {
-  const { loginId } = useAuth();
+  const accountMe = useAtomValue(accountMeAtom);
+  const loginId = accountMe.data?.loginId ?? "";
   const accountName = useAccountName();
   const { alert } = useDialog();
   const { currentAnswers, next, prev, step, toggleAnswer } =
@@ -86,8 +88,8 @@ export default function MentalCard3({
   const [selectedPracticeVideo, setSelectedPracticeVideo] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [timeExtra, setTimeExtra] = useState("");
-  const [videoUrlByType, setVideoUrlByType] = useState<
-    Partial<Record<"V1" | "V2" | "V3", string>>
+  const [videoInfoByType, setVideoInfoByType] = useState<
+    Partial<Record<"V1" | "V2" | "V3", WebviewMentalVideoItem>>
   >({});
 
   const handleStep1Next = () => {
@@ -113,21 +115,22 @@ export default function MentalCard3({
           return;
         }
 
-        const nextUrls = response.response.reduce<
-          Partial<Record<"V1" | "V2" | "V3", string>>
+        const nextVideoInfo = response.response.reduce<
+          Partial<Record<"V1" | "V2" | "V3", WebviewMentalVideoItem>>
         >((acc, item: WebviewMentalVideoItem) => {
           if (
             (item.videoTypeCd === "V1" ||
               item.videoTypeCd === "V2" ||
               item.videoTypeCd === "V3") &&
+            item.useYn === "Y" &&
             item.url
           ) {
-            acc[item.videoTypeCd] = item.url;
+            acc[item.videoTypeCd] = item;
           }
           return acc;
         }, {});
 
-        setVideoUrlByType(nextUrls);
+        setVideoInfoByType(nextVideoInfo);
       } catch {
         // Leave fallback URLs in place if the video list cannot be loaded.
       }
@@ -160,11 +163,17 @@ export default function MentalCard3({
   const selectedVideo = meditationVideos
     .map((item) => ({
       ...item,
-      url: videoUrlByType[item.type] ?? item.url,
+      description:
+        videoInfoByType[item.type]?.detailDesc?.trim() || item.description,
+      url: videoInfoByType[item.type]?.url ?? item.url,
     }))
     .find((item) => item.type === selectedVideoType) ?? {
     ...meditationVideos[0],
-    url: videoUrlByType[meditationVideos[0].type] ?? meditationVideos[0].url,
+    description:
+      videoInfoByType[meditationVideos[0].type]?.detailDesc?.trim() ||
+      meditationVideos[0].description,
+    url:
+      videoInfoByType[meditationVideos[0].type]?.url ?? meditationVideos[0].url,
   };
 
   const step2TypeText = {

@@ -43,12 +43,19 @@ export function CoachingInfoStep({
     >
       {/* 1. Title Area */}
       {title && (
-        <motion.div variants={item} className="text-center">
-          <div className="inline-flex items-center gap-3 rounded-full border border-slate-200/60 bg-white px-4 py-1.5 shadow-sm shadow-slate-100">
-            {/* 아이콘을 위한 별도 원형 배경 */}
-            <Sparkles className="h-4 w-4 text-yellow-500 fill-yellow-200/50" />
-            {/* 타이포그래피 개선 */}
-            <span className="text-lg font-extrabold tracking-tight text-slate-700">
+        <motion.div
+          variants={item}
+          className="flex flex-col items-center text-center"
+        >
+          <div className="relative mb-1.5">
+            <div className="absolute inset-0 rounded-full bg-yellow-100/70 blur-sm" />
+            <div className="relative inline-flex h-7 w-7 items-center justify-center rounded-full border border-yellow-100 bg-gradient-to-br from-yellow-50 to-amber-50 shadow-sm shadow-yellow-100/70">
+              <Sparkles className="h-3.5 w-3.5 shrink-0 text-yellow-500 fill-yellow-200/60" />
+            </div>
+          </div>
+
+          <div className="inline-flex max-w-[26rem] rounded-2xl border border-slate-200/70 bg-gradient-to-b from-white to-slate-50/60 px-4 py-2.5 shadow-sm shadow-slate-100">
+            <span className="break-keep whitespace-normal text-center text-lg font-extrabold leading-snug tracking-tight text-slate-700">
               {title}
             </span>
           </div>

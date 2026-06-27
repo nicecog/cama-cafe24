@@ -4,12 +4,15 @@ import {
   BackHandler,
   Platform,
   Pressable,
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import {
+  SafeAreaProvider,
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 import RNBootSplash from 'react-native-bootsplash';
 import messaging from '@react-native-firebase/messaging';
@@ -77,46 +80,48 @@ function App() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-      <View style={styles.content}>
-        <WebView
-          key={reloadKey}
-          ref={webViewRef}
-          testID="patient-webview"
-          source={{ uri: WEBVIEW_URL }}
-          javaScriptEnabled
-          domStorageEnabled
-          startInLoadingState
-          injectedJavaScript={injectedJavaScript}
-          onMessage={onWebViewMessage}
-          webViewDebuggingEnabled={__DEV__}
-          onError={() => setHasError(true)}
-          onHttpError={() => setHasError(true)}
-          onLoadStart={() => setHasError(false)}
-          onNavigationStateChange={state => {
-            setCanGoBack(state.canGoBack);
-          }}
-          renderLoading={() => (
-            <View style={styles.centered}>
-              <ActivityIndicator size="large" color="#111111" />
-              <Text style={styles.message}>불러오는 중...</Text>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+        <View style={styles.content}>
+          <WebView
+            key={reloadKey}
+            ref={webViewRef}
+            testID="patient-webview"
+            source={{ uri: WEBVIEW_URL }}
+            javaScriptEnabled
+            domStorageEnabled
+            startInLoadingState
+            injectedJavaScript={injectedJavaScript}
+            onMessage={onWebViewMessage}
+            webViewDebuggingEnabled={__DEV__}
+            onError={() => setHasError(true)}
+            onHttpError={() => setHasError(true)}
+            onLoadStart={() => setHasError(false)}
+            onNavigationStateChange={state => {
+              setCanGoBack(state.canGoBack);
+            }}
+            renderLoading={() => (
+              <View style={styles.centered}>
+                <ActivityIndicator size="large" color="#111111" />
+                <Text style={styles.message}>불러오는 중...</Text>
+              </View>
+            )}
+          />
+          {hasError ? (
+            <View style={styles.errorOverlay}>
+              <Text style={styles.errorTitle}>페이지를 불러오지 못했습니다.</Text>
+              <Text style={styles.errorMessage}>
+                네트워크 상태를 확인한 뒤 다시 시도해주세요.
+              </Text>
+              <Pressable onPress={handleRetry} style={styles.retryButton}>
+                <Text style={styles.retryLabel}>다시 시도</Text>
+              </Pressable>
             </View>
-          )}
-        />
-        {hasError ? (
-          <View style={styles.errorOverlay}>
-            <Text style={styles.errorTitle}>페이지를 불러오지 못했습니다.</Text>
-            <Text style={styles.errorMessage}>
-              네트워크 상태를 확인한 뒤 다시 시도해주세요.
-            </Text>
-            <Pressable onPress={handleRetry} style={styles.retryButton}>
-              <Text style={styles.retryLabel}>다시 시도</Text>
-            </Pressable>
-          </View>
-        ) : null}
-      </View>
-    </SafeAreaView>
+          ) : null}
+        </View>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 

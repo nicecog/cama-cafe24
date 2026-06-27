@@ -62,7 +62,7 @@ export function MissionOutcomeScreen({
             />
           </motion.div>
 
-          <h2 className="text-2xl font-black leading-tight text-slate-900">
+          <h2 className="text-2xl-fixed font-black leading-tight text-slate-900">
             {complete ? (
               <>
                 미션 완료!
@@ -78,7 +78,7 @@ export function MissionOutcomeScreen({
             )}
           </h2>
 
-          <p className="px-2 text-sm mt-2 font-medium leading-relaxed text-slate-500/80">
+          <p className="mt-2 px-2 text-sm-fixed font-medium leading-relaxed text-slate-500/80">
             {complete ? (
               <>
                 꾸준함이 모여 건강한 습관을 만들어요.
@@ -114,12 +114,12 @@ export function MissionOutcomeScreen({
                 {complete ? <Sparkles size={20} /> : <RotateCcw size={20} />}
               </div>
               <div className="flex flex-col gap-0.5">
-                <p className="text-[13px] font-bold text-slate-900">
+                <p className="text-sm-fixed font-bold text-slate-900">
                   {complete
                     ? "당신은 벌써 변하고 있어요"
                     : "내일 다시 시도하면 돼요"}
                 </p>
-                <p className="text-[11px] font-semibold leading-normal text-slate-500">
+                <p className="text-xs-fixed font-semibold leading-normal text-slate-500">
                   {complete ? (
                     <>
                       성공의 기쁨을 마음껏 누리고,
@@ -141,7 +141,7 @@ export function MissionOutcomeScreen({
           <Button
             type="button"
             onClick={onAction}
-            className="group mt-4 h-14 w-full rounded-[1.25rem] bg-primary text-base font-black text-white shadow-xl shadow-primary/25 transition-all   active:scale-95"
+            className="group mt-4 h-14 w-full rounded-[1.25rem] bg-primary text-base-fixed font-black text-white shadow-xl shadow-primary/25 transition-all active:scale-95"
           >
             {complete ? "미션 완료" : "오늘 다시 도전하기"}
           </Button>

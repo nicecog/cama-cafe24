@@ -14,7 +14,7 @@ export function Day14Step1({ data, onChange }: Day14Step1Props) {
 
   return (
     <div className="flex flex-col gap-5">
-      <ChallengeStart type="meal" title={`✨ ${pt("MSG_005")}`}>
+      <ChallengeStart type="meal" title={`${pt("MSG_005")}`}>
         {pt("MSG_031")}
       </ChallengeStart>
 

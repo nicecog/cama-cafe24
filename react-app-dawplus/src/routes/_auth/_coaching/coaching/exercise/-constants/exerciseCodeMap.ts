@@ -39,3 +39,20 @@ export function getDifficultyLabel(code: DifficultyCode) {
 export function getTherapyLabel(code: TherapyCode) {
   return THERAPY_LABEL[code];
 }
+
+export function getExerciseBadgeLabel(
+  exerciseTypeCd: string,
+  difficultyCd: string,
+) {
+  const therapyCode = (
+    Object.entries(THERAPY_EXERCISE_TYPE_CODE).find(
+      ([, typeCode]) => typeCode === exerciseTypeCd,
+    )?.[0] ?? ""
+  ) as TherapyCode | "";
+
+  if (therapyCode) {
+    return "특수";
+  }
+
+  return getDifficultyLabel(difficultyCd as DifficultyCode);
+}

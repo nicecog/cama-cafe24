@@ -73,6 +73,26 @@ const FONT_SCALES: FontScale[] = [
   "xxlarge",
 ];
 
+const ACTIVE_FONT_SCALES: FontScale[] = ["small", "medium", "large", "xlarge"];
+
+export const normalizeFontScale = (scale: FontScale): FontScale => {
+  const minScale = ACTIVE_FONT_SCALES[0];
+  const maxScale = ACTIVE_FONT_SCALES[ACTIVE_FONT_SCALES.length - 1];
+  const currentIndex = FONT_SCALES.indexOf(scale);
+  const minIndex = FONT_SCALES.indexOf(minScale);
+  const maxIndex = FONT_SCALES.indexOf(maxScale);
+
+  if (currentIndex <= minIndex) {
+    return minScale;
+  }
+
+  if (currentIndex >= maxIndex) {
+    return maxScale;
+  }
+
+  return scale;
+};
+
 // CSS 변수를 업데이트하는 함수
 export const updateCSSVariables = (scale: FontScale) => {
   const root = document.documentElement;
@@ -85,10 +105,10 @@ export const updateCSSVariables = (scale: FontScale) => {
 
 // 증가 atom (derived atom)
 export const increaseFontScaleAtom = atom(null, (get, set) => {
-  const currentScale = get(fontScaleAtom);
-  const currentIndex = FONT_SCALES.indexOf(currentScale);
-  if (currentIndex < FONT_SCALES.length - 1) {
-    const newScale = FONT_SCALES[currentIndex + 1];
+  const currentScale = normalizeFontScale(get(fontScaleAtom));
+  const currentIndex = ACTIVE_FONT_SCALES.indexOf(currentScale);
+  if (currentIndex < ACTIVE_FONT_SCALES.length - 1) {
+    const newScale = ACTIVE_FONT_SCALES[currentIndex + 1];
     set(fontScaleAtom, newScale);
     updateCSSVariables(newScale);
   }
@@ -96,10 +116,10 @@ export const increaseFontScaleAtom = atom(null, (get, set) => {
 
 // 감소 atom (derived atom)
 export const decreaseFontScaleAtom = atom(null, (get, set) => {
-  const currentScale = get(fontScaleAtom);
-  const currentIndex = FONT_SCALES.indexOf(currentScale);
+  const currentScale = normalizeFontScale(get(fontScaleAtom));
+  const currentIndex = ACTIVE_FONT_SCALES.indexOf(currentScale);
   if (currentIndex > 0) {
-    const newScale = FONT_SCALES[currentIndex - 1];
+    const newScale = ACTIVE_FONT_SCALES[currentIndex - 1];
     set(fontScaleAtom, newScale);
     updateCSSVariables(newScale);
   }

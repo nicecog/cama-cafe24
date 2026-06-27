@@ -30,7 +30,7 @@ export function Day3Step3({
             <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 mb-1">
               <Moon size={20} />
             </div>
-            <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-sm font-bold text-slate-400 uppercase tracking-wider text-center">
               {pt("step3.msg_002")}
             </span>
             <span className="text-2xl font-black text-primary tracking-tight">
@@ -42,7 +42,7 @@ export function Day3Step3({
             <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 mb-1">
               <Sun size={20} />
             </div>
-            <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-sm font-bold text-slate-400 uppercase tracking-wider text-center">
               {pt("step3.msg_003")}
             </span>
             <span className="text-2xl font-black text-primary tracking-tight">
@@ -52,7 +52,7 @@ export function Day3Step3({
         </div>
       </Textbox>
 
-      <Textbox className="mt-4 font-bold leading-relaxed text-slate-700">
+      <Textbox className="mt-4 font-bold leading-relaxed text-slate-700 text-center">
         {pt("step3.msg_004", { name: accountName })}
       </Textbox>
     </>

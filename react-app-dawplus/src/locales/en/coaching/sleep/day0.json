@@ -28,5 +28,7 @@
       "action_required": "Please enter one action you can do today.",
       "saved": "Saved."
     }
-  }
+  },
+  "mission": "Revisit your values and commit to building healthy sleep habits",
+  "previousMission": ""
 }

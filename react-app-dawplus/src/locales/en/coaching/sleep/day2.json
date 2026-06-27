@@ -40,5 +40,7 @@
     "msg_006": "Please select a time.",
     "msg_007": "Saved.",
     "msg_008": "Please enter a number."
-  }
+  },
+  "mission": "Choose my ideal sleep time",
+  "previousMission": "Think of one good thing about sleeping well"
 }

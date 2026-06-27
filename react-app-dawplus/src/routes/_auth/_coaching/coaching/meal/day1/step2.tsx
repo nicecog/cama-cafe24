@@ -46,7 +46,7 @@ export function Day1Step2({ step1Value, shouldShowAlert }: Day1Step2Props) {
           <h3 className="text-xl font-black tracking-tight text-slate-900 break-keep leading-snug">
             {pt("MSG_009")}
           </h3>
-          <p className="text-[15px] font-bold leading-relaxed text-slate-500 break-keep">
+          <p className="text-base font-bold leading-relaxed text-slate-500 break-keep">
             {pt("MSG_010")}
           </p>
         </div>
@@ -69,7 +69,7 @@ export function Day1Step2({ step1Value, shouldShowAlert }: Day1Step2Props) {
                 </h4>
               </div>
               <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                <p className="text-[15px] font-semibold leading-relaxed text-slate-600 break-keep">
+                <p className="text-base font-semibold leading-relaxed text-slate-600 break-keep">
                   {item.description}
                 </p>
               </div>

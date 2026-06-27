@@ -35,10 +35,7 @@ export function Day0Step3({ accountName, step3, onChange }: Day0Step3Props) {
         }}
         label={pt("MSG_014", { name: accountName })}
       />
-      <Textbox className="mt-8 text-center font-bold">
-        {pt("MSG_017")}
-        <p className="text-sm font-semibold  text-center">{pt("MSG_016")}</p>
-      </Textbox>
+      <Textbox className="mt-8 text-center font-bold">{pt("MSG_017")}</Textbox>
 
       <MissionInput
         value={step3.value2}

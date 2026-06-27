@@ -16,7 +16,7 @@ export function Day1Step3({ accountName, step3, onChange }: Day1Step3Props) {
   return (
     <div className="flex flex-col gap-4">
       <TodayMission text={pt("step3.mission")} />
-      <Textbox className="font-bold">
+      <Textbox className="text-center font-bold">
         {pt("step3.question", { name: accountName })}
         <br />
         <span className="text-sm font-semibold text-slate-600">
@@ -24,12 +24,12 @@ export function Day1Step3({ accountName, step3, onChange }: Day1Step3Props) {
         </span>
       </Textbox>
 
-      <Textbox className="text-primary font-bold">
+      <Textbox className="text-primary font-bold text-center ">
         {pt("step3.input_prefix")}
       </Textbox>
 
-      <div className="mx-auto w-full max-w-[24rem] rounded-2xl border border-slate-100 bg-white p-4 shadow-sm flex flex-col items-center gap-1.5">
-        <p className="text-sm font-semibold text-slate-500 break-keep leading-relaxed italic">
+      <div className="mx-auto w-full max-w-[24rem] rounded-2xl border border-slate-100 bg-white p-4 shadow-sm flex flex-col items-center gap-1.5 text-center ">
+        <p className="text-sm font-semibold text-slate-500 break-keep leading-relaxed   ">
           "{pt("step3.closing")}"
         </p>
       </div>

@@ -1,6 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useEffect, useMemo } from "react";
+import { useEffect, useLayoutEffect, useMemo } from "react";
+import type {
+  WebviewExerciseContentItem,
+  WebviewUserAnswerInfo,
+} from "@/apis/types";
 import { accountMeAtom } from "@/atoms/accountAtoms";
 import {
   useExerciseContentList,
@@ -44,6 +48,33 @@ function RouteComponent() {
     contentListQuery.isLoading ||
     answerListQuery.isLoading;
 
+  useLayoutEffect(() => {
+    const scrollContainerId = import.meta.env.VITE_MAIN_SCROLL_CONTAINER_ID;
+
+    const scrollToTop = () => {
+      const mainContainer = scrollContainerId
+        ? document.getElementById(scrollContainerId)
+        : null;
+
+      if (mainContainer) {
+        mainContainer.scrollTop = 0;
+        mainContainer.scrollTo({ top: 0, left: 0, behavior: "auto" });
+        return;
+      }
+
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+
+    scrollToTop();
+    const frameId = window.requestAnimationFrame(scrollToTop);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, []);
+
   useEffect(() => {
     if (classInfoQuery.isFetched && classInfo === null) {
       navigate({ to: "/coaching/exercise/eval", replace: true });
@@ -73,15 +104,15 @@ function RouteComponent() {
 
   const workouts = useMemo(() => {
     return contentList
-      .filter((item) =>
+      .filter((item: WebviewExerciseContentItem) =>
         answerList.some(
-          (answer) =>
+          (answer: WebviewUserAnswerInfo) =>
             answer.refVal1 ===
             `${item.indexNum}${item.exerciseTypeCd}${item.difficultyCd}`,
         ),
       )
       .sort(
-        (left, right) =>
+        (left: WebviewExerciseContentItem, right: WebviewExerciseContentItem) =>
           left.exerciseTypeCd.localeCompare(right.exerciseTypeCd) ||
           left.indexNum - right.indexNum,
       );

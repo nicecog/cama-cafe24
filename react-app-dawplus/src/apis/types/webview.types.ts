@@ -221,8 +221,10 @@ export interface WebviewMentalVideoItem {
   url: string;
   useYn: string;
   videoTypeCd: string;
+  detailDesc: string;
   createdAt: string;
   updatedAt: string;
+  lang: string | null;
 }
 
 /**

@@ -7,6 +7,7 @@ import { accountMeAtom } from "@/atoms/accountAtoms";
 import { CoachingDayGrid } from "@/components/coaching/CoachingDayGrid";
 import { CoachingHeader } from "@/components/coaching/CoachingHeader";
 import { CoachingJourney } from "@/components/coaching/CoachingJourney";
+import { usePageTranslation } from "@/hooks/usePageTranslation";
 import { useCoachingCurrentDay } from "@/hooks/queries";
 import { useDialog } from "@/hooks/useDialog";
 import { cn } from "@/lib/utils";
@@ -25,11 +26,11 @@ function RouteComponent() {
   const accountMe = useAtomValue(accountMeAtom);
   const loginId = accountMe.data?.loginId ?? "";
   const { currentDay } = useCoachingCurrentDay(loginId, "A", 17);
+  const safeActiveIndex = Math.min(Math.max(currentDay - dayStart, 0), 16);
 
   // Active
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(safeActiveIndex);
   const [missionOutcome, setMissionOutcome] = useState<boolean | null>(null);
-  const safeActiveIndex = Math.min(Math.max(currentDay - dayStart, 0), 16);
   const isPastDay = activeIndex < currentDay;
   const isCompleted = currentDay >= 17;
   const missionDialogStartDay = 1;
@@ -37,6 +38,11 @@ function RouteComponent() {
   const ctaLabel = isPastDay ? "내가 했던 답변 보기" : "수면코칭 시작하기";
   const answerReviewTo = `/coaching/sleep/${activeIndex}`;
   const coachingDayTo = `/coaching/sleep/day${activeIndex}`;
+  const { pt: dayPt } = usePageTranslation(`coaching/sleep/day${activeIndex}`);
+  const previousMissionText = dayPt("previousMission").trim();
+  const previousMissionLabel = previousMissionText.endsWith("하기")
+    ? previousMissionText
+    : `${previousMissionText} 하기`;
 
   const handleCtaClick = async () => {
     if (isPastDay) {
@@ -70,7 +76,7 @@ function RouteComponent() {
         body: (
           <div className="flex flex-col items-center gap-4 text-center">
             <div className="space-y-2">
-              <h3 className="text-xl font-bold tracking-tight text-slate-900">
+              <h3 className="text-xl-fixed font-bold tracking-tight text-slate-900">
                 <span className="text-primary">어제의 미션,</span> 잘
                 실천하셨나요?
               </h3>
@@ -78,9 +84,11 @@ function RouteComponent() {
             </div>
 
             <div className="w-full rounded-2xl bg-primary/5 px-4 py-3.5 ring-1 ring-inset ring-primary/10">
-              <p className="text-sm-fixed font-semibold leading-relaxed text-slate-500">
-                작은 실천이 모여 <br />
-                건강한 수면 습관을 만들어요.
+              <p className="text-xs-fixed font-bold tracking-[0.08em] text-primary">
+                어제의 미션
+              </p>
+              <p className="mt-1 text-sm-fixed font-semibold leading-relaxed text-slate-700">
+                {previousMissionLabel}
               </p>
             </div>
           </div>
@@ -172,7 +180,7 @@ function RouteComponent() {
           onClick={handleCtaClick}
           aria-label={ctaLabel}
           className={cn(
-            "h-12 w-full rounded-lg bg-primary text-sm font-bold text-white",
+            "h-12 w-full rounded-lg bg-primary text-sm-fixed font-bold text-white",
             "flex items-center justify-center gap-2",
             "shadow-sm shadow-primary/20",
             "active:scale-95 transition duration-200 ease-out",

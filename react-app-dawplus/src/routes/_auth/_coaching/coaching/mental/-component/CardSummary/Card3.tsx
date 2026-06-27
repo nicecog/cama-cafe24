@@ -1,4 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { fetchMentalVideoInfoList } from "@/apis/api/webview/coaching";
+import type { WebviewMentalVideoItem } from "@/apis/types";
+import { accountMeAtom } from "@/atoms/accountAtoms";
+import { useAtomValue } from "jotai";
 import useAlert from "@/hooks/useAlert";
 import mentalImage from "@/assets/images/coaching/mental/mental.png";
 import mentalHeaderImage from "@/assets/images/coaching/mental/mentalheader.png";
@@ -184,14 +188,93 @@ export function MentalCardSummary3Content({
 }: {
   onComplete: () => void;
 }) {
+  const accountMe = useAtomValue(accountMeAtom);
+  const loginId = accountMe.data?.loginId ?? "";
   const { alert, confirm } = useAlert();
   const [step, setStep] = useState<1 | 2>(1);
   const [selectedType, setSelectedType] = useState<"V1" | "V2" | "V3">("V1");
   const [showEncourage, setShowEncourage] = useState(false);
+  const [videoInfoByType, setVideoInfoByType] = useState<
+    Partial<Record<"V1" | "V2" | "V3", WebviewMentalVideoItem>>
+  >({});
+
+  useEffect(() => {
+    if (!loginId) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadVideoInfo = async () => {
+      try {
+        const response = await fetchMentalVideoInfoList(loginId);
+        if (cancelled || !response.success || !response.response) {
+          return;
+        }
+
+        const nextVideoInfo = response.response.reduce<
+          Partial<Record<"V1" | "V2" | "V3", WebviewMentalVideoItem>>
+        >((acc, item: WebviewMentalVideoItem) => {
+          if (
+            (item.videoTypeCd === "V1" ||
+              item.videoTypeCd === "V2" ||
+              item.videoTypeCd === "V3") &&
+            item.useYn === "Y" &&
+            item.url
+          ) {
+            acc[item.videoTypeCd] = item;
+          }
+          return acc;
+        }, {});
+
+        setVideoInfoByType(nextVideoInfo);
+      } catch {
+        // Leave fallback URLs in place if the video list cannot be loaded.
+      }
+    };
+
+    void loadVideoInfo();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [loginId]);
+
+  const toEmbedUrl = (url: string) => {
+    if (!url) return "";
+    if (url.includes("/embed/")) return url;
+
+    const youtudeBeMatch = url.match(/youtu\.be\/([^?&/]+)/);
+    if (youtudeBeMatch)
+      return `https://www.youtube.com/embed/${youtudeBeMatch[1]}`;
+
+    const shortsMatch = url.match(/youtube\.com\/shorts\/([^?&/]+)/);
+    if (shortsMatch) return `https://www.youtube.com/embed/${shortsMatch[1]}`;
+
+    const watchMatch = url.match(/[?&]v=([^?&/]+)/);
+    if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}`;
+
+    return url;
+  };
 
   const selectedVideo =
-    meditationVideos.find((item) => item.type === selectedType) ??
-    meditationVideos[0];
+    meditationVideos
+      .map((item) => ({
+        ...item,
+        description:
+          videoInfoByType[item.type]?.detailDesc?.trim() || item.description,
+        url: toEmbedUrl(videoInfoByType[item.type]?.url ?? item.url),
+      }))
+      .find((item) => item.type === selectedType) ?? {
+      ...meditationVideos[0],
+      description:
+        videoInfoByType[meditationVideos[0].type]?.detailDesc?.trim() ||
+        meditationVideos[0].description,
+      url: toEmbedUrl(
+        videoInfoByType[meditationVideos[0].type]?.url ??
+          meditationVideos[0].url,
+      ),
+    };
 
   const handleStopMeditation = () => {
     setShowEncourage(true);

@@ -172,12 +172,12 @@ export function AlertDialogProvider({
               {/* 메시지 with improved spacing and styling */}
               {state.body ? (
                 typeof state.body === "string" ? (
-                  <AlertDialogDescription className="max-w-sm whitespace-pre-line break-keep text-center text-pretty text-sm font-medium leading-relaxed text-gray-600">
+                  <AlertDialogDescription className="max-w-sm whitespace-pre-line break-keep text-center text-pretty !text-sm-fixed font-medium leading-relaxed text-gray-600">
                     {state.body}
                   </AlertDialogDescription>
                 ) : (
                   <AlertDialogDescription asChild>
-                    <div className="max-w-sm whitespace-pre-line break-keep text-center text-pretty text-sm font-medium leading-relaxed text-gray-600">
+                    <div className="max-w-sm whitespace-pre-line break-keep text-center text-pretty !text-sm-fixed font-medium leading-relaxed text-gray-600">
                       {state.body}
                     </div>
                   </AlertDialogDescription>

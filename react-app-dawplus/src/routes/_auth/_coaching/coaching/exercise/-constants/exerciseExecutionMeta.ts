@@ -1,6 +1,7 @@
 import type { DifficultyCode } from "./exerciseCodeMap";
 
 interface ExerciseExecutionMetaItem {
+  aliases?: string[];
   difficulty: DifficultyCode;
   exe: string;
   korName: string;
@@ -160,6 +161,7 @@ const exerciseExecutionMeta: ExerciseExecutionMetaItem[] = [
   },
   {
     korName: "머리 뒤로 깍지 끼고 가슴 열기",
+    aliases: ["깍지 머리 뒤로 끼고 가슴 열기"],
     exe: "10초 3세트",
     type: "E3",
     difficulty: "A2",
@@ -317,6 +319,7 @@ const exerciseExecutionMeta: ExerciseExecutionMetaItem[] = [
   { korName: "음성치료", exe: "음성치료", type: "E8", difficulty: "A1" },
   {
     korName: "림프부종 마사지",
+    aliases: ["림프부종마사지"],
     exe: "림프부종 마사지",
     type: "E9",
     difficulty: "A1",
@@ -330,7 +333,8 @@ export function getExerciseExecutionMeta(params: {
 }) {
   return exerciseExecutionMeta.find(
     (item) =>
-      item.korName === params.korName &&
+      (item.korName === params.korName ||
+        item.aliases?.includes(params.korName) === true) &&
       item.type === params.exerciseTypeCd &&
       item.difficulty === params.difficultyCd,
   );

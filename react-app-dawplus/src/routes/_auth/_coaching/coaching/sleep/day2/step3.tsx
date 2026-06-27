@@ -17,13 +17,13 @@ export function Day2Step3({ accountName, step3, onChange }: Day2Step3Props) {
     <>
       <TodayMission text={pt("step3.msg_001")} />
 
-      <Textbox className="mt-4 font-bold">
+      <Textbox className="mt-4 font-bold text-center">
         {pt("step3.msg_002")}
         <br />
         {pt("step3.msg_003", { name: accountName })}
       </Textbox>
 
-      <Textbox className="mt-4 text-primary font-bold">
+      <Textbox className="mt-4 text-primary font-bold  text-center">
         {pt("step3.msg_004")}
       </Textbox>
 

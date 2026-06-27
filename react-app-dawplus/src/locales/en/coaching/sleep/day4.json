@@ -26,5 +26,7 @@
     "msg_002": "When thoughts come up in bed,",
     "msg_003": "pay attention to your inhale and exhale.",
     "msg_004": "As you focus on your breathing, your thoughts will gradually fade and your mind will feel calmer. Before long, sleep will come naturally."
-  }
+  },
+  "mission": "Lie down and focus on your breathing",
+  "previousMission": "Sleep and wake up at the planned time"
 }

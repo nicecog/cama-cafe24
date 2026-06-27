@@ -35,7 +35,7 @@ export default function ChallengeQuestion(props: {
   return (
     <>
       <div className={cn("relative mb-5 w-full text-center", className)}>
-        <h2 className="text-balance whitespace-pre-wrap text-xl font-bold leading-6 tracking-tight text-slate-900 sm:text-2xl break-keep  ">
+        <h2 className="break-keep whitespace-pre-wrap text-xl font-bold leading-[1.45] tracking-tight text-slate-900 sm:text-2xl sm:leading-[1.4]">
           {title}
         </h2>
       </div>

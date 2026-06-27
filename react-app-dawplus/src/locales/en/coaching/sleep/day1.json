@@ -29,10 +29,20 @@
   },
   "step3": {
     "mission": "Think of one good thing about sleeping well",
+    "msg_001": "Think of one good thing about sleeping well",
     "question": "What would be the best thing if {{name}} slept better?",
+    "msg_002": "What would be the best thing if {{name}} slept better?",
     "input_prefix": "If I slept better than I do now,",
+    "msg_003": "If I slept better than I do now,",
     "example": "Write just one thing",
+    "msg_004": "Write just one thing",
     "placeholder": "Write just one thing",
-    "closing": "(For example: If I sleep better than I do now, I will feel more energetic the next day.)"
-  }
+    "closing": "(For example: If I sleep better than I do now, I will feel more energetic the next day.)",
+    "msg_005": "(For example: If I sleep better than I do now, I will feel more energetic the next day.)",
+    "toast": {
+      "action_required": "답변을 작성해 주세요"
+    }
+  },
+  "mission": "Think of one good thing about sleeping well",
+  "previousMission": "Revisit your values and commit to building healthy sleep habits"
 }

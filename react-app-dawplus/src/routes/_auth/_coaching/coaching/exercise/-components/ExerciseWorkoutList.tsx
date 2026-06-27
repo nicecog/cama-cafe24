@@ -6,7 +6,7 @@ import type {
 } from "@/apis/types";
 import type5 from "@/assets/images/coaching/main/type5.png";
 import { cn } from "@/lib/utils";
-import { getDifficultyLabel } from "../-constants/exerciseCodeMap";
+import { getExerciseBadgeLabel } from "../-constants/exerciseCodeMap";
 
 interface ExerciseWorkoutListProps {
   workouts: WebviewExerciseContentItem[];
@@ -80,11 +80,7 @@ export function ExerciseWorkoutList({
 
               <div>
                 <p className="text-sm font-bold text-primary">
-                  [
-                  {getDifficultyLabel(
-                    workout.difficultyCd as "A1" | "A2" | "A3",
-                  )}
-                  ]
+                  [{getExerciseBadgeLabel(workout.exerciseTypeCd, workout.difficultyCd)}]
                 </p>
                 <p className="text-base font-extrabold text-slate-900">
                   {workout.korName}

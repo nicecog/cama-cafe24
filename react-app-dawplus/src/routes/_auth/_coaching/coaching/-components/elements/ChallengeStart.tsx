@@ -51,7 +51,7 @@ export default function ChallengeStart({
     <>
       {title && (
         <div className="rounded-2xl bg-primary/10 border border-primary/20 px-5 py-4 text-center shadow-sm">
-          <Textbox className="text-base font-bold text-primary break-keep leading-relaxed">
+          <Textbox className="text-base font-bold text-primary break-keep leading-relaxed text-center">
             {title}
           </Textbox>
         </div>

@@ -22,5 +22,7 @@
     "msg_002": "My target bedtime",
     "msg_003": "My target wake-up time",
     "msg_004": "{{name}} will go to bed at the planned bedtime and wake up at the planned wake-up time. Even if you did not sleep well the night before, waking up at the planned time is important."
-  }
+  },
+  "mission": "Sleep and wake up at the planned time",
+  "previousMission": "Choose my ideal sleep time"
 }

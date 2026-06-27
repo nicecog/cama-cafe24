@@ -6,7 +6,7 @@ export const FontSizeController = () => {
   const { scale, increase, decrease, reset } = useFontSize();
 
   const isMinScale = scale === "small";
-  const isMaxScale = scale === "xxlarge";
+  const isMaxScale = scale === "xlarge";
   const isDefault = scale === "medium";
 
   return (

@@ -2,12 +2,14 @@ import { motion } from "framer-motion";
 import type5 from "@/assets/images/coaching/main/type5.png";
 import { usePageTranslation } from "@/hooks/usePageTranslation";
 import {
-  type DifficultyCode,
-  getDifficultyLabel,
+  getExerciseBadgeLabel,
 } from "../-constants/exerciseCodeMap";
 
 function toEmbedUrl(url: string) {
   if (url.includes("/embed/")) return url;
+
+  const youtuBeMatch = url.match(/youtu\.be\/([^?&/]+)/);
+  if (youtuBeMatch) return `https://www.youtube.com/embed/${youtuBeMatch[1]}`;
 
   const shortsMatch = url.match(/youtube\.com\/shorts\/([^?&/]+)/);
   if (shortsMatch) return `https://www.youtube.com/embed/${shortsMatch[1]}`;
@@ -19,13 +21,15 @@ function toEmbedUrl(url: string) {
 }
 
 interface ExerciseVideoPanelProps {
-  difficultyCd: DifficultyCode;
+  difficultyCd: string;
+  exerciseTypeCd: string;
   korName: string;
   url: string;
 }
 
 export function ExerciseVideoPanel({
   difficultyCd,
+  exerciseTypeCd,
   korName,
   url,
 }: ExerciseVideoPanelProps) {
@@ -45,7 +49,7 @@ export function ExerciseVideoPanel({
               }}
               className="inline-flex rounded-md bg-primary/10 px-3 py-1 text-sm font-bold text-primary"
             >
-              [{getDifficultyLabel(difficultyCd)}]
+              [{getExerciseBadgeLabel(exerciseTypeCd, difficultyCd)}]
             </motion.p>
             <p className="mt-3 whitespace-pre-line text-base font-bold leading-7 text-slate-900">
               {pt("today_prefix")}{" "}

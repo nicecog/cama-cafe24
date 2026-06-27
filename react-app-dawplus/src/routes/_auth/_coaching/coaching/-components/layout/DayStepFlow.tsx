@@ -61,17 +61,17 @@ function PageHeader({
         </div>
 
         <div className="min-w-0 flex flex-col items-end">
-          <h2 className="text-2xl font-bold leading-6 tracking-tight text-balance">
+          <h2 className="text-2xl-fixed font-bold leading-6 tracking-tight text-balance">
             {title}
           </h2>
 
           {isStart ? (
-            <div className="mt-1 inline-flex items-center gap-1 self-end rounded-full bg-white/12 px-3 py-1 text-xs font-semibold tracking-wide text-white/95">
+            <div className="mt-1 inline-flex items-center gap-1 self-end rounded-full bg-white/12 px-3 py-1 text-xs-fixed font-semibold tracking-wide text-white/95">
               <span className="h-1.5 w-1.5 rounded-full bg-white/80" />
               <span>{pt("step_flow.start")}</span>
             </div>
           ) : (
-            <div className="mt-1 flex items-center justify-center gap-1 text-sm tracking-wide">
+            <div className="mt-1 flex items-center justify-center gap-1 text-sm-fixed tracking-wide">
               <span className="relative inline-flex items-center">
                 <span
                   aria-hidden="true"
@@ -246,7 +246,9 @@ export function DayStepFlow({
                     <motion.button
                       type="button"
                       data-testid={
-                        isLastStep ? "coaching-day-complete" : "coaching-day-next"
+                        isLastStep
+                          ? "coaching-day-complete"
+                          : "coaching-day-next"
                       }
                       onClick={handleNext}
                       whileHover={{ y: -1 }}

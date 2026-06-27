@@ -28,13 +28,13 @@ export function ExerciseShell({
           ) : null}
         </header>
 
-        <main className={cn("flex flex-1 flex-col gap-4", className)}>
+        <main className={cn("relative z-0 flex flex-1 flex-col gap-4", className)}>
           {children}
         </main>
       </div>
 
       {footer ? (
-        <div className="sticky bottom-0 border-t border-slate-100 bg-white px-4 pb-[calc(env(safe-area-inset-bottom)+14px)] pt-3">
+        <div className="sticky bottom-0 z-20 isolate border-t border-slate-100 bg-white px-4 pb-[calc(env(safe-area-inset-bottom)+14px)] pt-3">
           <div className="mx-auto w-full max-w-3xl">{footer}</div>
         </div>
       ) : null}

@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { saveCoachingAnswerList } from "@/apis/api/webview/coaching";
 import { accountMeAtom } from "@/atoms/accountAtoms";
 import { useUserAnswerInfoList } from "@/hooks/queries";
@@ -37,6 +37,33 @@ function RouteComponent() {
     loginId,
     categoryCd: "E",
   });
+
+  useLayoutEffect(() => {
+    const scrollContainerId = import.meta.env.VITE_MAIN_SCROLL_CONTAINER_ID;
+
+    const scrollToTop = () => {
+      const mainContainer = scrollContainerId
+        ? document.getElementById(scrollContainerId)
+        : null;
+
+      if (mainContainer) {
+        mainContainer.scrollTop = 0;
+        mainContainer.scrollTo({ top: 0, left: 0, behavior: "auto" });
+        return;
+      }
+
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+
+    scrollToTop();
+    const frameId = window.requestAnimationFrame(scrollToTop);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, []);
 
   useEffect(() => {
     if (!canEnterExerciseVideo(selectedWorkout)) {
@@ -110,33 +137,30 @@ function RouteComponent() {
 
   return (
     <>
-      <ExerciseShell
-        title={pt("title")}
-        description={pt("description")}
-        footer={
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => navigate({ to: "/coaching/exercise/content" })}
-              className="h-12 flex-1 rounded-md border border-slate-200 bg-white text-sm font-bold text-slate-700"
-            >
-              {pt("back")}
-            </button>
-            <button
-              type="button"
-              onClick={handleComplete}
-              className="h-12 flex-1 rounded-md bg-primary text-sm font-bold text-white"
-            >
-              {pt("complete")}
-            </button>
-          </div>
-        }
-      >
+      <ExerciseShell title={pt("title")} description={pt("description")}>
         <ExerciseVideoPanel
-          difficultyCd={selectedWorkout.difficultyCd as "A1" | "A2" | "A3"}
+          difficultyCd={selectedWorkout.difficultyCd}
+          exerciseTypeCd={selectedWorkout.exerciseTypeCd}
           korName={selectedWorkout.korName}
           url={selectedWorkout.url}
         />
+
+        <div className="flex gap-3 rounded-md border border-slate-200 bg-white p-4 shadow-sm">
+          <button
+            type="button"
+            onClick={() => navigate({ to: "/coaching/exercise/content" })}
+            className="h-12 flex-1 rounded-md border border-slate-200 bg-white text-sm font-bold text-slate-700"
+          >
+            {pt("back")}
+          </button>
+          <button
+            type="button"
+            onClick={handleComplete}
+            className="h-12 flex-1 rounded-md bg-primary text-sm font-bold text-white"
+          >
+            {pt("complete")}
+          </button>
+        </div>
       </ExerciseShell>
 
       <ExerciseCompleteModal

@@ -123,15 +123,15 @@ export default function CoachingWelcomePage({
       {/* --- Selection Grid Section --- */}
       <div className="px-1">
         <div className="relative mb-5 mt-10 w-full text-center">
-          <h2 className="text-balance whitespace-pre-wrap text-2xl font-black leading-6 tracking-tight text-slate-900 sm:text-3xl">
+          <h2 className="break-keep whitespace-pre-wrap text-2xl font-black leading-[1.45] tracking-tight text-slate-900 sm:text-3xl sm:leading-[1.4]">
             {pt("questions1")}
-            <span className="relative mb-0.5 inline-block leading-9 text-primary">
+            <span className="relative inline text-primary">
               {pt("questions2")}
               <motion.span
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
                 transition={{ delay: 0.5, duration: 0.6, ease: "easeOut" }}
-                className="absolute bottom-1 left-0 z-0 h-2 rounded-sm bg-primary/20"
+                className="absolute bottom-0 left-0 z-0 h-2 rounded-sm bg-primary/20"
               />
             </span>
             {pt("questions3")}
@@ -202,7 +202,7 @@ export default function CoachingWelcomePage({
                 : "border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50 hover:shadow-sm",
             )}
           >
-            <div className="relative z-10 flex items-center justify-between gap-3">
+            <div className="relative z-10 flex items-center justify-between gap-3 font-black ">
               {pt("options.msg_007")}
               <motion.span
                 initial={false}
@@ -216,7 +216,7 @@ export default function CoachingWelcomePage({
                   stiffness: 420,
                   damping: 26,
                 }}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/95 text-primary shadow-sm"
+                className="flex h-7 w-7  selection: shrink-0 items-center justify-center rounded-full bg-white/95 text-primary shadow-sm"
                 aria-hidden="true"
               >
                 <Check size={16} strokeWidth={4} />

@@ -18,6 +18,22 @@ export const Route = createFileRoute("/_auth/_coaching/coaching/physical/")({
 });
 
 const dayStart = 0;
+const physicalDayLocales = import.meta.glob(
+  "../../../../../locales/ko/coaching/physical/day*.json",
+  {
+    eager: true,
+  },
+) as Record<string, { default?: { previousMission?: string } }>;
+
+const physicalPreviousMissionMap = Object.fromEntries(
+  Object.entries(physicalDayLocales).map(([path, module]) => {
+    const match = path.match(/day(\d+)\.json$/);
+    return [
+      match ? Number(match[1]) : -1,
+      (module.default?.previousMission ?? "").trim(),
+    ];
+  }),
+) as Record<number, string>;
 
 function RouteComponent() {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
@@ -27,17 +43,18 @@ function RouteComponent() {
   const accountMe = useAtomValue(accountMeAtom);
   const loginId = accountMe.data?.loginId ?? "";
   const { currentDay } = useCoachingCurrentDay(loginId, "C", 17);
-
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [missionOutcome, setMissionOutcome] = useState<boolean | null>(null);
   const safeActiveIndex = Math.min(Math.max(currentDay - dayStart, 0), 16);
+
+  const [activeIndex, setActiveIndex] = useState(safeActiveIndex);
+  const [missionOutcome, setMissionOutcome] = useState<boolean | null>(null);
   const isPastDay = activeIndex < currentDay;
   const isCompleted = currentDay >= 17;
-  const missionDialogStartDay = 3;
+  const missionDialogStartDay = 1;
   const shouldShowMissionDialog = activeIndex >= missionDialogStartDay;
   const ctaLabel = isPastDay ? pt("MSG_002") : pt("MSG_001");
   const answerReviewTo = `/coaching/physical/${activeIndex}`;
   const coachingDayTo = `/coaching/physical/day${activeIndex}`;
+  const previousMissionLabel = physicalPreviousMissionMap[activeIndex] ?? "";
 
   const handleCtaClick = async () => {
     if (isPastDay) {
@@ -71,7 +88,7 @@ function RouteComponent() {
         body: (
           <div className="flex flex-col items-center gap-4 text-center">
             <div className="space-y-2">
-              <h3 className="text-xl font-bold tracking-tight text-slate-900">
+              <h3 className="text-xl-fixed font-bold tracking-tight text-slate-900">
                 <span className="text-primary">{pt("MSG_003")}</span>{" "}
                 {pt("MSG_004")}
               </h3>
@@ -79,8 +96,11 @@ function RouteComponent() {
             </div>
 
             <div className="w-full rounded-2xl bg-primary/5 px-4 py-3.5 ring-1 ring-inset ring-primary/10">
-              <p className="text-sm-fixed font-semibold leading-relaxed text-slate-500">
-                {pt("MSG_005")}
+              <p className="text-xs-fixed font-bold tracking-[0.08em] text-primary">
+                어제의 미션
+              </p>
+              <p className="mt-1 text-sm-fixed font-semibold leading-relaxed text-slate-700">
+                {previousMissionLabel}
               </p>
             </div>
           </div>
@@ -171,7 +191,7 @@ function RouteComponent() {
           onClick={handleCtaClick}
           aria-label={ctaLabel}
           className={cn(
-            "h-12 w-full rounded-lg bg-primary text-sm font-bold text-white",
+            "h-12 w-full rounded-lg bg-primary text-sm-fixed font-bold text-white",
             "flex items-center justify-center gap-2",
             "shadow-sm shadow-primary/20",
             "active:scale-95 transition duration-200 ease-out",
