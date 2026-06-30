@@ -113,7 +113,7 @@ export default function TrackServiceList({
 
       {/* 헤더 */}
       <div className="px-5 flex justify-between items-end mt-8">
-        <h2 className="text-base font-bold">오늘의 암정보에요.</h2>
+        <h2 className="text-base font-bold">오늘의 건강 뉴스레터</h2>
         <div className="flex items-center gap-1.5">
           <span className="text-xs text-gray-600">진행도</span>
           <span className="text-sm font-bold text-primary">
