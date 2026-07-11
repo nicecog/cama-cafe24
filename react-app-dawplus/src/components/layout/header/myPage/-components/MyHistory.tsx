@@ -4,7 +4,7 @@ import { accountMeAtom } from "@/atoms/accountAtoms";
 import { Each } from "@/components/common/Each";
 import { useRecentNotifications } from "@/hooks/queries";
 
-export default function MyHistory() {
+export default function MyHistory({ hideTitle = false }: { hideTitle?: boolean }) {
   const { data: accountMe } = useAtomValue(accountMeAtom);
 
   // 최근 알림 조회
@@ -24,15 +24,16 @@ export default function MyHistory() {
 
   return (
     <div>
-      {/* 헤더 */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-            <Bell className="w-4 h-4 text-primary" />
+      {!hideTitle && (
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+              <Bell className="w-4 h-4 text-primary" />
+            </div>
+            <h2 className="text-sm font-bold text-gray-900">최근 활동</h2>
           </div>
-          <h2 className="text-sm font-bold text-gray-900">최근 활동</h2>
         </div>
-      </div>
+      )}
 
       {/* 알림 리스트 */}
       <div className="space-y-2">
@@ -68,17 +69,9 @@ export default function MyHistory() {
             </div>
           )}
           noData={
-            <div className="flex flex-col items-center justify-center py-12 px-4">
-              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-                <Bell className="w-7 h-7 text-gray-300" />
-              </div>
-              <p className="text-xs text-gray-400 font-medium mb-1">
-                최근 활동이 없습니다
-              </p>
-              <p className="text-[10px] text-gray-300">
-                새로운 알림이 도착하면 여기에 표시됩니다
-              </p>
-            </div>
+            <p className="py-10 text-center text-base text-black">
+              최근에 온 알림이 없습니다.
+            </p>
           }
         />
       </div>

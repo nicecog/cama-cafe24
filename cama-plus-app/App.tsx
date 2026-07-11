@@ -101,6 +101,10 @@ function App() {
             onNavigationStateChange={state => {
               setCanGoBack(state.canGoBack);
             }}
+            onRenderProcessGone={() => {
+              setReloadKey(current => current + 1);
+              return true;
+            }}
             renderLoading={() => (
               <View style={styles.centered}>
                 <ActivityIndicator size="large" color="#111111" />

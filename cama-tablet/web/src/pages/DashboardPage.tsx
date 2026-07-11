@@ -1,32 +1,29 @@
-import { useMemo, type CSSProperties } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import HeartRateChart from "../components/HeartRateChart";
-import InquiryList from "../components/InquiryList";
-import StepChart from "../components/StepChart";
+import HealthTab from "../components/HealthTab";
+import InquiryTab from "../components/InquiryTab";
+import TabBar from "../components/TabBar";
 import { requestGenerateQr, requestStopBle } from "../lib/nativeBridge";
-import type { HealthDataPayload } from "../types/healthData";
+import type { DashboardTab, HealthDataPayload } from "../types/healthData";
 
 export default function DashboardPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const data = (location.state as { data?: HealthDataPayload })?.data;
-
-  const stepsAvg = useMemo(() => {
-    if (!data?.stepsHistory?.length) return data?.steps ?? 0;
-    const sum = data.stepsHistory.reduce((a, s) => a + s.steps, 0);
-    return Math.round(sum / data.stepsHistory.length);
-  }, [data]);
+  const [activeTab, setActiveTab] = useState<DashboardTab>("health");
 
   if (!data) {
     return (
-      <div style={{ padding: 32, textAlign: "center" }}>
+      <div className="dashboard-empty">
         <p>표시할 데이터가 없습니다.</p>
-        <button type="button" onClick={() => navigate("/")} style={btnStyle}>
+        <button type="button" className="dashboard-btn" onClick={() => navigate("/")}>
           홈으로
         </button>
       </div>
     );
   }
+
+  const inquiryCount = data.inquiries?.length ?? 0;
 
   const handleNewSession = () => {
     requestStopBle();
@@ -35,108 +32,43 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="fade-in" style={{ minHeight: "100vh", padding: 20, background: "#0f172a" }}>
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 20,
-          borderBottom: "1px solid #334155",
-          paddingBottom: 16,
-        }}
-      >
-        <div>
-          <h1 style={{ margin: 0, fontSize: 30, fontWeight: 800 }}>
-            {data.patientName ?? "환자"}
-          </h1>
-          <div style={{ color: "#94a3b8", fontSize: 14, marginTop: 4 }}>
-            {data.patientId ? `ID: ${data.patientId}` : "블루투스로 수신된 건강 데이터"}
+    <div className="dashboard fade-in">
+      <header className="dashboard-header">
+        <div className="dashboard-header-info">
+          <div className="dashboard-avatar">
+            {(data.patientName ?? "환")[0]}
+          </div>
+          <div>
+            <h1 className="dashboard-title">{data.patientName ?? "환자"}</h1>
+            <p className="dashboard-subtitle">
+              {data.patientId ? `ID ${data.patientId}` : "블루투스 수신 데이터"}
+              {" · "}건강 리포트
+            </p>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 12 }}>
-          <button type="button" onClick={handleNewSession} style={btnStyle}>
+        <div className="dashboard-header-actions">
+          <button type="button" className="dashboard-btn dashboard-btn--primary" onClick={handleNewSession}>
             새 QR 연결
           </button>
-          <button type="button" onClick={() => navigate("/")} style={btnStyle}>
+          <button type="button" className="dashboard-btn" onClick={() => navigate("/")}>
             홈
           </button>
         </div>
       </header>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
-          gap: 16,
-          minHeight: "calc(100vh - 110px)",
-        }}
-      >
-        <section style={panelStyle}>
-          <h2 style={h2}>발걸음</h2>
-          <div style={{ display: "flex", gap: 32, marginBottom: 16 }}>
-            <Stat label="오늘" value={data.steps ?? 0} color="#22c55e" />
-            <Stat label="평균" value={stepsAvg} color="#4ade80" />
-          </div>
-          <StepChart steps={data.stepsHistory ?? []} />
-        </section>
+      <TabBar
+        active={activeTab}
+        onChange={setActiveTab}
+        tabs={[
+          { id: "health", label: "건강 데이터" },
+          { id: "inquiry", label: "문의사항", badge: inquiryCount },
+        ]}
+      />
 
-        <section style={panelStyle}>
-          <h2 style={h2}>심박수</h2>
-          <HeartRateChart
-            latestBpm={data.heartRate}
-            history={data.heartRateHistory ?? []}
-          />
-        </section>
-
-        <section style={panelStyle}>
-          <h2 style={h2}>문의사항 / 안내</h2>
-          <InquiryList items={data.inquiries ?? []} />
-        </section>
-      </div>
+      <main className="dashboard-content">
+        {activeTab === "health" && <HealthTab data={data} />}
+        {activeTab === "inquiry" && <InquiryTab items={data.inquiries ?? []} />}
+      </main>
     </div>
   );
 }
-
-function Stat({
-  label,
-  value,
-  color,
-}: {
-  label: string;
-  value: number;
-  color: string;
-}) {
-  return (
-    <div>
-      <div style={{ fontSize: 12, color: "#94a3b8" }}>{label}</div>
-      <div style={{ fontSize: 32, fontWeight: 700, color }}>
-        {value.toLocaleString()}
-      </div>
-    </div>
-  );
-}
-
-const panelStyle: CSSProperties = {
-  background: "#1e293b",
-  borderRadius: 16,
-  padding: 24,
-  overflow: "auto",
-  border: "1px solid #334155",
-};
-
-const h2: CSSProperties = {
-  margin: "0 0 20px",
-  fontSize: 18,
-  color: "#e2e8f0",
-  fontWeight: 700,
-};
-
-const btnStyle: CSSProperties = {
-  padding: "10px 18px",
-  borderRadius: 10,
-  border: "1px solid #475569",
-  background: "#1e293b",
-  color: "#f8fafc",
-  fontSize: 14,
-};

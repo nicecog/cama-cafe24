@@ -12,6 +12,7 @@ import java.util.List;
 
 import com.camaplus.app.stepcounter.CamaStepCounterPackage;
 import com.camaplus.app.nativebridge.CamaNativeBridgePackage;
+import com.camaplus.app.tablettransfer.TabletTransferPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -28,6 +29,7 @@ public class MainApplication extends Application implements ReactApplication {
           List<ReactPackage> packages = new PackageList(this).getPackages();
           packages.add(new CamaStepCounterPackage());
           packages.add(new CamaNativeBridgePackage());
+          packages.add(new TabletTransferPackage());
           return packages;
         }
 

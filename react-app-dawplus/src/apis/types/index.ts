@@ -82,6 +82,7 @@ export type {
   WebviewNotification,
   WebviewSchedule,
   WebviewStepInfo,
+  WebviewStepSaveParams,
   WebviewUserAnswerInfo,
   WebviewUserAnswerInfoListParams,
   WellbeingPagination,

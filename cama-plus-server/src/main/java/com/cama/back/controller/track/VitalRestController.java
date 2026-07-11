@@ -65,6 +65,24 @@ public class VitalRestController {
         }
     }
 
+    @PostMapping(path = "webview/track/service/vital/batch")
+    @Operation(summary = "심박·생체신호 일괄 저장 (WebView)")
+    public ApiResult<Map<String, Integer>> saveWebviewVitalBatch(@AuthenticationPrincipal JwtAuthentication authentication,
+                                                                 @RequestBody List<VitalRecordRequest> requests) {
+        try {
+            if (requests == null || requests.isEmpty()) {
+                throw new IllegalArgumentException("저장할 생체신호가 없습니다.");
+            }
+            Long accountSeq = requests.get(0).getAccountSeq() != null
+                    ? requests.get(0).getAccountSeq()
+                    : authentication.id.value();
+            int saved = vitalRecordService.saveBatch(accountSeq, requests);
+            return new ApiResult<>(Map.of("saved", saved));
+        } catch (IllegalArgumentException e) {
+            return new ApiResult<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @PostMapping(path = "track/service/vitalList")
     @Operation(summary = "심박·생체신호 이력 조회")
     public ApiResult<List<VitalRecordDto>> getVitalList(@AuthenticationPrincipal JwtAuthentication authentication,

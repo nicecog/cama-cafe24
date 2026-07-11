@@ -1,5 +1,6 @@
 package com.camaplus.app.nativebridge;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -8,24 +9,35 @@ import android.speech.tts.UtteranceProgressListener;
 
 import androidx.annotation.NonNull;
 
+import com.camaplus.app.MainActivity;
+import com.camaplus.app.healthconnect.HealthConnectHeartRateReader;
+import com.camaplus.app.healthconnect.HealthConnectPermissionLauncher;
+import com.camaplus.app.healthconnect.HealthConnectSettingsNavigator;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 
 import java.util.ArrayDeque;
 import java.util.Locale;
 import java.util.Queue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class CamaNativeBridgeModule extends ReactContextBaseJavaModule
     implements TextToSpeech.OnInitListener {
 
   private static final String MODULE = "CamaNativeBridge";
   private static final String NOT_IMPLEMENTED = "NOT_IMPLEMENTED";
+  private static final String PERMISSION_DENIED = "PERMISSION_DENIED";
+  private static final String UNAVAILABLE = "UNAVAILABLE";
   private static final String UTTERANCE_ID = "cama-tts";
+
+  private final ExecutorService healthConnectExecutor = Executors.newSingleThreadExecutor();
 
   private final Handler mainHandler = new Handler(Looper.getMainLooper());
   private TextToSpeech tts;
@@ -114,7 +126,10 @@ public class CamaNativeBridgeModule extends ReactContextBaseJavaModule
   @ReactMethod
   public void getCapabilities(Promise promise) {
     try {
-      promise.resolve(buildCapabilities(false));
+      boolean heartRateImplemented =
+          HealthConnectPermissionLauncher.isHealthConnectAvailable(
+              getReactApplicationContext());
+      promise.resolve(buildCapabilities(heartRateImplemented));
     } catch (Exception e) {
       promise.reject("CAPABILITIES_ERROR", e.getMessage());
     }
@@ -180,7 +195,112 @@ public class CamaNativeBridgeModule extends ReactContextBaseJavaModule
 
   @ReactMethod
   public void readVital(String vitalTypeCd, Promise promise) {
-    rejectNotImplemented(promise);
+    if (!"HEART_RATE".equals(vitalTypeCd)) {
+      rejectNotImplemented(promise);
+      return;
+    }
+    readVitalSamples(vitalTypeCd, 1, promise, true);
+  }
+
+  @ReactMethod
+  public void readVitalSamples(String vitalTypeCd, double daysBack, Promise promise) {
+    if (!"HEART_RATE".equals(vitalTypeCd)) {
+      rejectNotImplemented(promise);
+      return;
+    }
+    readVitalSamples(vitalTypeCd, daysBack, promise, false);
+  }
+
+  private void readVitalSamples(
+      String vitalTypeCd, double daysBack, Promise promise, boolean latestOnly) {
+    if (!HealthConnectPermissionLauncher.isHealthConnectAvailable(getReactApplicationContext())) {
+      promise.reject(UNAVAILABLE, "Health Connect is not available on this device");
+      return;
+    }
+
+    Activity activity = getCurrentActivity();
+    if (!(activity instanceof MainActivity)) {
+      promise.reject(UNAVAILABLE, "Activity unavailable");
+      return;
+    }
+
+    MainActivity mainActivity = (MainActivity) activity;
+    HealthConnectPermissionLauncher permissionLauncher =
+        mainActivity.getHealthConnectPermissionLauncher();
+
+    healthConnectExecutor.execute(
+        () -> {
+          try {
+            boolean granted =
+                HealthConnectPermissionLauncher.hasHeartRateReadPermissionBlocking(
+                    getReactApplicationContext());
+            if (!granted) {
+              runOnMain(
+                  () ->
+                      permissionLauncher.requestPermission(
+                          ok -> {
+                            if (!ok) {
+                              promise.reject(PERMISSION_DENIED, "Health Connect permission denied");
+                              return;
+                            }
+                            fetchHeartRateSamples(daysBack, latestOnly, promise);
+                          }));
+              return;
+            }
+            fetchHeartRateSamples(daysBack, latestOnly, promise);
+          } catch (Exception e) {
+            promise.reject("VITAL_READ_ERROR", e.getMessage());
+          }
+        });
+  }
+
+  private void fetchHeartRateSamples(double daysBack, boolean latestOnly, Promise promise) {
+    int safeDays = (int) Math.max(1, Math.min(daysBack, 14));
+    healthConnectExecutor.execute(
+        () -> {
+          try {
+            HealthConnectHeartRateReader.ReadResult result =
+                HealthConnectHeartRateReader.readHeartRateSamplesBlocking(
+                    getReactApplicationContext(), safeDays);
+            WritableArray samples = result.getSamples();
+            if (latestOnly && samples.size() > 0) {
+              promise.resolve(samples.getMap(samples.size() - 1));
+              return;
+            }
+
+            WritableMap response = Arguments.createMap();
+            response.putString("vitalTypeCd", "HEART_RATE");
+            response.putArray("samples", samples);
+            response.putInt("count", result.getCount());
+            promise.resolve(response);
+          } catch (Exception e) {
+            promise.reject("VITAL_READ_ERROR", e.getMessage());
+          }
+        });
+  }
+
+  @ReactMethod
+  public void openHealthConnectSettings(Promise promise) {
+    Activity activity = getCurrentActivity();
+    if (!(activity instanceof MainActivity)) {
+      promise.reject(UNAVAILABLE, "Activity unavailable");
+      return;
+    }
+
+    runOnMain(
+        () -> {
+          try {
+            boolean opened =
+                HealthConnectSettingsNavigator.openSettings((MainActivity) activity);
+            if (opened) {
+              promise.resolve(true);
+            } else {
+              promise.reject(UNAVAILABLE, "Could not open Health Connect settings");
+            }
+          } catch (Exception e) {
+            promise.reject("HEALTH_CONNECT_SETTINGS_ERROR", e.getMessage());
+          }
+        });
   }
 
   @ReactMethod
@@ -299,7 +419,7 @@ public class CamaNativeBridgeModule extends ReactContextBaseJavaModule
     root.putMap("stepCounter", capability(true, true, "android.permission.ACTIVITY_RECOGNITION"));
 
     WritableMap vitals = Arguments.createMap();
-    vitals.putMap("HEART_RATE", capability(true, implemented));
+    vitals.putMap("HEART_RATE", capability(true, implemented, "android.permission.health.READ_HEART_RATE"));
     vitals.putMap("SPO2", capability(true, implemented));
     vitals.putMap("BP_SYSTOLIC", capability(true, implemented));
     vitals.putMap("BP_DIASTOLIC", capability(true, implemented));

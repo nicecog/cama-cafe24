@@ -8,11 +8,6 @@
         "id": 2,
         "menuNm": "게시판",
         "url": "/notice"
-      },
-      {
-        "id": 10,
-        "menuNm": "Reporting",
-        "url": "/reporting"
       }
     ]
   },

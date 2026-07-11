@@ -352,3 +352,12 @@ export interface SaveCoachingStepParams {
   executionDate: string; // "2026-01-11" 형식
   stepNum: number; // 걸음수
 }
+
+/**
+ * 걸음수 저장 요청 (WebView track API)
+ */
+export interface WebviewStepSaveParams {
+  accountSeq: number;
+  executionDate: string; // "2026-01-11" 형식
+  stepNum: number;
+}

@@ -10,9 +10,14 @@ import type {
   NativeBridgeResponseBase,
   NativeBridgeResult,
   VitalReadingResult,
+  VitalSamplesResult,
   VitalTypeCd,
 } from "@/lib/webview/nativeBridge.types";
 import type { CamaFirebase } from "@/apis/types/auth.types";
+import type {
+  TabletHealthDataPayload,
+  TabletQrPayload,
+} from "@/lib/tablet/tabletTransfer.types";
 
 function getReactNativeWebView() {
   return (
@@ -123,6 +128,38 @@ export function requestNativeVitalReading(
   >({ type: "readVital", vitalTypeCd }, "vitalReading", timeoutMs);
 }
 
+export function requestNativeVitalSamples(
+  vitalTypeCd: VitalTypeCd = "HEART_RATE",
+  daysBack = 1,
+  timeoutMs = 15000,
+): Promise<VitalSamplesResult | null> {
+  if (!isReactNativeWebView()) {
+    return Promise.resolve(null);
+  }
+  return requestBridge<
+    NativeBridgeResponseBase & { type: "vitalSamples" } & VitalSamplesResult
+  >(
+    { type: "readVitalSamples", vitalTypeCd, daysBack },
+    "vitalSamples",
+    timeoutMs,
+  ).then((result) => {
+    if (!result.ok) {
+      if (result.error === "PERMISSION_DENIED") {
+        throw new Error("PERMISSION_DENIED");
+      }
+      return null;
+    }
+    if (!Array.isArray(result.data.samples)) {
+      return null;
+    }
+    return {
+      vitalTypeCd: result.data.vitalTypeCd ?? vitalTypeCd,
+      samples: result.data.samples,
+      count: result.data.count ?? result.data.samples.length,
+    };
+  });
+}
+
 export function requestNativeBiometricAvailability(timeoutMs = 8000) {
   return requestBridge<
     NativeBridgeResponseBase & {
@@ -156,6 +193,14 @@ export function requestNativeStepCount(timeoutMs = 8000): Promise<number | null>
     }
     return null;
   });
+}
+
+export function requestNativeOpenHealthConnectSettings(timeoutMs = 10000): Promise<boolean> {
+  return requestBridge<
+    NativeBridgeResponseBase & { type: "healthConnectSettings" }
+  >({ type: "openHealthConnectSettings" }, "healthConnectSettings", timeoutMs).then(
+    (result) => result.ok,
+  );
 }
 
 export function requestNativeFcmToken(timeoutMs = 10000): Promise<CamaFirebase | null> {
@@ -198,4 +243,28 @@ export function shouldUseNativeSpeechSynthesis(): boolean {
 
   // iOS/Android WebView 모두 speechSynthesis 미지원 → RN 네이티브 TTS 브릿지 사용
   return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+}
+
+export function requestNativeTabletQrScan(timeoutMs = 120000) {
+  return requestBridge<
+    NativeBridgeResponseBase & { type: "tabletQrScan"; raw?: string }
+  >({ type: "scanTabletQr" }, "tabletQrScan", timeoutMs);
+}
+
+export function requestNativeTabletHealthDataSend(
+  qrPayload: TabletQrPayload,
+  healthData: TabletHealthDataPayload,
+  timeoutMs = 90000,
+) {
+  return requestBridge<
+    NativeBridgeResponseBase & { type: "tabletHealthDataSent" }
+  >(
+    {
+      type: "sendTabletHealthData",
+      qrPayload,
+      healthData,
+    },
+    "tabletHealthDataSent",
+    timeoutMs,
+  );
 }

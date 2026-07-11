@@ -13,9 +13,11 @@ export {
   requestNativeCapturePhoto,
   requestNativeFcmToken,
   requestNativeLocation,
+  requestNativeOpenHealthConnectSettings,
   requestNativePickPhoto,
   requestNativeStepCount,
   requestNativeVitalReading,
+  requestNativeVitalSamples,
 } from "@/lib/webview/nativeBridgeClient";
 
 function getReactNativeWebView() {

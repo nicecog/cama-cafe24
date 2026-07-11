@@ -89,6 +89,12 @@ export type VitalReadingResult = {
   sourceCd?: VitalSourceCd;
 };
 
+export type VitalSamplesResult = {
+  vitalTypeCd: VitalTypeCd;
+  samples: VitalReadingResult[];
+  count: number;
+};
+
 export type BiometricAuthOptions = {
   reason?: string;
   title?: string;
@@ -120,6 +126,12 @@ export type WebToNativeRequest =
       requestId: string;
       vitalTypeCd: VitalTypeCd;
     }
+  | {
+      type: 'readVitalSamples';
+      requestId: string;
+      vitalTypeCd: VitalTypeCd;
+      daysBack?: number;
+    }
   | { type: 'checkBiometricAvailable'; requestId: string }
   | {
       type: 'authenticateBiometric';
@@ -134,7 +146,15 @@ export type WebToNativeRequest =
     }
   | { type: 'stopSpeech'; requestId: string }
   | { type: 'pauseSpeech'; requestId: string }
-  | { type: 'resumeSpeech'; requestId: string };
+  | { type: 'resumeSpeech'; requestId: string }
+  | { type: 'openHealthConnectSettings'; requestId: string }
+  | { type: 'scanTabletQr'; requestId: string }
+  | {
+      type: 'sendTabletHealthData';
+      requestId: string;
+      qrPayload: Record<string, unknown>;
+      healthData: Record<string, unknown>;
+    };
 
 /** RN → SPA 응답 이벤트 (cama-native detail.type) */
 export type NativeBridgeResponseType =
@@ -144,8 +164,12 @@ export type NativeBridgeResponseType =
   | 'cameraCapture'
   | 'location'
   | 'vitalReading'
+  | 'vitalSamples'
   | 'biometric'
-  | 'speech';
+  | 'speech'
+  | 'healthConnectSettings'
+  | 'tabletQrScan'
+  | 'tabletHealthDataSent';
 
 export type NativeBridgeResponseBase = {
   requestId: string;

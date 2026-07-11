@@ -89,6 +89,12 @@ export type VitalReadingResult = {
   sourceCd?: VitalSourceCd;
 };
 
+export type VitalSamplesResult = {
+  vitalTypeCd: VitalTypeCd;
+  samples: VitalReadingResult[];
+  count: number;
+};
+
 export type BiometricAuthOptions = {
   reason?: string;
   title?: string;

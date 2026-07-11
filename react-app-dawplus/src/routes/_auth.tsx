@@ -1,6 +1,9 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { useAtomValue } from "jotai";
 import { z } from "zod";
+import { accountMeAtom } from "@/atoms/accountAtoms";
 import { readStoredWebviewSession } from "@/atoms/authSessionAtom";
+import { useForegroundHealthSync } from "@/hooks/useForegroundHealthSync";
 import { getDevAuthBypassLoginId, isDevAuthBypassEnabled } from "@/lib/devAuth";
 import { getTokenEncryptedStorage } from "@/lib/encryptedStorage";
 import { bootstrapWebviewSession } from "@/lib/webview/bootstrapSession";
@@ -43,5 +46,8 @@ export const Route = createFileRoute("/_auth")({
 });
 
 function AuthLayout() {
+  const accountMe = useAtomValue(accountMeAtom);
+  useForegroundHealthSync(accountMe.data?.seq);
+
   return <Outlet />;
 }

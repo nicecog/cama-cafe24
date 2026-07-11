@@ -6,6 +6,7 @@ import type {
   WebviewCareTrackDone,
   WebviewContentItem,
   WebviewStepInfo,
+  WebviewStepSaveParams,
 } from "../../types";
 
 /**
@@ -109,6 +110,20 @@ export const fetchCareTrackStepList = async (
   return api
     .post("api/webview/track/service/stepList", {
       json: { accountSeq },
+    })
+    .json();
+};
+
+/**
+ * 오늘 걸음수 저장 (WebView)
+ * PUT /api/webview/track/service/step
+ */
+export const saveWebviewStep = async (
+  params: WebviewStepSaveParams,
+): Promise<ApiResponse<boolean>> => {
+  return api
+    .put("api/webview/track/service/step", {
+      json: params,
     })
     .json();
 };

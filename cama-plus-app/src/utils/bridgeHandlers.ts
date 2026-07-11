@@ -1,4 +1,5 @@
 import type { RefObject } from 'react';
+import { PermissionsAndroid, Platform } from 'react-native';
 import type WebView from 'react-native-webview';
 
 import type {
@@ -16,14 +17,48 @@ import {
   getCurrentLocation,
   getDeviceCapabilities,
   isBiometricAvailable,
+  openHealthConnectSettings,
   pauseSpeech,
   pickPhotoFromLibrary,
   readVital,
+  readVitalSamples,
   resumeSpeech,
   speakText,
   stopSpeech,
 } from '@/native/NativeBridgeModule';
 import { toNativeBridgeError } from '@/native/bridgeErrors';
+import { NativeBridgeError } from '@/native/bridgeErrors';
+import { NATIVE_BRIDGE_ERRORS } from '@/constants/nativeBridge.types';
+import {
+  scanTabletQrCode,
+  sendTabletHealthData,
+} from '@/native/TabletTransfer';
+
+async function ensureTabletPermissions(cameraOnly: boolean): Promise<void> {
+  if (Platform.OS !== 'android') {
+    return;
+  }
+
+  const permissions: string[] = [PermissionsAndroid.PERMISSIONS.CAMERA];
+  if (!cameraOnly) {
+    if (Platform.Version >= 31) {
+      permissions.push(
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+      );
+    } else {
+      permissions.push(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+    }
+  }
+
+  const results = await PermissionsAndroid.requestMultiple(permissions);
+  const denied = Object.values(results).some(
+    status => status !== PermissionsAndroid.RESULTS.GRANTED,
+  );
+  if (denied) {
+    throw new NativeBridgeError(NATIVE_BRIDGE_ERRORS.PERMISSION_DENIED);
+  }
+}
 import { generateFirebaseInfo } from '@/utils/infos';
 
 function injectNativeEvent(
@@ -141,6 +176,21 @@ export async function dispatchBridgeRequest(
         });
         return;
       }
+      case 'readVitalSamples': {
+        const result = await readVitalSamples(
+          message.vitalTypeCd,
+          message.daysBack ?? 1,
+        );
+        respond(webviewRef, {
+          type: 'vitalSamples',
+          requestId,
+          ok: true,
+          vitalTypeCd: result.vitalTypeCd,
+          samples: result.samples,
+          count: result.count,
+        });
+        return;
+      }
       case 'checkBiometricAvailable': {
         const availability = await isBiometricAvailable();
         respond(webviewRef, {
@@ -216,6 +266,39 @@ export async function dispatchBridgeRequest(
         });
         return;
       }
+      case 'openHealthConnectSettings': {
+        await openHealthConnectSettings();
+        respond(webviewRef, {
+          type: 'healthConnectSettings',
+          requestId,
+          ok: true,
+        });
+        return;
+      }
+      case 'scanTabletQr': {
+        await ensureTabletPermissions(true);
+        const raw = await scanTabletQrCode();
+        respond(webviewRef, {
+          type: 'tabletQrScan',
+          requestId,
+          ok: true,
+          raw,
+        });
+        return;
+      }
+      case 'sendTabletHealthData': {
+        await ensureTabletPermissions(false);
+        await sendTabletHealthData(
+          message.qrPayload as Record<string, unknown>,
+          message.healthData as Record<string, unknown>,
+        );
+        respond(webviewRef, {
+          type: 'tabletHealthDataSent',
+          requestId,
+          ok: true,
+        });
+        return;
+      }
       default:
         return;
     }
@@ -228,12 +311,16 @@ export async function dispatchBridgeRequest(
       pickPhoto: 'cameraCapture',
       getCurrentLocation: 'location',
       readVital: 'vitalReading',
+      readVitalSamples: 'vitalSamples',
       checkBiometricAvailable: 'biometric',
       authenticateBiometric: 'biometric',
       speakText: 'speech',
       stopSpeech: 'speech',
       pauseSpeech: 'speech',
       resumeSpeech: 'speech',
+      openHealthConnectSettings: 'healthConnectSettings',
+      scanTabletQr: 'tabletQrScan',
+      sendTabletHealthData: 'tabletHealthDataSent',
     };
     respondError(
       webviewRef,

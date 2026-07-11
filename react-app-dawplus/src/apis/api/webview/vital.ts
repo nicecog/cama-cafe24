@@ -73,3 +73,17 @@ export const saveHeartRateRecord = async (
     ...options,
   });
 };
+
+/**
+ * 심박·생체신호 일괄 저장 (WebView)
+ * POST /api/webview/track/service/vital/batch
+ */
+export const saveWebviewVitalBatch = async (
+  records: VitalRecordRequest[],
+): Promise<ApiResponse<{ saved: number }>> => {
+  return api
+    .post("api/webview/track/service/vital/batch", {
+      json: records,
+    })
+    .json();
+};

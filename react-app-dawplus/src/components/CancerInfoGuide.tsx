@@ -1,7 +1,7 @@
 import { useAtom, useAtomValue } from "jotai";
 import Lottie from "lottie-react";
 import { Activity, Calendar, Check, FileText, Stethoscope } from "lucide-react";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import type {
   CancerInfoSelection,
   CareTrackNewDto,
@@ -16,8 +16,17 @@ import { useHospitalDiseaseList } from "@/hooks/queries/useHospitalQueries";
 import { useDialog } from "@/hooks/useDialog";
 import { cn } from "@/lib/utils";
 
-export default function CancerInfoGuide() {
-  // 전역 상태로 open 관리
+type CancerInfoGuideProps = {
+  /** 전체 페이지 모드 (/mypage/care-track/apply) */
+  asPage?: boolean;
+  onPageClose?: () => void;
+};
+
+export default function CancerInfoGuide({
+  asPage = false,
+  onPageClose,
+}: CancerInfoGuideProps = {}) {
+  // 전역 상태로 open 관리 (팝업 모드)
   const [open, setOpen] = useAtom(cancerInfoGuideOpenAtom);
 
   const { data: hospital } = useAtomValue(accountHospitalAtom);
@@ -201,9 +210,7 @@ export default function CancerInfoGuide() {
             mutate(params, {
               onSuccess: () => {
                 alert("암정보가이드 설정이 완료되었습니다.", () => {
-                  setOpen(false);
-                  setCurrentStep(1);
-                  setSelection({});
+                  handleClose();
                 });
               },
             });
@@ -248,18 +255,37 @@ export default function CancerInfoGuide() {
 
   // 팝업 닫을 때 초기화
   const handleClose = () => {
-    setOpen(false);
+    if (asPage) {
+      onPageClose?.();
+    } else {
+      setOpen(false);
+    }
     setCurrentStep(1);
     setSelection({});
   };
 
-  if (isLoading) {
+  const isVisible = asPage || open;
+
+  const wrapContent = (children: ReactNode, title = "암정보 가이드 설정") => {
+    if (asPage) {
+      return <div className="flex flex-col min-h-0 flex-1">{children}</div>;
+    }
     return (
-      <Popup open={open} setOpen={handleClose} direction="right">
-        <div className="flex items-center justify-center h-full">
-          <p>로딩 중...</p>
-        </div>
+      <Popup open={open} setOpen={handleClose} direction="right" title={title}>
+        {children}
       </Popup>
+    );
+  };
+
+  if (!isVisible && !asPage) {
+    return null;
+  }
+
+  if (isLoading) {
+    return wrapContent(
+      <div className="flex items-center justify-center h-full min-h-[200px]">
+        <p>로딩 중...</p>
+      </div>,
     );
   }
 
@@ -273,14 +299,8 @@ export default function CancerInfoGuide() {
     { number: 6, label: "기간" },
   ];
 
-  return (
-    <Popup
-      open={open}
-      setOpen={handleClose}
-      direction="right"
-      title="암정보 가이드 설정"
-    >
-      <div className="flex flex-col h-full">
+  return wrapContent(
+    <div className="flex flex-col h-full min-h-0">
         {/* 헤더 - 스텝 인디케이터 */}
         <div className="relative bg-gradient-to-br from-primary via-primary to-primary/90 border-b overflow-hidden h-48">
           <div className="relative z-10 px-5 pt-2 pb-4">
@@ -663,8 +683,7 @@ export default function CancerInfoGuide() {
             </button>
           </div>
         </div>
-      </div>
-    </Popup>
+    </div>,
   );
 }
 

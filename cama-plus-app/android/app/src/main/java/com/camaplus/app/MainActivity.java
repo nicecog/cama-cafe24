@@ -7,37 +7,35 @@ import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactActivityDelegate;
 
+import com.camaplus.app.healthconnect.HealthConnectPermissionLauncher;
+
 public class MainActivity extends ReactActivity {
 
-  /**
-   * Returns the name of the main component registered from JavaScript. This is used to schedule
-   * rendering of the component.
-   */
+  private HealthConnectPermissionLauncher healthConnectPermissionLauncher;
+
   @Override
   protected String getMainComponentName() {
     return "CamaApp";
   }
 
-  @Override // 추가 <---------------
+  @Override
   protected void onCreate(Bundle savedInstanceState) {
-    RNBootSplash.init(this, R.style.BootTheme); // ⬅️ initialize the splash screen
+    RNBootSplash.init(this, R.style.BootTheme);
     super.onCreate(null);
+    healthConnectPermissionLauncher = new HealthConnectPermissionLauncher(this);
+    healthConnectPermissionLauncher.register();
   }
 
-  /**
-   * Returns the instance of the {@link ReactActivityDelegate}. Here we use a util class {@link
-   * DefaultReactActivityDelegate} which allows you to easily enable Fabric and Concurrent React
-   * (aka React 18) with two boolean flags.
-   */
+  public HealthConnectPermissionLauncher getHealthConnectPermissionLauncher() {
+    return healthConnectPermissionLauncher;
+  }
+
   @Override
   protected ReactActivityDelegate createReactActivityDelegate() {
     return new DefaultReactActivityDelegate(
         this,
         getMainComponentName(),
-        // If you opted-in for the New Architecture, we enable the Fabric Renderer.
-        DefaultNewArchitectureEntryPoint.getFabricEnabled(), // fabricEnabled
-        // If you opted-in for the New Architecture, we enable Concurrent React (i.e. React 18).
-        DefaultNewArchitectureEntryPoint.getConcurrentReactEnabled() // concurrentRootEnabled
-        );
+        DefaultNewArchitectureEntryPoint.getFabricEnabled(),
+        DefaultNewArchitectureEntryPoint.getConcurrentReactEnabled());
   }
 }

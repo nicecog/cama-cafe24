@@ -1,60 +1,104 @@
 import {
+  Area,
+  AreaChart,
   CartesianGrid,
-  Line,
-  LineChart,
+  ReferenceArea,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
+import { normalizeHeartRateSeries } from "../lib/healthStats";
 import type { HeartRatePoint } from "../types/healthData";
 
 type Props = {
   latestBpm?: number;
   history: HeartRatePoint[];
+  height?: number;
 };
 
-export default function HeartRateChart({ latestBpm, history }: Props) {
-  if (history.length === 0 && latestBpm == null) {
-    return <p style={{ color: "#64748b", fontSize: 14 }}>심박 데이터가 없습니다.</p>;
+const NORMAL_MIN = 60;
+const NORMAL_MAX = 100;
+
+function HeartTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: { value: number }[];
+  label?: string;
+}) {
+  if (!active || !payload?.length) return null;
+  const bpm = payload[0]?.value ?? 0;
+  let zone = "정상";
+  if (bpm < NORMAL_MIN) zone = "낮음";
+  else if (bpm > NORMAL_MAX) zone = "높음";
+  return (
+    <div className="chart-tooltip">
+      <div className="chart-tooltip-label">{label}</div>
+      <div className="chart-tooltip-value chart-tooltip-value--heart">{bpm} bpm</div>
+      <div className="chart-tooltip-meta">{zone} 범위</div>
+    </div>
+  );
+}
+
+export default function HeartRateChart({ latestBpm, history, height = 280 }: Props) {
+  const data = normalizeHeartRateSeries(history, latestBpm);
+
+  if (data.length === 0) {
+    return (
+      <div className="chart-empty">
+        <span className="chart-empty-icon">❤️</span>
+        <p>심박 데이터가 없습니다.</p>
+      </div>
+    );
   }
 
-  const data =
-    history.length > 0
-      ? history
-      : [{ time: "현재", bpm: latestBpm ?? 0 }];
+  const tickInterval = data.length > 45 ? Math.floor(data.length / 8) : data.length > 20 ? 4 : 0;
 
   return (
-    <div>
-      {latestBpm != null && (
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 12, color: "#94a3b8" }}>현재 심박수</div>
-          <div style={{ fontSize: 36, fontWeight: 700, color: "#f472b6" }}>
-            {latestBpm}
-            <span style={{ fontSize: 16, fontWeight: 400, color: "#94a3b8" }}> bpm</span>
-          </div>
-        </div>
-      )}
-      <div style={{ width: "100%", height: 180 }}>
-        <ResponsiveContainer>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-            <XAxis dataKey="time" stroke="#94a3b8" fontSize={12} />
-            <YAxis stroke="#94a3b8" fontSize={12} domain={["auto", "auto"]} />
-            <Tooltip
-              contentStyle={{ background: "#1e293b", border: "1px solid #334155" }}
-            />
-            <Line
-              type="monotone"
-              dataKey="bpm"
-              stroke="#f472b6"
-              strokeWidth={2}
-              dot={{ fill: "#f472b6", r: 4 }}
-              name="bpm"
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+    <div className="chart-wrap" style={{ height }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+          <defs>
+            <linearGradient id="heartAreaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#f472b6" stopOpacity={0.4} />
+              <stop offset="100%" stopColor="#f472b6" stopOpacity={0.02} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+          <ReferenceArea y1={NORMAL_MIN} y2={NORMAL_MAX} fill="#22c55e" fillOpacity={0.08} />
+          <XAxis
+            dataKey="label"
+            stroke="#64748b"
+            fontSize={11}
+            tickLine={false}
+            axisLine={{ stroke: "#334155" }}
+            interval={tickInterval}
+            angle={data.length > 30 ? -35 : 0}
+            textAnchor={data.length > 30 ? "end" : "middle"}
+            height={data.length > 30 ? 48 : 30}
+          />
+          <YAxis
+            stroke="#64748b"
+            fontSize={11}
+            tickLine={false}
+            axisLine={false}
+            domain={["dataMin - 10", "dataMax + 10"]}
+          />
+          <Tooltip content={<HeartTooltip />} />
+          <Area
+            type="monotone"
+            dataKey="bpm"
+            stroke="#f472b6"
+            strokeWidth={2.5}
+            fill="url(#heartAreaGrad)"
+            dot={data.length <= 31 ? { fill: "#f472b6", r: 3, strokeWidth: 0 } : false}
+            activeDot={{ r: 5, fill: "#fb7185" }}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
     </div>
   );
 }

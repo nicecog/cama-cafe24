@@ -10,6 +10,7 @@ import type {
   LocationOptions,
   LocationResult,
   VitalReadingResult,
+  VitalSamplesResult,
   VitalTypeCd,
 } from '@/constants/nativeBridge.types';
 import { NATIVE_BRIDGE_ERRORS } from '@/constants/nativeBridge.types';
@@ -23,6 +24,10 @@ type CamaNativeBridgeNative = {
   ) => Promise<CameraCaptureResult>;
   getCurrentLocation: (options: LocationOptions) => Promise<LocationResult>;
   readVital: (vitalTypeCd: VitalTypeCd) => Promise<VitalReadingResult>;
+  readVitalSamples: (
+    vitalTypeCd: VitalTypeCd,
+    daysBack: number,
+  ) => Promise<VitalSamplesResult>;
   isBiometricAvailable: () => Promise<BiometricAvailability>;
   authenticateBiometric: (
     options: BiometricAuthOptions,
@@ -31,6 +36,7 @@ type CamaNativeBridgeNative = {
   stopSpeech: () => Promise<boolean>;
   pauseSpeech: () => Promise<boolean>;
   resumeSpeech: () => Promise<boolean>;
+  openHealthConnectSettings: () => Promise<boolean>;
 };
 
 const NativeBridge = NativeModules.CamaNativeBridge as
@@ -120,6 +126,13 @@ export function readVital(vitalTypeCd: VitalTypeCd): Promise<VitalReadingResult>
   return invokeNative('readVital', vitalTypeCd);
 }
 
+export function readVitalSamples(
+  vitalTypeCd: VitalTypeCd,
+  daysBack = 1,
+): Promise<VitalSamplesResult> {
+  return invokeNative('readVitalSamples', vitalTypeCd, daysBack);
+}
+
 export function isBiometricAvailable(): Promise<BiometricAvailability> {
   return invokeNative('isBiometricAvailable');
 }
@@ -144,4 +157,8 @@ export function pauseSpeech(): Promise<boolean> {
 
 export function resumeSpeech(): Promise<boolean> {
   return invokeNative('resumeSpeech');
+}
+
+export function openHealthConnectSettings(): Promise<boolean> {
+  return invokeNative('openHealthConnectSettings');
 }

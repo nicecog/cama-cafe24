@@ -1,6 +1,7 @@
 /** Android WebView ↔ React 브릿지 (cama-tablet 오프라인 앱) */
 
 import type { NativeEventDetail } from "../types/healthData";
+import { generateMockHealthData } from "./mockHealthData";
 
 declare global {
   interface Window {
@@ -61,47 +62,14 @@ export function onNativeEvent(handler: (detail: NativeEventDetail) => void): () 
   return () => window.removeEventListener("cama-tablet-native", listener);
 }
 
-/** 브라우저 개발용: 테스트 건강 데이터 시뮬레이션 */
+/** 브라우저 개발용: 테스트 건강 데이터 시뮬레이션 (약 3개월) */
 export function simulateHealthData(): void {
   window.dispatchEvent(
     new CustomEvent("cama-tablet-native", {
       detail: {
         type: "healthDataReceived",
         ok: true,
-        payload: {
-          patientName: "김환자 (테스트)",
-          patientId: "test-001",
-          steps: 8432,
-          stepsHistory: [
-            { date: "07-02", steps: 6200 },
-            { date: "07-03", steps: 7100 },
-            { date: "07-04", steps: 5800 },
-            { date: "07-05", steps: 9200 },
-            { date: "07-06", steps: 8100 },
-            { date: "07-07", steps: 7600 },
-            { date: "07-08", steps: 8432 },
-          ],
-          heartRate: 72,
-          heartRateHistory: [
-            { time: "08:00", bpm: 68 },
-            { time: "10:00", bpm: 74 },
-            { time: "12:00", bpm: 78 },
-            { time: "14:00", bpm: 71 },
-            { time: "16:00", bpm: 72 },
-          ],
-          inquiries: [
-            {
-              title: "혈압 관리 방법",
-              preview: "아침 혈압 측정 후 기록해 주세요.",
-              updatedAt: "2026-07-05",
-            },
-            {
-              title: "식이요법 안내",
-              preview: "나트륨 섭취를 줄이고 채소를 충분히 드세요.",
-              updatedAt: "2026-07-03",
-            },
-          ],
-        },
+        payload: generateMockHealthData(),
       },
     }),
   );
