@@ -1,0 +1,286 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7F392ADD0C7B56AC9FE10181 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A812BAD4703357809EA236CE /* AppDelegate.swift */; };
+		0E8377C7C6C3538BAD56C2B5 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 576C789C5FE75126A5BA93F1 /* ViewController.swift */; };
+		28CCD1B303E957338990F834 /* CamaTabletLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9C7DC96D7EC5B6288FB3D0C /* CamaTabletLog.swift */; };
+		695FF0F184B15297B0418187 /* NativeEventEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1FAAD918B85A6C8FE7C9FF /* NativeEventEmitter.swift */; };
+		A0768FB0D647595187D653B4 /* LocalWWWSchemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1511A4C8E2E7561C87A75872 /* LocalWWWSchemeHandler.swift */; };
+		77102C37FD245022ACC454CD /* BleConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE87E5903945317BEB806DF /* BleConstants.swift */; };
+		2E5CA76A1FD554CEACE5C243 /* TabletDeviceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A12E4FBEE215163BFFEE06C /* TabletDeviceInfo.swift */; };
+		BD1CBAECE3A256A48618C548 /* BleGattServerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13496DFAFF9F56F29B172A74 /* BleGattServerManager.swift */; };
+		24179FB930AC51D180B6EED6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F04693FE390C55B4BF3D8E6A /* Assets.xcassets */; };
+		749F8C3D1D8D5A848AD28710 /* www in Resources */ = {isa = PBXBuildFile; fileRef = E954E9149C2A55A394244453 /* www */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A812BAD4703357809EA236CE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		576C789C5FE75126A5BA93F1 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		D9C7DC96D7EC5B6288FB3D0C /* CamaTabletLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CamaTabletLog.swift; sourceTree = "<group>"; };
+		BE1FAAD918B85A6C8FE7C9FF /* NativeEventEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeEventEmitter.swift; sourceTree = "<group>"; };
+		1511A4C8E2E7561C87A75872 /* LocalWWWSchemeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalWWWSchemeHandler.swift; sourceTree = "<group>"; };
+		AFE87E5903945317BEB806DF /* BleConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleConstants.swift; sourceTree = "<group>"; };
+		9A12E4FBEE215163BFFEE06C /* TabletDeviceInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabletDeviceInfo.swift; sourceTree = "<group>"; };
+		13496DFAFF9F56F29B172A74 /* BleGattServerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleGattServerManager.swift; sourceTree = "<group>"; };
+		A6A95BF56F485A33A993DF70 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F04693FE390C55B4BF3D8E6A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E954E9149C2A55A394244453 /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = Resources/www; sourceTree = "<group>"; };
+		A1B532DEF6495FF194E3011B /* CamaTablet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CamaTablet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BF92133FEEB453089CD793CD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E6E75A3B1CEE54A899900044 = {
+			isa = PBXGroup;
+			children = (
+				16DE2BD24B5B5C129AC9BFDE /* CamaTablet */,
+				29D0ACDD97055AA18DF159BF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		29D0ACDD97055AA18DF159BF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A1B532DEF6495FF194E3011B /* CamaTablet.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		16DE2BD24B5B5C129AC9BFDE /* CamaTablet */ = {
+			isa = PBXGroup;
+			children = (
+				A812BAD4703357809EA236CE /* AppDelegate.swift */,
+				576C789C5FE75126A5BA93F1 /* ViewController.swift */,
+				D9C7DC96D7EC5B6288FB3D0C /* CamaTabletLog.swift */,
+				5C2F928B968C53FB85148C0B /* Bridge */,
+				25174DC1182058D48134AFC0 /* BLE */,
+				E954E9149C2A55A394244453 /* www */,
+				F04693FE390C55B4BF3D8E6A /* Assets.xcassets */,
+				A6A95BF56F485A33A993DF70 /* Info.plist */,
+			);
+			path = CamaTablet;
+			sourceTree = "<group>";
+		};
+		5C2F928B968C53FB85148C0B /* Bridge */ = {
+			isa = PBXGroup;
+			children = (
+				BE1FAAD918B85A6C8FE7C9FF /* NativeEventEmitter.swift */,
+				1511A4C8E2E7561C87A75872 /* LocalWWWSchemeHandler.swift */,
+			);
+			path = Bridge;
+			sourceTree = "<group>";
+		};
+		25174DC1182058D48134AFC0 /* BLE */ = {
+			isa = PBXGroup;
+			children = (
+				AFE87E5903945317BEB806DF /* BleConstants.swift */,
+				9A12E4FBEE215163BFFEE06C /* TabletDeviceInfo.swift */,
+				13496DFAFF9F56F29B172A74 /* BleGattServerManager.swift */,
+			);
+			path = BLE;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D2E215F4122B5425B5BD25E1 /* CamaTablet */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5EDD029A47FD5B388AA4905E /* Build configuration list for PBXNativeTarget "CamaTablet" */;
+			buildPhases = (
+				BB4B2BBF11075284A34EB08F /* Sources */,
+				BF92133FEEB453089CD793CD /* Frameworks */,
+				26BA9B8601105D0CB9392715 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CamaTablet;
+			productName = CamaTablet;
+			productReference = A1B532DEF6495FF194E3011B /* CamaTablet.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8B25896152D550E3853F9F69 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					D2E215F4122B5425B5BD25E1 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = C8457D2AA032553AB61DC39F /* Build configuration list for PBXProject "CamaTablet" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = ko;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				ko,
+				Base,
+			);
+			mainGroup = E6E75A3B1CEE54A899900044;
+			productRefGroup = 29D0ACDD97055AA18DF159BF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D2E215F4122B5425B5BD25E1 /* CamaTablet */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		26BA9B8601105D0CB9392715 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24179FB930AC51D180B6EED6 /* Assets.xcassets in Resources */,
+				749F8C3D1D8D5A848AD28710 /* www in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BB4B2BBF11075284A34EB08F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7F392ADD0C7B56AC9FE10181 /* AppDelegate.swift in Sources */,
+				0E8377C7C6C3538BAD56C2B5 /* ViewController.swift in Sources */,
+				28CCD1B303E957338990F834 /* CamaTabletLog.swift in Sources */,
+				695FF0F184B15297B0418187 /* NativeEventEmitter.swift in Sources */,
+				A0768FB0D647595187D653B4 /* LocalWWWSchemeHandler.swift in Sources */,
+				77102C37FD245022ACC454CD /* BleConstants.swift in Sources */,
+				2E5CA76A1FD554CEACE5C243 /* TabletDeviceInfo.swift in Sources */,
+				BD1CBAECE3A256A48618C548 /* BleGattServerManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		324A3278568B56389559329D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		919C4B87829D538AAC23F094 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CA08D076D4FF5C14A66BCB07 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = VHDAUYTQX3;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CamaTablet/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cama.tablet.offline;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		05AA31CF564B583AB77E04CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = VHDAUYTQX3;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CamaTablet/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cama.tablet.offline;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C8457D2AA032553AB61DC39F /* Build configuration list for PBXProject "CamaTablet" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				324A3278568B56389559329D /* Debug */,
+				919C4B87829D538AAC23F094 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5EDD029A47FD5B388AA4905E /* Build configuration list for PBXNativeTarget "CamaTablet" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CA08D076D4FF5C14A66BCB07 /* Debug */,
+				05AA31CF564B583AB77E04CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8B25896152D550E3853F9F69 /* Project object */;
+}

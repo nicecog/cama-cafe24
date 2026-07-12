@@ -7,12 +7,14 @@
 ```
 cama-tablet/
 ├── android/          # Kotlin 네이티브 (WebView + BLE GATT 서버 + 브릿지)
-└── web/              # React/Vite SPA → APK assets에 번들
+├── ios/              # Swift 네이티브 (WKWebView + BLE Peripheral + 브릿지) — iPad
+└── web/              # React/Vite SPA → Android assets / iOS Resources에 번들
 ```
 
 | 레이어 | 역할 |
 |--------|------|
 | **android** | WebView 호스트, BLE Peripheral(GATT 서버), QR 식별정보 생성, JS 브릿지 |
+| **ios** | WKWebView 호스트, BLE Peripheral(`CBPeripheralManager`), 동일 JS 브릿지 (iPad) |
 | **web** | 홈(QR 생성), 대기(QR 표시), 대시보드(걸음수·심박·문의 차트) |
 
 기존 `cama-tablet-android` / `cama-tablet-web` / `cama-tablet-server`(서버 기반 QR **스캔**)와 달리, 이 앱은:
@@ -23,22 +25,32 @@ cama-tablet/
 
 ## 빌드
 
-### 1. 웹앱 → Android assets
+### 1. 웹앱 → Android assets + iOS Resources
 
 ```bash
-cd cama-tablet/web
-npm install
-npm run build
-# 출력: cama-tablet/android/app/src/main/assets/www/
+cd cama-tablet
+./scripts/build-web.sh
+# 출력: android/app/src/main/assets/www/ 및 ios/CamaTablet/Resources/www/
 ```
 
-### 2. APK
+### 2. Android APK
 
 ```bash
 cd cama-tablet/android
 ./gradlew assembleDebug
 # APK: app/build/outputs/apk/debug/app-debug.apk
 ```
+
+### 3. iOS (iPad)
+
+```bash
+open cama-tablet/ios/CamaTablet.xcodeproj
+# 또는
+cd cama-tablet/ios
+xcodebuild -scheme CamaTablet -destination 'platform=iOS Simulator,name=iPad Pro 13-inch (M5)' build
+```
+
+상세: [ios/README.md](ios/README.md)
 
 ### 브라우저 개발 (UI만)
 

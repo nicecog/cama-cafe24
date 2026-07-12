@@ -153,7 +153,11 @@ class BleGattServerManager(
     }
 
     fun start(): Boolean {
-        if (isRunning) return true
+        // 홈→재진입 등 isRunning=true여도 QR 이벤트를 다시 보내야 웹이 멈춤
+        if (isRunning) {
+            CamaTabletLog.ble("start while already running — restart session")
+            stop()
+        }
         val bt = adapter
         if (bt == null || !bt.isEnabled) {
             listener.onError("블루투스가 꺼져 있습니다. 설정에서 켜 주세요.")

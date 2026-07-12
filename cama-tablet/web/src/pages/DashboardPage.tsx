@@ -54,6 +54,7 @@ export default function DashboardPage() {
           <button type="button" className="dashboard-btn dashboard-btn--primary" onClick={handleNewSession}>
             새 QR 연결
           </button>
+          {/* Android 동일: 홈은 라우팅만. BLE는 유지(재QR 시 native start가 세션/QR 재발급) */}
           <button type="button" className="dashboard-btn" onClick={() => navigate("/")}>
             홈
           </button>

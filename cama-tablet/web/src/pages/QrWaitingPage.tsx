@@ -23,17 +23,7 @@ export default function QrWaitingPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // 새 세션: 이전 폴링 잔여 데이터가 있으면 대시보드로 튕기지 않도록 한 번 더 비움
-    clearPersistedHealthData();
-    requestGenerateQr();
-
-    const poll = window.setInterval(() => {
-      const data = readNativeLastHealthData();
-      if (data) {
-        navigate("/dashboard", { state: { data }, replace: true });
-      }
-    }, 1500);
-
+    // 리스너를 먼저 등록한 뒤 generateQr — 동기 emit 유실 방지
     const unsubscribe = onNativeEvent((detail) => {
       switch (detail.type) {
         case "bleSessionStarted": {
@@ -70,6 +60,17 @@ export default function QrWaitingPage() {
           break;
       }
     });
+
+    // 새 세션: 이전 폴링 잔여 데이터가 있으면 대시보드로 튕기지 않도록 한 번 더 비움
+    clearPersistedHealthData();
+    requestGenerateQr();
+
+    const poll = window.setInterval(() => {
+      const data = readNativeLastHealthData();
+      if (data) {
+        navigate("/dashboard", { state: { data }, replace: true });
+      }
+    }, 1500);
 
     return () => {
       window.clearInterval(poll);
