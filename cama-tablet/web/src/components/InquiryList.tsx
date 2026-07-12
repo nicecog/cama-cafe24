@@ -21,9 +21,9 @@ export default function InquiryList({ items }: Props) {
           <div style={{ fontSize: 13, color: "#94a3b8", marginTop: 6, lineHeight: 1.5 }}>
             {q.preview}
           </div>
-          {q.updatedAt && (
+          {(q.createdAt || q.updatedAt) && (
             <div style={{ fontSize: 12, color: "#64748b", marginTop: 6 }}>
-              {q.updatedAt}
+              작성일 {q.createdAt || q.updatedAt}
             </div>
           )}
         </li>

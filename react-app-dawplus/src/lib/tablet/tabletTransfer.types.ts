@@ -17,6 +17,8 @@ export type TabletInquiryItem = {
   id?: string;
   title: string;
   preview: string;
+  /** 작성일 (yyyy-MM-dd 또는 yyyy-MM-dd HH:mm:ss) */
+  createdAt?: string;
   updatedAt: string;
   status?: "pending" | "answered" | "closed";
 };

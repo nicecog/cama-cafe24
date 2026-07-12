@@ -2,8 +2,10 @@ import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  clearPersistedHealthData,
   isNativeApp,
   onNativeEvent,
+  readNativeLastHealthData,
   requestGenerateQr,
   requestStopBle,
   simulateHealthData,
@@ -21,10 +23,18 @@ export default function QrWaitingPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // 페이지 진입 시 BLE 세션 시작 (홈에서 이미 호출했어도 재시도)
+    // 새 세션: 이전 폴링 잔여 데이터가 있으면 대시보드로 튕기지 않도록 한 번 더 비움
+    clearPersistedHealthData();
     requestGenerateQr();
 
-    return onNativeEvent((detail) => {
+    const poll = window.setInterval(() => {
+      const data = readNativeLastHealthData();
+      if (data) {
+        navigate("/dashboard", { state: { data }, replace: true });
+      }
+    }, 1500);
+
+    const unsubscribe = onNativeEvent((detail) => {
       switch (detail.type) {
         case "bleSessionStarted": {
           const raw = detail.payload.qrPayload;
@@ -47,7 +57,10 @@ export default function QrWaitingPage() {
           setConnectedName(null);
           break;
         case "healthDataReceived":
-          navigate("/dashboard", { state: { data: detail.payload as HealthDataPayload } });
+          navigate("/dashboard", {
+            state: { data: detail.payload as HealthDataPayload },
+            replace: true,
+          });
           break;
         case "bleError":
           setStatus("error");
@@ -57,6 +70,11 @@ export default function QrWaitingPage() {
           break;
       }
     });
+
+    return () => {
+      window.clearInterval(poll);
+      unsubscribe();
+    };
   }, [navigate]);
 
   const handleCancel = () => {

@@ -5,6 +5,7 @@ import {
   Bell,
   ChevronRight,
   FileText,
+  MessageSquareText,
   Plus,
   Shield,
   TabletSmartphone,
@@ -47,6 +48,11 @@ export function MyPageMainContent({ className }: MyPageMainContentProps) {
       icon: Shield,
       label: "개인정보 처리방침",
       to: "/mypage/privacy" as const,
+    },
+    {
+      icon: MessageSquareText,
+      label: "진찰시 문의사항",
+      to: "/mypage/consultation-inquiry" as const,
     },
     {
       icon: TabletSmartphone,

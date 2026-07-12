@@ -121,6 +121,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/webview/hospital/**").permitAll()
                         .requestMatchers("/api/webview/schedule/**").permitAll()
                         .requestMatchers("/api/webview/notification/**").permitAll()
+                        .requestMatchers("/api/webview/consultation-inquiry/**").permitAll()
                         .requestMatchers("/api/webview/common/**").permitAll()
                         .requestMatchers("/api/account/general/**").permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/account/patient/find/login-id", "POST")).permitAll()

@@ -9,4 +9,5 @@ export * from "./useCoachingQueries";
 export * from "./useContentsQueries";
 export * from "./useNotificationQueries";
 export * from "./useScheduleQueries";
+export * from "./useConsultationInquiryQueries";
 export * from "./useTrackQueries";

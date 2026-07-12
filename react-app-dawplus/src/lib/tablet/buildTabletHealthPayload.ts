@@ -1,5 +1,8 @@
 import { format } from "date-fns";
-import type { WebviewNotification, WebviewStepInfo } from "@/apis/types";
+import type {
+  WebviewConsultationInquiry,
+  WebviewStepInfo,
+} from "@/apis/types";
 import type { TabletHealthDataPayload } from "./tabletTransfer.types";
 
 type BuildPayloadInput = {
@@ -7,8 +10,19 @@ type BuildPayloadInput = {
   patientId?: string | number;
   todaySteps?: number | null;
   stepHistory?: WebviewStepInfo[];
-  notifications?: WebviewNotification[];
+  /** 미전송(transmitted=false) 진찰시 문의사항만 전달 */
+  inquiries?: WebviewConsultationInquiry[];
 };
+
+function formatInquiryDate(value?: string) {
+  if (!value) return "";
+  const datePart = value.split(" ")[0];
+  try {
+    return format(new Date(datePart), "yyyy-MM-dd");
+  } catch {
+    return datePart;
+  }
+}
 
 export function buildTabletHealthPayload(
   input: BuildPayloadInput,
@@ -24,13 +38,21 @@ export function buildTabletHealthPayload(
     steps: row.stepNum,
   }));
 
-  const inquiries = (input.notifications ?? []).slice(0, 10).map((n) => ({
-    id: String(n.seq),
-    title: n.message.slice(0, 40),
-    preview: n.message,
-    updatedAt: n.createdAt.split(" ")[0],
-    status: "pending" as const,
-  }));
+  const pendingInquiries = (input.inquiries ?? []).filter(
+    (item) => !item.transmitted,
+  );
+
+  const inquiries = pendingInquiries.map((item) => {
+    const createdAt = formatInquiryDate(item.createdAt);
+    return {
+      id: String(item.seq),
+      title: item.title,
+      preview: item.content,
+      createdAt,
+      updatedAt: createdAt,
+      status: "pending" as const,
+    };
+  });
 
   const periodFrom = sortedSteps[0]?.executionDate?.split(" ")[0];
   const periodTo = sortedSteps[sortedSteps.length - 1]?.executionDate?.split(

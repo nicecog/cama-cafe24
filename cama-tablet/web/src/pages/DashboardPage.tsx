@@ -3,13 +3,15 @@ import { useLocation, useNavigate } from "react-router-dom";
 import HealthTab from "../components/HealthTab";
 import InquiryTab from "../components/InquiryTab";
 import TabBar from "../components/TabBar";
-import { requestGenerateQr, requestStopBle } from "../lib/nativeBridge";
+import { requestStopBle, loadPersistedHealthData, clearPersistedHealthData } from "../lib/nativeBridge";
 import type { DashboardTab, HealthDataPayload } from "../types/healthData";
 
 export default function DashboardPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const data = (location.state as { data?: HealthDataPayload })?.data;
+  const data =
+    (location.state as { data?: HealthDataPayload })?.data ??
+    loadPersistedHealthData();
   const [activeTab, setActiveTab] = useState<DashboardTab>("health");
 
   if (!data) {
@@ -26,9 +28,11 @@ export default function DashboardPage() {
   const inquiryCount = data.inquiries?.length ?? 0;
 
   const handleNewSession = () => {
+    // 이전 수신 데이터 초기화 후 QR 대기 화면으로 이동
+    // (데이터 미초기화 시 QrWaitingPage 폴링이 즉시 대시보드로 되돌림)
+    clearPersistedHealthData();
     requestStopBle();
-    requestGenerateQr();
-    navigate("/qr");
+    navigate("/qr", { replace: true });
   };
 
   return (

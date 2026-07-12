@@ -17,6 +17,8 @@ export type InquiryItem = {
   id?: string;
   title: string;
   preview: string;
+  /** 작성일 */
+  createdAt?: string;
   updatedAt: string;
   status?: InquiryStatus;
 };

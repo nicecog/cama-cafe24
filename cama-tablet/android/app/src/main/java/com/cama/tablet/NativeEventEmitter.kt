@@ -13,11 +13,19 @@ class NativeEventEmitter(private val webViewProvider: () -> WebView) {
         if (payload != null) json.put("payload", payload)
         if (error != null) json.put("error", error)
 
+        val jsonLen = json.toString().length
+        CamaTabletLog.bridge("emit type=$type ok=$ok jsonLen=$jsonLen error=$error")
+
+        val quoted = JSONObject.quote(json.toString())
         val script =
-            "(function(){window.dispatchEvent(new CustomEvent('cama-tablet-native',{detail:$json}));})();"
+            "(function(){try{var d=JSON.parse($quoted);" +
+            "window.dispatchEvent(new CustomEvent('cama-tablet-native',{detail:d}));" +
+            "return 'ok';}catch(e){console.error('cama-tablet-native emit failed',e);return 'err:'+e;}})();"
 
         webViewProvider().post {
-            webViewProvider().evaluateJavascript(script, null)
+            webViewProvider().evaluateJavascript(script) { result ->
+                CamaTabletLog.bridge("emit $type evaluateJs result=$result")
+            }
         }
     }
 
@@ -28,8 +36,14 @@ class NativeEventEmitter(private val webViewProvider: () -> WebView) {
     }
 
     fun emitHealthData(json: String) {
-        val payload = JSONObject(json)
-        emit("healthDataReceived", ok = true, payload = payload)
+        CamaTabletLog.bridge("emitHealthData rawLen=${json.length} preview=${json.take(120)}")
+        try {
+            val payload = JSONObject(json)
+            emit("healthDataReceived", ok = true, payload = payload)
+        } catch (e: Exception) {
+            CamaTabletLog.e("emitHealthData JSON parse failed", e)
+            emitError("수신 데이터 파싱 실패: ${e.message}")
+        }
     }
 
     fun emitConnected(deviceName: String?) {
@@ -43,6 +57,7 @@ class NativeEventEmitter(private val webViewProvider: () -> WebView) {
     }
 
     fun emitError(message: String) {
+        CamaTabletLog.w("emitError: $message")
         emit("bleError", ok = false, error = message)
     }
 }

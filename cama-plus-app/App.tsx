@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  AppState,
   BackHandler,
   Platform,
   Pressable,
@@ -27,6 +28,35 @@ function App() {
   const [canGoBack, setCanGoBack] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const appStateRef = useRef(AppState.currentState);
+
+  const recoverBlankWebView = useCallback(() => {
+    webViewRef.current?.injectJavaScript(`
+      (function () {
+        try {
+          var root = document.getElementById('root');
+          var empty =
+            !document.body ||
+            document.body.childElementCount === 0 ||
+            (root && root.childElementCount === 0);
+          if (empty) {
+            window.location.reload();
+            return 'reload';
+          }
+          return 'ok';
+        } catch (e) {
+          window.location.reload();
+          return 'reload-error';
+        }
+      })();
+      true;
+    `);
+  }, []);
+
+  const forceReloadWebView = useCallback(() => {
+    setHasError(false);
+    setReloadKey(current => current + 1);
+  }, []);
 
   const onWebViewMessage = useMemo(
     () => createWebViewMessageHandler(webViewRef),
@@ -41,6 +71,22 @@ function App() {
   useEffect(() => {
     Promise.resolve(RNBootSplash.hide({fade: true})).catch(() => undefined);
   }, []);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextState => {
+      const wasBackground =
+        appStateRef.current === 'background' ||
+        appStateRef.current === 'inactive';
+      appStateRef.current = nextState;
+
+      if (wasBackground && nextState === 'active') {
+        // 절전/백그라운드 복귀 시 WebView 렌더러가 하얀 화면이 되는 경우 복구
+        recoverBlankWebView();
+      }
+    });
+
+    return () => subscription.remove();
+  }, [recoverBlankWebView]);
 
   useEffect(() => {
     if (Platform.OS !== 'android') {
@@ -75,9 +121,8 @@ function App() {
   }, []);
 
   const handleRetry = useCallback(() => {
-    setHasError(false);
-    setReloadKey(current => current + 1);
-  }, []);
+    forceReloadWebView();
+  }, [forceReloadWebView]);
 
   return (
     <SafeAreaProvider>
@@ -91,6 +136,10 @@ function App() {
             source={{ uri: WEBVIEW_URL }}
             javaScriptEnabled
             domStorageEnabled
+            sharedCookiesEnabled
+            thirdPartyCookiesEnabled
+            cacheEnabled
+            androidLayerType="hardware"
             startInLoadingState
             injectedJavaScript={injectedJavaScript}
             onMessage={onWebViewMessage}
@@ -102,8 +151,11 @@ function App() {
               setCanGoBack(state.canGoBack);
             }}
             onRenderProcessGone={() => {
-              setReloadKey(current => current + 1);
+              forceReloadWebView();
               return true;
+            }}
+            onContentProcessDidTerminate={() => {
+              forceReloadWebView();
             }}
             renderLoading={() => (
               <View style={styles.centered}>

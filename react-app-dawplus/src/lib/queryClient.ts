@@ -246,5 +246,11 @@ export const queryKeys = {
       monthly: (monthly: string, acSeq: string | number) =>
         ["webview", "schedule", "monthly", monthly, acSeq] as const,
     },
+    // Consultation inquiry
+    consultationInquiry: {
+      all: ["webview", "consultationInquiry"] as const,
+      list: (acSeq: string | number) =>
+        ["webview", "consultationInquiry", "list", String(acSeq)] as const,
+    },
   },
 } as const;

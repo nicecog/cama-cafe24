@@ -1,6 +1,7 @@
 /** Android WebView ↔ React 브릿지 (cama-tablet 오프라인 앱) */
 
 import type { NativeEventDetail } from "../types/healthData";
+import type { HealthDataPayload } from "../types/healthData";
 import { generateMockHealthData } from "./mockHealthData";
 
 declare global {
@@ -8,11 +9,56 @@ declare global {
     CamaTabletBridge?: {
       generateQr: () => void;
       stopBleSession: () => void;
+      clearLastHealthData?: () => void;
       getCapabilities: () => string;
       getBridgeVersion: () => number;
+      getLastHealthData?: () => string;
     };
     AndroidBridge?: Window["CamaTabletBridge"];
     __CAMA_TABLET_BRIDGE__?: boolean;
+  }
+}
+
+const HEALTH_STORAGE_KEY = "cama-tablet-health-data";
+
+export function persistHealthData(data: HealthDataPayload): void {
+  try {
+    sessionStorage.setItem(HEALTH_STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    /* ignore quota errors */
+  }
+}
+
+export function clearPersistedHealthData(): void {
+  try {
+    sessionStorage.removeItem(HEALTH_STORAGE_KEY);
+  } catch {
+    /* ignore */
+  }
+  const bridge = window.AndroidBridge ?? window.CamaTabletBridge;
+  bridge?.clearLastHealthData?.();
+}
+
+export function loadPersistedHealthData(): HealthDataPayload | null {
+  try {
+    const raw = sessionStorage.getItem(HEALTH_STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as HealthDataPayload;
+  } catch {
+    return null;
+  }
+}
+
+export function readNativeLastHealthData(): HealthDataPayload | null {
+  const bridge = window.AndroidBridge ?? window.CamaTabletBridge;
+  const raw = bridge?.getLastHealthData?.();
+  if (!raw) return null;
+  try {
+    const data = JSON.parse(raw) as HealthDataPayload;
+    persistHealthData(data);
+    return data;
+  } catch {
+    return null;
   }
 }
 

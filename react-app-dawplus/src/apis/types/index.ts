@@ -73,6 +73,8 @@ export type {
   WebviewCareTrackAppliedInfo,
   WebviewCareTrackDone,
   WebviewCareTrackInfo,
+  WebviewConsultationInquiry,
+  ConsultationInquiryFormParams,
   WebviewCoachingProgress,
   WebviewContentItem,
   WebviewExerciseContentItem,

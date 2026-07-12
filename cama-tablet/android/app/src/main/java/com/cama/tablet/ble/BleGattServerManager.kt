@@ -18,6 +18,8 @@ import android.content.Context
 import android.os.Build
 import android.os.ParcelUuid
 import android.util.Log
+import com.cama.tablet.CamaTabletLog
+import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 
 /**
@@ -46,11 +48,22 @@ class BleGattServerManager(
     private var statusCharacteristic: BluetoothGattCharacteristic? = null
     private var connectedDevice: BluetoothDevice? = null
     private var isRunning = false
+    private var pendingAdvertise = false
+    private var healthService: BluetoothGattService? = null
 
-    private val writeBuffer = StringBuilder()
+    private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
+
+    private val writeBuffer = ByteArrayOutputStream()
+
+    private fun resetWriteBuffer() {
+        writeBuffer.reset()
+    }
 
     private val gattCallback = object : BluetoothGattServerCallback() {
         override fun onConnectionStateChange(device: BluetoothDevice, status: Int, newState: Int) {
+            CamaTabletLog.ble(
+                "onConnectionStateChange status=$status newState=$newState device=${device.address}",
+            )
             when (newState) {
                 BluetoothProfile.STATE_CONNECTED -> {
                     connectedDevice = device
@@ -68,8 +81,17 @@ class BleGattServerManager(
                     notifyStatus("connected")
                 }
                 BluetoothProfile.STATE_DISCONNECTED -> {
+                    val pendingBytes = writeBuffer.size()
+                    if (pendingBytes > 0) {
+                        CamaTabletLog.w("[BLE] disconnected with pending bytes=$pendingBytes")
+                        if (!tryCompleteWrite()) {
+                            listener.onError(
+                                "데이터 수신 불완전 ($pendingBytes bytes). QR 화면 유지 후 다시 전송해 주세요.",
+                            )
+                        }
+                    }
                     connectedDevice = null
-                    writeBuffer.clear()
+                    resetWriteBuffer()
                     listener.onDeviceDisconnected()
                     notifyStatus("waiting")
                 }
@@ -85,21 +107,25 @@ class BleGattServerManager(
             offset: Int,
             value: ByteArray,
         ) {
-            if (characteristic.uuid != BleConstants.HEALTH_DATA_CHAR_UUID) return
-
-            val chunk = String(value, StandardCharsets.UTF_8)
-            writeBuffer.append(chunk)
-
-            // JSON 완성 여부 확인 (단순히 '}' 로 끝나면 완료로 간주)
-            val accumulated = writeBuffer.toString().trim()
-            if (accumulated.endsWith("}")) {
-                listener.onHealthDataReceived(accumulated)
-                writeBuffer.clear()
-                notifyStatus("data_received")
+            if (characteristic.uuid != BleConstants.HEALTH_DATA_CHAR_UUID) {
+                CamaTabletLog.w("[BLE] write to unknown char ${characteristic.uuid}")
+                return
             }
 
+            // 바이트 단위 누적 — 청크마다 UTF-8 String 변환 시 한글 멀티바이트가 깨짐
+            CamaTabletLog.ble(
+                "onWrite offset=$offset len=${value.size} responseNeeded=$responseNeeded " +
+                    "preparedWrite=$preparedWrite bufferBefore=${writeBuffer.size()}",
+            )
+            writeBuffer.write(value)
+            CamaTabletLog.ble("bufferAfter=${writeBuffer.size()}")
+            tryCompleteWrite()
+
             if (responseNeeded) {
-                gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, value)
+                val sent = gattServer?.sendResponse(
+                    device, requestId, BluetoothGatt.GATT_SUCCESS, 0, value,
+                )
+                CamaTabletLog.ble("sendResponse requestId=$requestId sent=$sent")
             }
         }
     }
@@ -107,10 +133,22 @@ class BleGattServerManager(
     private val advertiseCallback = object : AdvertiseCallback() {
         override fun onStartSuccess(settingsInEffect: AdvertiseSettings?) {
             Log.i(tag, "BLE advertising started")
+            CamaTabletLog.ble("advertising started")
+            pendingAdvertise = false
         }
 
         override fun onStartFailure(errorCode: Int) {
-            listener.onError("BLE 광고 시작 실패 (code=$errorCode)")
+            pendingAdvertise = false
+            val reason = when (errorCode) {
+                ADVERTISE_FAILED_DATA_TOO_LARGE -> "광고 데이터가 너무 큽니다"
+                ADVERTISE_FAILED_TOO_MANY_ADVERTISERS -> "BLE 광고 슬롯이 가득 찼습니다"
+                ADVERTISE_FAILED_ALREADY_STARTED -> "BLE 광고가 이미 실행 중입니다"
+                ADVERTISE_FAILED_INTERNAL_ERROR -> "BLE 내부 오류"
+                ADVERTISE_FAILED_FEATURE_UNSUPPORTED -> "BLE 광고 미지원"
+                else -> "code=$errorCode"
+            }
+            Log.e(tag, "BLE advertising failed: $reason")
+            listener.onError("BLE 광고 시작 실패 ($reason)")
         }
     }
 
@@ -153,6 +191,7 @@ class BleGattServerManager(
 
         service.addCharacteristic(healthChar)
         service.addCharacteristic(statusChar)
+        healthService = service
         gattServer?.addService(service)
 
         advertiser = bt.bluetoothLeAdvertiser
@@ -162,18 +201,9 @@ class BleGattServerManager(
             return false
         }
 
-        val settings = AdvertiseSettings.Builder()
-            .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
-            .setConnectable(true)
-            .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
-            .build()
-
-        val data = AdvertiseData.Builder()
-            .setIncludeDeviceName(true)
-            .addServiceUuid(ParcelUuid(BleConstants.SERVICE_UUID))
-            .build()
-
-        advertiser?.startAdvertising(settings, data, advertiseCallback)
+        // addService()는 비동기 — 서비스 등록 완료 후 광고 시작
+        pendingAdvertise = true
+        mainHandler.postDelayed({ startAdvertisingIfReady() }, 300)
 
         isRunning = true
         val qrPayload = TabletDeviceInfo.from(context).toQrPayloadJson()
@@ -181,10 +211,45 @@ class BleGattServerManager(
         return true
     }
 
+    private fun startAdvertisingIfReady() {
+        if (!isRunning || !pendingAdvertise) return
+
+        val service = healthService
+        val adv = advertiser
+        if (service == null || adv == null) {
+            listener.onError("BLE 광고를 시작할 수 없습니다.")
+            return
+        }
+
+        val settings = AdvertiseSettings.Builder()
+            .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+            .setConnectable(true)
+            .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+            .build()
+
+        // 기기명(Galaxy Tab A …) + 128bit UUID 합치면 31byte 초과 → DATA_TOO_LARGE
+        // 폰 앱은 serviceUuid 필터로 스캔하므로 광고 패킷에 기기명 포함하지 않음
+        val data = AdvertiseData.Builder()
+            .setIncludeDeviceName(false)
+            .addServiceUuid(ParcelUuid(BleConstants.SERVICE_UUID))
+            .build()
+
+        try {
+            adv.startAdvertising(settings, data, advertiseCallback)
+        } catch (e: SecurityException) {
+            pendingAdvertise = false
+            Log.e(tag, "startAdvertising SecurityException", e)
+            listener.onError("블루투스 권한이 필요합니다.")
+        }
+    }
+
     fun stop() {
         isRunning = false
-        writeBuffer.clear()
+        pendingAdvertise = false
+        resetWriteBuffer()
         connectedDevice = null
+        healthService = null
+        mainHandler.removeCallbacksAndMessages(null)
 
         try {
             advertiser?.stopAdvertising(advertiseCallback)
@@ -199,6 +264,28 @@ class BleGattServerManager(
     }
 
     fun isActive(): Boolean = isRunning
+
+    /** @return true if complete JSON was delivered to listener */
+    private fun tryCompleteWrite(): Boolean {
+        val bytes = writeBuffer.toByteArray()
+        if (bytes.isEmpty()) return false
+        val accumulated = String(bytes, StandardCharsets.UTF_8).trim()
+        if (accumulated.isEmpty()) return false
+        return try {
+            org.json.JSONObject(accumulated)
+            CamaTabletLog.ble("JSON complete bytes=${bytes.size} chars=${accumulated.length}")
+            Log.i(tag, "Health data received (${bytes.size} bytes)")
+            listener.onHealthDataReceived(accumulated)
+            resetWriteBuffer()
+            notifyStatus("data_received")
+            true
+        } catch (e: org.json.JSONException) {
+            CamaTabletLog.d(
+                "[BLE] JSON incomplete bytes=${bytes.size} chars=${accumulated.length}: ${e.message}",
+            )
+            false
+        }
+    }
 
     private fun notifyStatus(status: String) {
         val char = statusCharacteristic ?: return

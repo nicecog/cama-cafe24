@@ -237,6 +237,16 @@ public class GeneralExceptionHandler {
         return createResponse("스케쥴 상세 일정 정보를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ConsultationInquiryNotFoundException.class)
+    public ResponseEntity<?> handleConsultationInquiryNotFoundException(ConsultationInquiryNotFoundException e) {
+        return createResponse("진찰시 문의사항을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConsultationInquiryLimitExceededException.class)
+    public ResponseEntity<?> handleConsultationInquiryLimitExceededException(ConsultationInquiryLimitExceededException e) {
+        return createResponse("미전송 문의사항은 최대 5개까지 등록할 수 있습니다.", HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(AlreadyTrackServiceException.class)
     public ResponseEntity<?> handleAlreadyTrackServiceException(AlreadyTrackServiceException e) {
         return createResponse("이미 신청한 트랙 서비스가 있습니다.", HttpStatus.BAD_REQUEST);

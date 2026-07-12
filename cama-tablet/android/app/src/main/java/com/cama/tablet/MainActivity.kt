@@ -7,14 +7,17 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.webkit.ConsoleMessage
 import android.webkit.WebChromeClient
-import android.webkit.WebSettings
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.webkit.WebViewAssetLoader
 import com.cama.tablet.ble.BleGattServerManager
 import com.cama.tablet.ble.TabletDeviceInfo
 import org.json.JSONObject
@@ -24,6 +27,7 @@ class MainActivity : AppCompatActivity(), BleGattServerManager.Listener {
     private lateinit var webView: WebView
     private lateinit var emitter: NativeEventEmitter
     private var bleManager: BleGattServerManager? = null
+    private var lastHealthDataJson: String? = null
 
     private val blePermissions = buildList {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -67,29 +71,58 @@ class MainActivity : AppCompatActivity(), BleGattServerManager.Listener {
         webView.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
-            allowFileAccess = true
+            allowFileAccess = false
             allowContentAccess = true
             mediaPlaybackRequiresUserGesture = false
         }
-        webView.webChromeClient = WebChromeClient()
+        webView.webChromeClient = object : WebChromeClient() {
+            override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
+                consoleMessage?.let {
+                    CamaTabletLog.web(
+                        "[${it.messageLevel()}] ${it.message()} " +
+                            "(${it.sourceId()}:${it.lineNumber()})",
+                    )
+                }
+                return super.onConsoleMessage(consoleMessage)
+            }
+        }
+
+        // file:// 로드 시 ES module/CORS 차단(최신 WebView) → https 가상 도메인으로 assets 제공
+        val assetLoader = WebViewAssetLoader.Builder()
+            .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this))
+            .build()
+
         webView.webViewClient = object : WebViewClient() {
+            override fun shouldInterceptRequest(
+                view: WebView,
+                request: WebResourceRequest,
+            ): WebResourceResponse? {
+                return assetLoader.shouldInterceptRequest(request.url)
+            }
+
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                // 브릿지 준비 완료 신호
                 emitter.emit("bridgeReady", ok = true)
+                // WebView 리로드·이벤트 유실 시 마지막 수신 데이터 재전달
+                lastHealthDataJson?.let { emitter.emitHealthData(it) }
             }
         }
 
         val bridge = WebAppBridge(
             onGenerateQr = { requestBlePermissionsAndStart() },
             onStopBle = { stopBleSession() },
+            onClearHealthData = {
+                lastHealthDataJson = null
+                CamaTabletLog.i("lastHealthData cleared for new QR session")
+            },
             onGetCapabilities = { buildCapabilities() },
+            onGetLastHealthData = { lastHealthDataJson },
         )
         webView.addJavascriptInterface(bridge, "AndroidBridge")
         webView.addJavascriptInterface(bridge, "CamaTabletBridge")
 
-        // 오프라인: APK assets에 번들된 웹앱 로드
-        webView.loadUrl("file:///android_asset/www/index.html")
+        // 오프라인: APK assets에 번들된 웹앱 로드 (WebViewAssetLoader 경유)
+        webView.loadUrl("https://appassets.androidplatform.net/assets/www/index.html")
     }
 
     private fun buildCapabilities(): JSONObject {
@@ -97,7 +130,7 @@ class MainActivity : AppCompatActivity(), BleGattServerManager.Listener {
         caps.put("offline", true)
         caps.put("blePeripheral", true)
         caps.put("qrGenerate", true)
-        caps.put("bridgeVersion", 1)
+        caps.put("bridgeVersion", 2)
         caps.put("deviceInfo", JSONObject(TabletDeviceInfo.from(this).toQrPayloadJson()))
         return caps
     }
@@ -138,22 +171,28 @@ class MainActivity : AppCompatActivity(), BleGattServerManager.Listener {
     // --- BleGattServerManager.Listener ---
 
     override fun onSessionStarted(qrPayload: String) {
+        CamaTabletLog.i("onSessionStarted qrLen=${qrPayload.length}")
         emitter.emitQrStarted(qrPayload)
     }
 
     override fun onDeviceConnected(deviceName: String?) {
+        CamaTabletLog.i("onDeviceConnected name=$deviceName")
         emitter.emitConnected(deviceName)
     }
 
     override fun onDeviceDisconnected() {
+        CamaTabletLog.i("onDeviceDisconnected")
         emitter.emitDisconnected()
     }
 
     override fun onHealthDataReceived(json: String) {
+        CamaTabletLog.i("onHealthDataReceived len=${json.length}")
+        lastHealthDataJson = json
         emitter.emitHealthData(json)
     }
 
     override fun onError(message: String) {
+        CamaTabletLog.e("onError: $message")
         emitter.emitError(message)
     }
 

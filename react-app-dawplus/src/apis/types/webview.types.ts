@@ -361,3 +361,22 @@ export interface WebviewStepSaveParams {
   executionDate: string; // "2026-01-11" 형식
   stepNum: number;
 }
+
+/**
+ * 진찰시 문의사항
+ */
+export interface WebviewConsultationInquiry {
+  seq: number;
+  accountSeq: number;
+  title: string;
+  content: string;
+  transmitted: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ConsultationInquiryFormParams {
+  acSeq: string | number;
+  title: string;
+  content: string;
+}

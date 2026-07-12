@@ -10,11 +10,13 @@ import {
   TabletSmartphone,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { getConsultationInquiries } from "@/apis/api/webview/consultationInquiry";
 import { fetchCareTrackStepList } from "@/apis/api/webview/track";
 import { accountMeAtom } from "@/atoms/accountAtoms";
 import { Button } from "@/components/ui/Button";
 import { MypageSubPageLayout } from "@/components/mypage/MypageSubPageLayout";
-import { useRecentNotifications } from "@/hooks/queries";
+import { useMarkConsultationInquiriesTransmitted } from "@/hooks/mutations/webview";
+import { useConsultationInquiries } from "@/hooks/queries/webview";
 import { useCareTrackStepList } from "@/hooks/queries/webview/useTrackQueries";
 import { syncTodaySteps } from "@/lib/health/syncTodaySteps";
 import { buildTabletHealthPayload } from "@/lib/tablet/buildTabletHealthPayload";
@@ -42,7 +44,11 @@ export function DoctorTransferPage() {
     String(account?.seq ?? ""),
     !!account?.seq,
   );
-  const { data: notifications } = useRecentNotifications(account?.seq);
+  const { data: consultationInquiries } = useConsultationInquiries(
+    String(account?.seq ?? ""),
+    !!account?.seq,
+  );
+  const markTransmitted = useMarkConsultationInquiriesTransmitted();
 
   const [step, setStep] = useState<Step>("intro");
   const [qrPayload, setQrPayload] = useState<TabletQrPayload | null>(null);
@@ -51,6 +57,11 @@ export function DoctorTransferPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const inApp = isReactNativeWebView();
+
+  const pendingInquiries = useMemo(
+    () => (consultationInquiries ?? []).filter((item) => !item.transmitted),
+    [consultationInquiries],
+  );
 
   const previewJson = useMemo(() => {
     if (!healthPreview) return "";
@@ -97,7 +108,7 @@ export function DoctorTransferPage() {
       patientId: account?.seq,
       todaySteps: steps,
       stepHistory: stepHistory ?? undefined,
-      notifications: notifications ?? undefined,
+      inquiries: pendingInquiries,
     });
     setQrPayload(parsed);
     setHealthPreview(payload);
@@ -112,18 +123,27 @@ export function DoctorTransferPage() {
     await syncTodaySteps(account.seq);
 
     const accountSeq = String(account.seq);
-    const freshStepList = await queryClient.fetchQuery({
-      queryKey: queryKeys.webview.track.stepList(accountSeq),
-      queryFn: () => fetchCareTrackStepList(accountSeq),
-    });
+    const [freshStepList, freshInquiries] = await Promise.all([
+      queryClient.fetchQuery({
+        queryKey: queryKeys.webview.track.stepList(accountSeq),
+        queryFn: () => fetchCareTrackStepList(accountSeq),
+      }),
+      queryClient.fetchQuery({
+        queryKey: queryKeys.webview.consultationInquiry.list(accountSeq),
+        queryFn: () => getConsultationInquiries(accountSeq),
+      }),
+    ]);
     const freshSteps = await requestNativeStepCount();
+    const pendingToSend = (freshInquiries.response ?? []).filter(
+      (item) => !item.transmitted,
+    );
 
     const payload = buildTabletHealthPayload({
       patientName: account.name,
       patientId: account.seq,
       todaySteps: freshSteps,
       stepHistory: freshStepList.response ?? stepHistory ?? undefined,
-      notifications: notifications ?? undefined,
+      inquiries: pendingToSend,
     });
 
     const result = await requestNativeTabletHealthDataSend(qrPayload, payload);
@@ -136,6 +156,20 @@ export function DoctorTransferPage() {
       );
       setStep("error");
       return;
+    }
+
+    if (pendingToSend.length > 0) {
+      try {
+        await markTransmitted.mutateAsync({
+          acSeq: account.seq,
+          seqs: pendingToSend.map((item) => item.seq),
+        });
+      } catch {
+        // BLE 전송은 성공했으므로 전송완료 갱신 실패는 사용자에게 경고만 표시
+        setErrorMessage(
+          "자료는 전송되었으나 문의사항 전송여부 갱신에 실패했습니다. 문의사항 화면에서 확인해 주세요.",
+        );
+      }
     }
 
     setStep("done");
@@ -165,7 +199,9 @@ export function DoctorTransferPage() {
               <ol className="list-decimal space-y-1 pl-4 text-xs leading-relaxed">
                 <li>태블릿 앱에서 「QR 생성하기」를 눌러 QR을 표시합니다.</li>
                 <li>아래 버튼으로 QR을 스캔합니다.</li>
-                <li>전송할 자료를 확인한 뒤 블루투스로 보냅니다.</li>
+                <li>
+                  걸음수·미전송 문의사항을 확인한 뒤 블루투스로 보냅니다.
+                </li>
               </ol>
             </div>
           </div>
@@ -188,6 +224,13 @@ export function DoctorTransferPage() {
               <p className="text-xs font-medium text-gray-500">연결 대상</p>
               <p className="mt-1 font-semibold text-gray-900">
                 {qrPayload.deviceName}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-gray-200 bg-white p-4 text-sm">
+              <p className="text-xs font-medium text-gray-500">포함 문의사항</p>
+              <p className="mt-1 text-gray-900">
+                미전송 {healthPreview?.inquiries?.length ?? 0}건
               </p>
             </div>
 
@@ -241,6 +284,9 @@ export function DoctorTransferPage() {
               <p className="mt-1 text-sm text-gray-600">
                 태블릿 대시보드에서 자료를 확인하세요.
               </p>
+              {errorMessage ? (
+                <p className="mt-2 text-xs text-amber-700">{errorMessage}</p>
+              ) : null}
             </div>
             <Button type="button" variant="outline" onClick={handleReset}>
               다시 전송
