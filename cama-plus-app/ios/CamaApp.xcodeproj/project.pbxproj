@@ -24,10 +24,12 @@
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		99DC255978D34B7DB5B32171 /* Inter-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 903416C0E6E947CF8CA79301 /* Inter-ExtraBold.ttf */; };
 		A1B2C3D41A68108700A75B9B /* CamaNativeBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D41A68108700A75B9C /* CamaNativeBridge.m */; };
+		C4AA00121A68108700A75B9A /* SpeechRecognitionHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = C4AA00111A68108700A75B9A /* SpeechRecognitionHelper.m */; };
 		A945110250C94D43A11C90E3 /* Inter-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A8B447DE484F41CAA04E58D0 /* Inter-Thin.ttf */; };
 		C4AA00031A68108700A75B9A /* CamaStepCounter.m in Sources */ = {isa = PBXBuildFile; fileRef = C4AA00021A68108700A75B9A /* CamaStepCounter.m */; };
 		C4AA00051A68108700A75B9A /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C4AA00041A68108700A75B9A /* CoreMotion.framework */; };
 		C4AA00071A68108700A75B9A /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C4AA00081A68108700A75B9A /* HealthKit.framework */; };
+		C4AA00141A68108700A75B9A /* Speech.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C4AA00131A68108700A75B9A /* Speech.framework */; };
 		F1945EAC23BC473699AF315B /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 215635B46C3049888066BEBA /* Inter-SemiBold.ttf */; };
 /* End PBXBuildFile section */
 
@@ -75,6 +77,9 @@
 		C4AA00021A68108700A75B9A /* CamaStepCounter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CamaStepCounter.m; path = CamaApp/stepcounter/CamaStepCounter.m; sourceTree = "<group>"; };
 		C4AA00041A68108700A75B9A /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		C4AA00081A68108700A75B9A /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
+		C4AA00101A68108700A75B9A /* SpeechRecognitionHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SpeechRecognitionHelper.h; path = CamaApp/speech/SpeechRecognitionHelper.h; sourceTree = "<group>"; };
+		C4AA00111A68108700A75B9A /* SpeechRecognitionHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SpeechRecognitionHelper.m; path = CamaApp/speech/SpeechRecognitionHelper.m; sourceTree = "<group>"; };
+		C4AA00131A68108700A75B9A /* Speech.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Speech.framework; path = System/Library/Frameworks/Speech.framework; sourceTree = SDKROOT; };
 		E6D09A904AEC47DFB36E7D93 /* Inter-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Light.ttf"; path = "../src/assets/fonts/Inter-Light.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -95,6 +100,7 @@
 				0C80B921A6F3F58F76C31292 /* libPods-CamaApp.a in Frameworks */,
 				C4AA00051A68108700A75B9A /* CoreMotion.framework in Frameworks */,
 				C4AA00071A68108700A75B9A /* HealthKit.framework in Frameworks */,
+				C4AA00141A68108700A75B9A /* Speech.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -123,6 +129,7 @@
 			children = (
 				79A2FBB92AD18437004C25FC /* CamaApp.entitlements */,
 				C4AA00061A68108700A75B9A /* stepcounter */,
+				C4AA00151A68108700A75B9A /* speech */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -142,6 +149,7 @@
 			children = (
 				C4AA00041A68108700A75B9A /* CoreMotion.framework */,
 				C4AA00081A68108700A75B9A /* HealthKit.framework */,
+				C4AA00131A68108700A75B9A /* Speech.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				5DCACB8F33CDC322A6C60F78 /* libPods-CamaApp.a */,
 				19F6CBCC0A4E27FBF8BF4A61 /* libPods-CamaApp-CamaAppTests.a */,
@@ -199,6 +207,15 @@
 				C4AA00021A68108700A75B9A /* CamaStepCounter.m */,
 			);
 			name = stepcounter;
+			sourceTree = "<group>";
+		};
+		C4AA00151A68108700A75B9A /* speech */ = {
+			isa = PBXGroup;
+			children = (
+				C4AA00101A68108700A75B9A /* SpeechRecognitionHelper.h */,
+				C4AA00111A68108700A75B9A /* SpeechRecognitionHelper.m */,
+			);
+			name = speech;
 			sourceTree = "<group>";
 		};
 		CCC1844FEE38443B878E5CF1 /* Resources */ = {
@@ -509,6 +526,7 @@
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				A1B2C3D41A68108700A75B9B /* CamaNativeBridge.m in Sources */,
+				C4AA00121A68108700A75B9A /* SpeechRecognitionHelper.m in Sources */,
 				C4AA00031A68108700A75B9A /* CamaStepCounter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
