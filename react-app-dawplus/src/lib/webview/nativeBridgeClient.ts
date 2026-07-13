@@ -9,6 +9,7 @@ import type {
   LocationResult,
   NativeBridgeResponseBase,
   NativeBridgeResult,
+  SpeechRecognitionOptions,
   VitalReadingResult,
   VitalSamplesResult,
   VitalTypeCd,
@@ -201,6 +202,69 @@ export function requestNativeOpenHealthConnectSettings(timeoutMs = 10000): Promi
   >({ type: "openHealthConnectSettings" }, "healthConnectSettings", timeoutMs).then(
     (result) => result.ok,
   );
+}
+
+export async function checkNativeSpeechRecognitionAvailable(
+  timeoutMs = 8000,
+): Promise<{ available: boolean; implemented: boolean }> {
+  if (!isReactNativeWebView()) {
+    return { available: false, implemented: false };
+  }
+  const result = await requestBridge<
+    NativeBridgeResponseBase & {
+      type: "speechRecognition";
+      event?: string;
+      available?: boolean;
+      implemented?: boolean;
+    }
+  >({ type: "checkSpeechRecognitionAvailable" }, "speechRecognition", timeoutMs);
+
+  if (!result.ok) {
+    return { available: false, implemented: false };
+  }
+  return {
+    available: Boolean(result.data.available),
+    implemented: Boolean(result.data.implemented ?? true),
+  };
+}
+
+/** Starts STT and returns requestId for correlating cama-native events. */
+export function startNativeSpeechRecognition(
+  options: SpeechRecognitionOptions = {},
+): string | null {
+  if (!isReactNativeWebView()) {
+    return null;
+  }
+  const requestId = createRequestId("stt");
+  postMessageToNative({
+    type: "startSpeechRecognition",
+    requestId,
+    options: {
+      locale: options.locale ?? "ko-KR",
+      maxDurationMs: options.maxDurationMs ?? 60_000,
+      partialResults: options.partialResults ?? true,
+      prompt: options.prompt ?? "말씀해 주세요",
+    },
+  });
+  return requestId;
+}
+
+export function stopNativeSpeechRecognition(): string | null {
+  if (!isReactNativeWebView()) {
+    return null;
+  }
+  const requestId = createRequestId("stt-stop");
+  postMessageToNative({ type: "stopSpeechRecognition", requestId });
+  return requestId;
+}
+
+export function cancelNativeSpeechRecognition(): string | null {
+  if (!isReactNativeWebView()) {
+    return null;
+  }
+  const requestId = createRequestId("stt-cancel");
+  postMessageToNative({ type: "cancelSpeechRecognition", requestId });
+  return requestId;
 }
 
 export function requestNativeFcmToken(timeoutMs = 10000): Promise<CamaFirebase | null> {

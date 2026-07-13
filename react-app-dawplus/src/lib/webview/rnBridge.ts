@@ -7,6 +7,8 @@ export * from "@/lib/webview/nativeBridge.types";
 export {
   isReactNativeWebView,
   postMessageToNative,
+  cancelNativeSpeechRecognition,
+  checkNativeSpeechRecognitionAvailable,
   requestNativeBiometricAuth,
   requestNativeBiometricAvailability,
   requestNativeCapabilities,
@@ -18,6 +20,8 @@ export {
   requestNativeStepCount,
   requestNativeVitalReading,
   requestNativeVitalSamples,
+  startNativeSpeechRecognition,
+  stopNativeSpeechRecognition,
 } from "@/lib/webview/nativeBridgeClient";
 
 function getReactNativeWebView() {

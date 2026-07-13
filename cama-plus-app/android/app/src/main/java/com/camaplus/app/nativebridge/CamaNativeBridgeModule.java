@@ -1,6 +1,8 @@
 package com.camaplus.app.nativebridge;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -8,11 +10,13 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 import com.camaplus.app.MainActivity;
 import com.camaplus.app.healthconnect.HealthConnectHeartRateReader;
 import com.camaplus.app.healthconnect.HealthConnectPermissionLauncher;
 import com.camaplus.app.healthconnect.HealthConnectSettingsNavigator;
+import com.camaplus.app.speech.SpeechRecognitionHelper;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -21,6 +25,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.util.ArrayDeque;
 import java.util.Locale;
@@ -36,6 +41,7 @@ public class CamaNativeBridgeModule extends ReactContextBaseJavaModule
   private static final String PERMISSION_DENIED = "PERMISSION_DENIED";
   private static final String UNAVAILABLE = "UNAVAILABLE";
   private static final String UTTERANCE_ID = "cama-tts";
+  private static final String SPEECH_RECOGNITION_EVENT = "CamaSpeechRecognition";
 
   private final ExecutorService healthConnectExecutor = Executors.newSingleThreadExecutor();
 
@@ -48,6 +54,8 @@ public class CamaNativeBridgeModule extends ReactContextBaseJavaModule
   private String lastSpokenText;
   private float lastSpeechRate = 0.9f;
   private boolean paused = false;
+
+  private SpeechRecognitionHelper speechRecognitionHelper;
 
   public CamaNativeBridgeModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -65,6 +73,10 @@ public class CamaNativeBridgeModule extends ReactContextBaseJavaModule
     super.onCatalystInstanceDestroy();
     runOnMain(
         () -> {
+          if (speechRecognitionHelper != null) {
+            speechRecognitionHelper.destroy();
+            speechRecognitionHelper = null;
+          }
           if (tts != null) {
             tts.stop();
             tts.shutdown();
@@ -304,6 +316,142 @@ public class CamaNativeBridgeModule extends ReactContextBaseJavaModule
   }
 
   @ReactMethod
+  public void checkSpeechRecognitionAvailable(Promise promise) {
+    try {
+      boolean available =
+          SpeechRecognitionHelper.isRecognitionAvailable(getReactApplicationContext());
+      WritableMap map = Arguments.createMap();
+      map.putBoolean("available", available);
+      map.putBoolean("implemented", true);
+      promise.resolve(map);
+    } catch (Exception e) {
+      promise.reject("SPEECH_CHECK_ERROR", e.getMessage());
+    }
+  }
+
+  @ReactMethod
+  public void startSpeechRecognition(ReadableMap options, Promise promise) {
+    ReactApplicationContext context = getReactApplicationContext();
+    if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)
+        != PackageManager.PERMISSION_GRANTED) {
+      promise.reject(PERMISSION_DENIED, "RECORD_AUDIO permission denied");
+      return;
+    }
+    if (!SpeechRecognitionHelper.isRecognitionAvailable(context)) {
+      promise.reject(UNAVAILABLE, "Speech recognition is not available on this device");
+      return;
+    }
+
+    final String locale =
+        options != null && options.hasKey("locale") ? options.getString("locale") : "ko-KR";
+    final boolean partialResults =
+        options == null || !options.hasKey("partialResults") || options.getBoolean("partialResults");
+    final String prompt =
+        options != null && options.hasKey("prompt") ? options.getString("prompt") : "말씀해 주세요";
+    final int maxDurationMs =
+        options != null && options.hasKey("maxDurationMs")
+            ? (int) options.getDouble("maxDurationMs")
+            : 60_000;
+
+    runOnMain(
+        () -> {
+          try {
+            if (speechRecognitionHelper != null) {
+              speechRecognitionHelper.destroy();
+              speechRecognitionHelper = null;
+            }
+            speechRecognitionHelper =
+                new SpeechRecognitionHelper(
+                    context,
+                    new SpeechRecognitionHelper.Listener() {
+                      @Override
+                      public void onStarted() {
+                        emitSpeechRecognitionEvent("started", null, null, null);
+                      }
+
+                      @Override
+                      public void onPartial(String transcript) {
+                        emitSpeechRecognitionEvent("partial", transcript, null, null);
+                      }
+
+                      @Override
+                      public void onFinal(String transcript) {
+                        emitSpeechRecognitionEvent("final", transcript, null, null);
+                      }
+
+                      @Override
+                      public void onEnded() {
+                        emitSpeechRecognitionEvent("ended", null, null, null);
+                        speechRecognitionHelper = null;
+                      }
+
+                      @Override
+                      public void onError(String code, String message) {
+                        emitSpeechRecognitionEvent("error", null, code, message);
+                      }
+                    });
+            speechRecognitionHelper.start(locale, partialResults, prompt, maxDurationMs);
+            promise.resolve(true);
+          } catch (Exception e) {
+            promise.reject("SPEECH_START_ERROR", e.getMessage());
+          }
+        });
+  }
+
+  @ReactMethod
+  public void stopSpeechRecognition(Promise promise) {
+    runOnMain(
+        () -> {
+          try {
+            if (speechRecognitionHelper != null) {
+              speechRecognitionHelper.stop();
+            }
+            promise.resolve(true);
+          } catch (Exception e) {
+            promise.reject("SPEECH_STOP_ERROR", e.getMessage());
+          }
+        });
+  }
+
+  @ReactMethod
+  public void cancelSpeechRecognition(Promise promise) {
+    runOnMain(
+        () -> {
+          try {
+            if (speechRecognitionHelper != null) {
+              speechRecognitionHelper.cancel();
+              speechRecognitionHelper = null;
+            }
+            promise.resolve(true);
+          } catch (Exception e) {
+            promise.reject("SPEECH_CANCEL_ERROR", e.getMessage());
+          }
+        });
+  }
+
+  private void emitSpeechRecognitionEvent(
+      String event, String transcript, String errorCode, String errorMessage) {
+    WritableMap map = Arguments.createMap();
+    map.putString("event", event);
+    if (transcript != null) {
+      map.putString("transcript", transcript);
+    }
+    if (errorCode != null) {
+      map.putString("error", errorCode);
+    }
+    if (errorMessage != null) {
+      map.putString("message", errorMessage);
+    }
+    try {
+      getReactApplicationContext()
+          .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+          .emit(SPEECH_RECOGNITION_EVENT, map);
+    } catch (Exception ignored) {
+      // bridge may already be torn down
+    }
+  }
+
+  @ReactMethod
   public void isBiometricAvailable(Promise promise) {
     rejectNotImplemented(promise);
   }
@@ -417,6 +565,9 @@ public class CamaNativeBridgeModule extends ReactContextBaseJavaModule
         "biometrics",
         capability(true, implemented, "android.permission.USE_BIOMETRIC"));
     root.putMap("stepCounter", capability(true, true, "android.permission.ACTIVITY_RECOGNITION"));
+    root.putMap(
+        "speechRecognition",
+        capability(true, true, "android.permission.RECORD_AUDIO"));
 
     WritableMap vitals = Arguments.createMap();
     vitals.putMap("HEART_RATE", capability(true, implemented, "android.permission.health.READ_HEART_RATE"));

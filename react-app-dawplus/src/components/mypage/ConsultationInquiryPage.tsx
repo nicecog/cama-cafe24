@@ -13,6 +13,10 @@ import { useCallback, useMemo, useState } from "react";
 import type { WebviewConsultationInquiry } from "@/apis/types";
 import { accountMeAtom } from "@/atoms/accountAtoms";
 import { MypageSubPageLayout } from "@/components/mypage/MypageSubPageLayout";
+import {
+  SpeechInputButton,
+  appendSpeechTranscript,
+} from "@/components/speech/SpeechInputButton";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import Popup from "@/components/ui/Popup";
@@ -245,17 +249,28 @@ export function ConsultationInquiryPage() {
               >
                 내용
               </label>
-              <textarea
-                id="inquiry-content"
-                placeholder="진찰 시 의사 선생님께 전달하고 싶은 내용을 입력해 주세요."
-                rows={5}
-                value={form.content}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, content: e.target.value }))
-                }
-                disabled={!canCreate || isSubmitting}
-                className="flex w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-base placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ED7101] disabled:cursor-not-allowed disabled:opacity-50"
-              />
+              <div className="flex items-start gap-2">
+                <textarea
+                  id="inquiry-content"
+                  placeholder="진찰 시 의사 선생님께 전달하고 싶은 내용을 입력해 주세요. 옆 마이크 버튼으로 말로도 입력할 수 있습니다."
+                  rows={5}
+                  value={form.content}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, content: e.target.value }))
+                  }
+                  disabled={!canCreate || isSubmitting}
+                  className="flex min-w-0 flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-base placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ED7101] disabled:cursor-not-allowed disabled:opacity-50"
+                />
+                <SpeechInputButton
+                  disabled={!canCreate || isSubmitting}
+                  onTranscript={(text) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      content: appendSpeechTranscript(prev.content, text),
+                    }))
+                  }
+                />
+              </div>
             </div>
 
             {!canCreate ? (
@@ -407,18 +422,29 @@ export function ConsultationInquiryPage() {
                   >
                     내용
                   </label>
-                  <textarea
-                    id="edit-inquiry-content"
-                    rows={8}
-                    value={editForm.content}
-                    onChange={(e) =>
-                      setEditForm((prev) => ({
-                        ...prev,
-                        content: e.target.value,
-                      }))
-                    }
-                    className="flex w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ED7101]"
-                  />
+                  <div className="flex items-start gap-2">
+                    <textarea
+                      id="edit-inquiry-content"
+                      rows={8}
+                      value={editForm.content}
+                      onChange={(e) =>
+                        setEditForm((prev) => ({
+                          ...prev,
+                          content: e.target.value,
+                        }))
+                      }
+                      className="flex min-w-0 flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ED7101]"
+                    />
+                    <SpeechInputButton
+                      disabled={isSubmitting}
+                      onTranscript={(text) =>
+                        setEditForm((prev) => ({
+                          ...prev,
+                          content: appendSpeechTranscript(prev.content, text),
+                        }))
+                      }
+                    />
+                  </div>
                 </div>
               </div>
             ) : (

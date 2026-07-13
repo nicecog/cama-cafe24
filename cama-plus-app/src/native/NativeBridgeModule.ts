@@ -9,6 +9,8 @@ import type {
   DeviceCapabilities,
   LocationOptions,
   LocationResult,
+  SpeechRecognitionAvailability,
+  SpeechRecognitionOptions,
   VitalReadingResult,
   VitalSamplesResult,
   VitalTypeCd,
@@ -37,6 +39,12 @@ type CamaNativeBridgeNative = {
   pauseSpeech: () => Promise<boolean>;
   resumeSpeech: () => Promise<boolean>;
   openHealthConnectSettings: () => Promise<boolean>;
+  checkSpeechRecognitionAvailable: () => Promise<SpeechRecognitionAvailability>;
+  startSpeechRecognition: (
+    options: SpeechRecognitionOptions,
+  ) => Promise<boolean>;
+  stopSpeechRecognition: () => Promise<boolean>;
+  cancelSpeechRecognition: () => Promise<boolean>;
 };
 
 const NativeBridge = NativeModules.CamaNativeBridge as
@@ -64,6 +72,7 @@ export function getJsFallbackCapabilities(): DeviceCapabilities {
           ? ['android.permission.ACTIVITY_RECOGNITION']
           : ['NSMotionUsageDescription', 'NSHealthShareUsageDescription'],
     },
+    speechRecognition: stubCapability(),
     vitals: {
       HEART_RATE: stubCapability(),
       SPO2: stubCapability(),
@@ -161,4 +170,22 @@ export function resumeSpeech(): Promise<boolean> {
 
 export function openHealthConnectSettings(): Promise<boolean> {
   return invokeNative('openHealthConnectSettings');
+}
+
+export function checkSpeechRecognitionAvailable(): Promise<SpeechRecognitionAvailability> {
+  return invokeNative('checkSpeechRecognitionAvailable');
+}
+
+export function startSpeechRecognition(
+  options: SpeechRecognitionOptions = {},
+): Promise<boolean> {
+  return invokeNative('startSpeechRecognition', options);
+}
+
+export function stopSpeechRecognition(): Promise<boolean> {
+  return invokeNative('stopSpeechRecognition');
+}
+
+export function cancelSpeechRecognition(): Promise<boolean> {
+  return invokeNative('cancelSpeechRecognition');
 }

@@ -44,7 +44,20 @@ export type DeviceCapabilities = {
   location: CapabilityStatus;
   biometrics: CapabilityStatus;
   stepCounter: CapabilityStatus;
+  speechRecognition?: CapabilityStatus;
   vitals: Partial<Record<VitalTypeCd, CapabilityStatus>>;
+};
+
+export type SpeechRecognitionOptions = {
+  locale?: string;
+  maxDurationMs?: number;
+  partialResults?: boolean;
+  prompt?: string;
+};
+
+export type SpeechRecognitionAvailability = {
+  available: boolean;
+  implemented: boolean;
 };
 
 export type CameraFacing = 'front' | 'back';
@@ -148,6 +161,17 @@ export type WebToNativeRequest =
   | { type: 'pauseSpeech'; requestId: string }
   | { type: 'resumeSpeech'; requestId: string }
   | { type: 'openHealthConnectSettings'; requestId: string }
+  | {
+      type: 'checkSpeechRecognitionAvailable';
+      requestId: string;
+    }
+  | {
+      type: 'startSpeechRecognition';
+      requestId: string;
+      options?: SpeechRecognitionOptions;
+    }
+  | { type: 'stopSpeechRecognition'; requestId: string }
+  | { type: 'cancelSpeechRecognition'; requestId: string }
   | { type: 'scanTabletQr'; requestId: string }
   | {
       type: 'sendTabletHealthData';
@@ -167,6 +191,7 @@ export type NativeBridgeResponseType =
   | 'vitalSamples'
   | 'biometric'
   | 'speech'
+  | 'speechRecognition'
   | 'healthConnectSettings'
   | 'tabletQrScan'
   | 'tabletHealthDataSent';

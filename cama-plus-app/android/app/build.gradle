@@ -107,8 +107,8 @@ android {
         applicationId "com.camaplus.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 34
-        versionName "1.2.16"
+        versionCode 35
+        versionName "1.2.17"
     }
 
     splits {

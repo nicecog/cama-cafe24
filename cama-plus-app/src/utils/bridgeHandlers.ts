@@ -1,5 +1,5 @@
 import type { RefObject } from 'react';
-import { PermissionsAndroid, Platform } from 'react-native';
+import { DeviceEventEmitter, PermissionsAndroid, Platform } from 'react-native';
 import type WebView from 'react-native-webview';
 
 import type {
@@ -13,7 +13,9 @@ import type {
 import { getTodayStepCountFromDevice } from '@/native/StepCounter';
 import {
   authenticateBiometric,
+  cancelSpeechRecognition,
   capturePhoto,
+  checkSpeechRecognitionAvailable,
   getCurrentLocation,
   getDeviceCapabilities,
   isBiometricAvailable,
@@ -24,7 +26,9 @@ import {
   readVitalSamples,
   resumeSpeech,
   speakText,
+  startSpeechRecognition,
   stopSpeech,
+  stopSpeechRecognition,
 } from '@/native/NativeBridgeModule';
 import { toNativeBridgeError } from '@/native/bridgeErrors';
 import { NativeBridgeError } from '@/native/bridgeErrors';
@@ -33,6 +37,31 @@ import {
   scanTabletQrCode,
   sendTabletHealthData,
 } from '@/native/TabletTransfer';
+
+let speechRecognitionSubscription: { remove: () => void } | null = null;
+
+async function ensureMicPermission(): Promise<void> {
+  if (Platform.OS !== 'android') {
+    return;
+  }
+  const granted = await PermissionsAndroid.request(
+    PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+    {
+      title: '마이크 권한',
+      message: '말로 문의사항을 입력하려면 마이크 권한이 필요합니다.',
+      buttonPositive: '허용',
+      buttonNegative: '거부',
+    },
+  );
+  if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+    throw new NativeBridgeError(NATIVE_BRIDGE_ERRORS.PERMISSION_DENIED);
+  }
+}
+
+function clearSpeechRecognitionSubscription() {
+  speechRecognitionSubscription?.remove();
+  speechRecognitionSubscription = null;
+}
 
 async function ensureTabletPermissions(cameraOnly: boolean): Promise<void> {
   if (Platform.OS !== 'android') {
@@ -275,6 +304,81 @@ export async function dispatchBridgeRequest(
         });
         return;
       }
+      case 'checkSpeechRecognitionAvailable': {
+        const availability = await checkSpeechRecognitionAvailable();
+        respond(webviewRef, {
+          type: 'speechRecognition',
+          requestId,
+          ok: true,
+          event: 'availability',
+          available: availability.available,
+          implemented: availability.implemented,
+        });
+        return;
+      }
+      case 'startSpeechRecognition': {
+        await ensureMicPermission();
+        clearSpeechRecognitionSubscription();
+        speechRecognitionSubscription = DeviceEventEmitter.addListener(
+          'CamaSpeechRecognition',
+          (payload: {
+            event?: string;
+            transcript?: string;
+            error?: string;
+            message?: string;
+          }) => {
+            injectNativeEvent(webviewRef, {
+              type: 'speechRecognition',
+              requestId,
+              ok: payload.event !== 'error',
+              event: payload.event,
+              transcript: payload.transcript,
+              error: payload.error,
+              message: payload.message,
+            });
+            if (payload.event === 'ended' || payload.event === 'error') {
+              // keep listening until ended; error also ends session in native
+              if (payload.event === 'ended') {
+                clearSpeechRecognitionSubscription();
+              }
+            }
+          },
+        );
+        try {
+          await startSpeechRecognition(message.options ?? {});
+          respond(webviewRef, {
+            type: 'speechRecognition',
+            requestId,
+            ok: true,
+            event: 'started',
+          });
+        } catch (error) {
+          clearSpeechRecognitionSubscription();
+          throw error;
+        }
+        return;
+      }
+      case 'stopSpeechRecognition': {
+        await stopSpeechRecognition();
+        respond(webviewRef, {
+          type: 'speechRecognition',
+          requestId,
+          ok: true,
+          event: 'stopping',
+        });
+        return;
+      }
+      case 'cancelSpeechRecognition': {
+        await cancelSpeechRecognition();
+        clearSpeechRecognitionSubscription();
+        respond(webviewRef, {
+          type: 'speechRecognition',
+          requestId,
+          ok: true,
+          event: 'ended',
+        });
+        return;
+      }
       case 'scanTabletQr': {
         await ensureTabletPermissions(true);
         const raw = await scanTabletQrCode();
@@ -319,6 +423,10 @@ export async function dispatchBridgeRequest(
       pauseSpeech: 'speech',
       resumeSpeech: 'speech',
       openHealthConnectSettings: 'healthConnectSettings',
+      checkSpeechRecognitionAvailable: 'speechRecognition',
+      startSpeechRecognition: 'speechRecognition',
+      stopSpeechRecognition: 'speechRecognition',
+      cancelSpeechRecognition: 'speechRecognition',
       scanTabletQr: 'tabletQrScan',
       sendTabletHealthData: 'tabletHealthDataSent',
     };
