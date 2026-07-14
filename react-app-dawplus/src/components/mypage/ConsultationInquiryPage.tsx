@@ -3,6 +3,7 @@ import { useAtomValue } from "jotai";
 import {
   CalendarDays,
   ClipboardList,
+  Eraser,
   Loader2,
   MessageSquareText,
   Pencil,
@@ -18,7 +19,6 @@ import {
   appendSpeechTranscript,
 } from "@/components/speech/SpeechInputButton";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 import Popup from "@/components/ui/Popup";
 import { useDialog } from "@/hooks/useDialog";
 import {
@@ -27,16 +27,16 @@ import {
   useUpdateConsultationInquiry,
 } from "@/hooks/mutations/webview";
 import { useConsultationInquiries } from "@/hooks/queries/webview";
+import { buildInquiryTitleFromContent } from "@/lib/consultation/buildInquiryTitleFromContent";
 import { cn } from "@/lib/utils";
 
 const MAX_INQUIRIES = 5;
 
 type FormState = {
-  title: string;
   content: string;
 };
 
-const emptyForm: FormState = { title: "", content: "" };
+const emptyForm: FormState = { content: "" };
 
 function formatInquiryDate(value?: string | null) {
   if (!value) return "-";
@@ -60,6 +60,37 @@ function TransmissionBadge({ transmitted }: { transmitted: boolean }) {
     >
       {transmitted ? "전송완료" : "미전송"}
     </span>
+  );
+}
+
+type ContentSideActionsProps = {
+  disabled?: boolean;
+  onTranscript: (text: string) => void;
+  onClear: () => void;
+  canClear: boolean;
+};
+
+function ContentSideActions({
+  disabled = false,
+  onTranscript,
+  onClear,
+  canClear,
+}: ContentSideActionsProps) {
+  return (
+    <div className="flex shrink-0 flex-col items-center gap-2 pt-0.5">
+      <SpeechInputButton disabled={disabled} onTranscript={onTranscript} />
+      <Button
+        type="button"
+        variant="outline"
+        aria-label="내용 지우기"
+        title="지우기"
+        disabled={disabled || !canClear}
+        onClick={onClear}
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-gray-200 p-0 text-gray-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:opacity-40"
+      >
+        <Eraser className="h-5 w-5" />
+      </Button>
+    </div>
   );
 }
 
@@ -100,18 +131,18 @@ export function ConsultationInquiryPage() {
     deleteMutation.isPending;
 
   const formValid = useMemo(
-    () => form.title.trim().length > 0 && form.content.trim().length > 0,
-    [form.content, form.title],
+    () => form.content.trim().length > 0,
+    [form.content],
   );
 
   const editFormValid = useMemo(
-    () => editForm.title.trim().length > 0 && editForm.content.trim().length > 0,
-    [editForm.content, editForm.title],
+    () => editForm.content.trim().length > 0,
+    [editForm.content],
   );
 
   const openDetail = useCallback((item: WebviewConsultationInquiry) => {
     setSelected(item);
-    setEditForm({ title: item.title, content: item.content });
+    setEditForm({ content: item.content });
     setEditMode(false);
     setModalOpen(true);
   }, []);
@@ -123,6 +154,21 @@ export function ConsultationInquiryPage() {
     setEditForm(emptyForm);
   }, []);
 
+  const confirmClearContent = useCallback(
+    (onClear: () => void) => {
+      void confirm(
+        {
+          title: "내용 지우기",
+          body: "입력한 내용을 모두 지우시겠습니까?",
+          actionButton: "지우기",
+          cancelButton: "취소",
+        },
+        onClear,
+      );
+    },
+    [confirm],
+  );
+
   const handleCreate = async () => {
     if (!account?.seq || !formValid) return;
 
@@ -131,14 +177,14 @@ export function ConsultationInquiryPage() {
       return;
     }
 
+    const content = form.content.trim();
     try {
       await createMutation.mutateAsync({
         acSeq: account.seq,
-        title: form.title.trim(),
-        content: form.content.trim(),
+        title: buildInquiryTitleFromContent(content),
+        content,
       });
       setForm(emptyForm);
-      // 저장 직후 목록을 강제 재조회 (WebView 캐시/키 불일치 대비)
       await refetch();
       await alert("문의사항이 저장되었습니다.");
     } catch {
@@ -149,13 +195,14 @@ export function ConsultationInquiryPage() {
   const handleUpdate = async () => {
     if (!selected || !account?.seq || !editFormValid) return;
 
+    const content = editForm.content.trim();
     try {
       await updateMutation.mutateAsync({
         seq: selected.seq,
         data: {
           acSeq: account.seq,
-          title: editForm.title.trim(),
-          content: editForm.content.trim(),
+          title: buildInquiryTitleFromContent(content),
+          content,
         },
       });
       closeModal();
@@ -193,7 +240,6 @@ export function ConsultationInquiryPage() {
   return (
     <MypageSubPageLayout title="진찰시 문의사항">
       <div className="bg-gradient-to-b from-[#FFF8F2] to-white px-4 py-5">
-        {/* 안내 */}
         <div className="mb-5 flex items-start gap-3 rounded-2xl border border-[#F3DCC8] bg-white p-4 shadow-sm">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#FFF1E6]">
             <MessageSquareText className="h-5 w-5 text-[#ED7101]" />
@@ -203,13 +249,13 @@ export function ConsultationInquiryPage() {
               진료 전 궁금한 점을 미리 적어 두세요
             </p>
             <p className="mt-1 text-sm leading-relaxed text-gray-600">
-              미전송 문의사항은 최대 {MAX_INQUIRIES}개까지 저장할 수 있습니다.
-              의사앱 자료전송 시 미전송 항목만 함께 전달됩니다.
+              내용만 입력하면 저장 시 제목이 자동으로 만들어집니다. 미전송
+              문의사항은 최대 {MAX_INQUIRIES}개까지 저장할 수 있으며, 의사앱
+              자료전송 시 미전송 항목만 함께 전달됩니다.
             </p>
           </div>
         </div>
 
-        {/* 입력 폼 */}
         <section className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-lg font-bold text-[#444]">
@@ -224,26 +270,6 @@ export function ConsultationInquiryPage() {
           <div className="space-y-4">
             <div>
               <label
-                htmlFor="inquiry-title"
-                className="mb-1.5 block text-sm font-medium text-gray-700"
-              >
-                제목
-              </label>
-              <Input
-                id="inquiry-title"
-                placeholder="예) 다음 진찰 때 확인할 증상"
-                maxLength={200}
-                value={form.title}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, title: e.target.value }))
-                }
-                className="h-11 rounded-xl border-gray-200 bg-gray-50 text-base"
-                disabled={!canCreate || isSubmitting}
-              />
-            </div>
-
-            <div>
-              <label
                 htmlFor="inquiry-content"
                 className="mb-1.5 block text-sm font-medium text-gray-700"
               >
@@ -252,22 +278,26 @@ export function ConsultationInquiryPage() {
               <div className="flex items-start gap-2">
                 <textarea
                   id="inquiry-content"
-                  placeholder="진찰 시 의사 선생님께 전달하고 싶은 내용을 입력해 주세요. 옆 마이크 버튼으로 말로도 입력할 수 있습니다."
-                  rows={5}
+                  placeholder="진찰 시 의사 선생님께 전달하고 싶은 내용을 입력해 주세요. 옆 마이크로 말로도 입력할 수 있습니다."
+                  rows={10}
                   value={form.content}
                   onChange={(e) =>
                     setForm((prev) => ({ ...prev, content: e.target.value }))
                   }
                   disabled={!canCreate || isSubmitting}
-                  className="flex min-w-0 flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-base placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ED7101] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="min-h-[220px] flex min-w-0 flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-base placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ED7101] disabled:cursor-not-allowed disabled:opacity-50"
                 />
-                <SpeechInputButton
+                <ContentSideActions
                   disabled={!canCreate || isSubmitting}
+                  canClear={form.content.length > 0}
                   onTranscript={(text) =>
                     setForm((prev) => ({
                       ...prev,
                       content: appendSpeechTranscript(prev.content, text),
                     }))
+                  }
+                  onClear={() =>
+                    confirmClearContent(() => setForm(emptyForm))
                   }
                 />
               </div>
@@ -296,7 +326,6 @@ export function ConsultationInquiryPage() {
           </div>
         </section>
 
-        {/* 미전송 목록 */}
         <section className="mt-6">
           <h2 className="mb-3 text-lg font-bold text-[#774F2D]">
             미전송 문의 목록
@@ -313,7 +342,7 @@ export function ConsultationInquiryPage() {
                 아직 미전송 문의사항이 없습니다.
               </p>
               <p className="mt-1 text-sm text-gray-400">
-                위 입력란에 제목과 내용을 작성해 주세요.
+                위 입력란에 내용을 작성해 주세요.
               </p>
             </div>
           ) : (
@@ -345,11 +374,10 @@ export function ConsultationInquiryPage() {
           )}
         </section>
 
-        {/* 전송완료 목록 — 카운트 제외 */}
         {transmittedInquiries.length > 0 ? (
           <section className="mt-8">
-            <h2 className="mb-3 text-lg font-bold text-[#774F2D]">
-              전송완료 문의 목록
+            <h2 className="mb-3 text-lg font-bold text-gray-500">
+              전송완료 문의
             </h2>
             <ul className="space-y-3">
               {transmittedInquiries.map((item) => (
@@ -357,10 +385,10 @@ export function ConsultationInquiryPage() {
                   <button
                     type="button"
                     onClick={() => openDetail(item)}
-                    className="w-full rounded-2xl border border-emerald-100 bg-emerald-50/40 p-4 text-left shadow-sm transition active:bg-emerald-50"
+                    className="w-full rounded-2xl border border-gray-100 bg-gray-50 p-4 text-left transition active:bg-gray-100"
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <p className="line-clamp-1 text-base font-semibold text-[#333]">
+                      <p className="line-clamp-1 text-base font-semibold text-gray-600">
                         {item.title}
                       </p>
                       <TransmissionBadge transmitted />
@@ -380,7 +408,6 @@ export function ConsultationInquiryPage() {
         ) : null}
       </div>
 
-      {/* 상세/수정 모달 */}
       <Popup
         open={modalOpen}
         setOpen={(open) => {
@@ -397,26 +424,6 @@ export function ConsultationInquiryPage() {
               <div className="space-y-4">
                 <div>
                   <label
-                    htmlFor="edit-inquiry-title"
-                    className="mb-1.5 block text-sm font-medium text-gray-700"
-                  >
-                    제목
-                  </label>
-                  <Input
-                    id="edit-inquiry-title"
-                    maxLength={200}
-                    value={editForm.title}
-                    onChange={(e) =>
-                      setEditForm((prev) => ({
-                        ...prev,
-                        title: e.target.value,
-                      }))
-                    }
-                    className="h-11 rounded-xl border-gray-200 bg-gray-50 text-base"
-                  />
-                </div>
-                <div>
-                  <label
                     htmlFor="edit-inquiry-content"
                     className="mb-1.5 block text-sm font-medium text-gray-700"
                   >
@@ -425,7 +432,7 @@ export function ConsultationInquiryPage() {
                   <div className="flex items-start gap-2">
                     <textarea
                       id="edit-inquiry-content"
-                      rows={8}
+                      rows={12}
                       value={editForm.content}
                       onChange={(e) =>
                         setEditForm((prev) => ({
@@ -433,15 +440,19 @@ export function ConsultationInquiryPage() {
                           content: e.target.value,
                         }))
                       }
-                      className="flex min-w-0 flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ED7101]"
+                      className="min-h-[280px] flex min-w-0 flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ED7101]"
                     />
-                    <SpeechInputButton
+                    <ContentSideActions
                       disabled={isSubmitting}
+                      canClear={editForm.content.length > 0}
                       onTranscript={(text) =>
                         setEditForm((prev) => ({
                           ...prev,
                           content: appendSpeechTranscript(prev.content, text),
                         }))
+                      }
+                      onClear={() =>
+                        confirmClearContent(() => setEditForm(emptyForm))
                       }
                     />
                   </div>
@@ -476,7 +487,6 @@ export function ConsultationInquiryPage() {
                     onClick={() => {
                       setEditMode(false);
                       setEditForm({
-                        title: selected.title,
                         content: selected.content,
                       });
                     }}
