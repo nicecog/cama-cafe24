@@ -22,6 +22,7 @@ import com.cama.back.repo.account.AccountSecureRepository;
 import com.cama.back.repo.firebase.FirebaseTokenRepository;
 import com.cama.back.security.JwtAuthentication;
 import com.cama.back.service.account.AccountService;
+import com.cama.back.service.account.PatientAccountService;
 import com.cama.back.service.iamport.IamportService;
 import com.cama.back.mapper.AccountMapper;
 import com.cama.back.util.JhUtil;
@@ -49,11 +50,13 @@ public class AccountRestController {
     private final IamportService iamportService;
     private final AccountService accountService;
     private final AccountMapper  accountMapper;
+    private final PatientAccountService patientAccountService;
 
     public AccountRestController(AccountRepository accountRepository,
                                  AccountAlarmRepository accountAlarmRepository,
                                  FirebaseTokenRepository firebaseTokenRepository, HospitalMapper hospitalMapper, PasswordEncoder passwordEncoder,
-                                 JhUtil jhUtil, IamportService iamportService, AccountService accountService, AccountMapper accountMapper) {
+                                 JhUtil jhUtil, IamportService iamportService, AccountService accountService, AccountMapper accountMapper,
+                                 PatientAccountService patientAccountService) {
         this.accountRepository = accountRepository;
         this.accountAlarmRepository = accountAlarmRepository;
         this.firebaseTokenRepository = firebaseTokenRepository;
@@ -63,6 +66,7 @@ public class AccountRestController {
         this.iamportService = iamportService;
         this.accountService = accountService;
         this.accountMapper = accountMapper;
+        this.patientAccountService = patientAccountService;
     }
 
     @PostMapping(path = "account")
@@ -253,6 +257,20 @@ public class AccountRestController {
 
         return new ApiResult<>(account);
 
+    }
+
+    @PostMapping(path = "webview/account/update")
+    @Operation(summary = "회원 상세정보 수정 (이름/전화/이메일/성별/생년월일)")
+    public ApiResult<PatientProfileUpdateResponse> postWebviewAccountUpdate(
+            @RequestBody PatientProfileUpdateRequest dto) {
+        return new ApiResult<>(patientAccountService.updateProfile(dto));
+    }
+
+    @PostMapping(path = "webview/account/change-password")
+    @Operation(summary = "회원 비밀번호 변경 (현재 비밀번호 확인 + 선택 시 안내 메일)")
+    public ApiResult<PatientChangePasswordResponse> postWebviewAccountChangePassword(
+            @RequestBody PatientChangePasswordRequest dto) {
+        return new ApiResult<>(patientAccountService.changePassword(dto));
     }
 
     @PostMapping(path = "account/sns/check")

@@ -9,11 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PatientResetPasswordResponse {
+public class PatientChangePasswordResponse {
 
-    private boolean reset;
-    private String temporaryPassword;
-    /** 계정에 이메일이 있어 임시 비밀번호 메일을 발송했는지 */
+    private boolean changed;
+    /** 등록된 이메일로 변경 안내 메일 발송 여부 */
     private boolean emailSent;
     private String message;
 }

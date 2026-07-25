@@ -10,6 +10,8 @@ import com.cama.back.repo.account.AccountRepository;
 import com.cama.back.repo.firebase.FirebaseTokenRepository;
 import com.cama.back.service.email.EmailService;
 import com.cama.back.util.JhUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Service
 public class PatientAccountServiceImpl implements PatientAccountService {
+
+    private static final Logger log = LoggerFactory.getLogger(PatientAccountServiceImpl.class);
 
     private final AccountRepository accountRepository;
     private final FirebaseTokenRepository firebaseTokenRepository;
@@ -212,13 +216,7 @@ public class PatientAccountServiceImpl implements PatientAccountService {
         String temporaryPassword = jhUtil.generateRandomString(10);
         accountRepository.updatePasswordBySeq(account.getSeq(), passwordEncoder.encode(temporaryPassword));
 
-        emailService.sendPlainText(
-                account.getEmail(),
-                "[CAMA] 임시 비밀번호 안내",
-                "안녕하세요, " + account.getName() + "님.\n\n"
-                        + "요청하신 임시 비밀번호는 아래와 같습니다.\n"
-                        + temporaryPassword + "\n\n"
-                        + "로그인 후 비밀번호를 변경해 주세요.");
+        sendTemporaryPasswordEmail(account.getEmail(), account.getName(), temporaryPassword);
 
         return PatientFindPasswordResponse.builder()
                 .sent(true)
@@ -257,15 +255,180 @@ public class PatientAccountServiceImpl implements PatientAccountService {
             throw new IllegalStateException("임시 비밀번호 저장 검증에 실패했습니다.");
         }
 
+        // 이메일이 없어도 초기화는 항상 성공. 메일이 있으면 발송 시도하되 실패해도 응답에 임시 비밀번호는 유지.
+        boolean emailSent = trySendTemporaryPasswordEmail(account, temporaryPassword);
+        String message = emailSent
+                ? "비밀번호가 초기화되었습니다. 임시 비밀번호로 로그인 후 변경해 주세요. 등록된 이메일로 임시 비밀번호 발송을 완료했습니다."
+                : "비밀번호가 초기화되었습니다. 임시 비밀번호로 로그인 후 변경해 주세요.";
+
         return PatientResetPasswordResponse.builder()
                 .reset(true)
                 .temporaryPassword(temporaryPassword)
-                .message("비밀번호가 초기화되었습니다. 임시 비밀번호로 로그인 후 변경해 주세요.")
+                .emailSent(emailSent)
+                .message(message)
                 .build();
+    }
+
+    private boolean trySendTemporaryPasswordEmail(AccountRecoveryInfo account, String temporaryPassword) {
+        if (isBlank(account.getEmail())) {
+            return false;
+        }
+        String email = account.getEmail().trim();
+        if (!jhUtil.checkEmail(email)) {
+            log.warn("Skip temporary password email: invalid email for accountSeq={}", account.getSeq());
+            return false;
+        }
+        try {
+            sendTemporaryPasswordEmail(email, account.getName(), temporaryPassword);
+            return true;
+        } catch (Exception e) {
+            // 초기화 자체는 성공한 상태이므로 메일 실패로 API를 실패 처리하지 않는다.
+            log.warn("Failed to send temporary password email for accountSeq={}", account.getSeq(), e);
+            return false;
+        }
+    }
+
+    private void sendTemporaryPasswordEmail(String email, String name, String temporaryPassword) {
+        emailService.sendPlainText(
+                email,
+                "[CAMA] 임시 비밀번호 안내",
+                "안녕하세요, " + name + "님.\n\n"
+                        + "요청하신 임시 비밀번호는 아래와 같습니다.\n"
+                        + temporaryPassword + "\n\n"
+                        + "로그인 후 비밀번호를 변경해 주세요.");
     }
 
     private String generateCompliantTemporaryPassword() {
         return "Cama" + jhUtil.numberGenerator(4, 1) + "!";
+    }
+
+    @Override
+    @Transactional
+    public PatientProfileUpdateResponse updateProfile(PatientProfileUpdateRequest request) {
+        checkArgument(isNotBlank(request.getLoginId()), "아이디는 필수입니다.");
+        checkArgument(isNotBlank(request.getName()), "이름은 필수입니다.");
+        checkArgument(isNotBlank(request.getPhone()), "전화번호는 필수입니다.");
+        validateLoginIdFormat(request.getLoginId());
+        validatePhoneFormat(request.getPhone());
+
+        String loginId = request.getLoginId().trim();
+        String name = request.getName().trim();
+        String phone = normalizePhone(request.getPhone());
+        String email = blankToNull(request.getEmail());
+        String birth = blankToNull(request.getBirth());
+
+        if (email != null) {
+            validateEmailFormat(email);
+        }
+        if (birth != null) {
+            checkArgument(jhUtil.isoDateFormatterChecker(birth), "생년월일 형식이 올바르지 않습니다.");
+        }
+
+        Gender gender = null;
+        if (isNotBlank(request.getGender())) {
+            gender = Gender.getStatusKey(request.getGender().trim());
+            checkArgument(gender != null, "성별 형식이 올바르지 않습니다.");
+        }
+
+        Account account = accountRepository.findByLoginIdAndEnabledAndDropped(loginId, true, false)
+                .orElseThrow(() -> new AccountNotFoundException("일치하는 회원 정보를 찾을 수 없습니다."));
+
+        if (email != null) {
+            accountRepository.findByEmailAndEnabledAndDropped(email, true, false)
+                    .ifPresent(existing -> {
+                        if (!existing.getSeq().equals(account.getSeq())) {
+                            throw new AlreadyAccountDuplicateException(email);
+                        }
+                    });
+        }
+
+        accountRepository.findByPhoneAndEnabledAndDropped(phone, true, false)
+                .ifPresent(existing -> {
+                    if (!existing.getSeq().equals(account.getSeq())) {
+                        throw new AlreadyAccountDuplicateException(phone);
+                    }
+                });
+
+        account.setName(name);
+        account.setPhone(phone);
+        account.setEmail(email);
+        account.setBirth(birth);
+        if (gender != null) {
+            account.setGender(gender);
+        }
+
+        accountRepository.saveAndFlush(account);
+
+        return PatientProfileUpdateResponse.builder()
+                .updated(true)
+                .message("개인정보가 수정되었습니다.")
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public PatientChangePasswordResponse changePassword(PatientChangePasswordRequest request) {
+        checkArgument(isNotBlank(request.getLoginId()), "아이디는 필수입니다.");
+        checkArgument(isNotBlank(request.getCurrentPassword()), "현재 비밀번호는 필수입니다.");
+        checkArgument(isNotBlank(request.getNewPassword()), "새 비밀번호는 필수입니다.");
+        checkArgument(isNotBlank(request.getNewPasswordConfirm()), "새 비밀번호 확인은 필수입니다.");
+        validateLoginIdFormat(request.getLoginId());
+        validatePasswordFormat(request.getNewPassword());
+        checkArgument(request.getNewPassword().equals(request.getNewPasswordConfirm()),
+                "새 비밀번호가 일치하지 않습니다.");
+        checkArgument(!request.getCurrentPassword().equals(request.getNewPassword()),
+                "새 비밀번호는 현재 비밀번호와 달라야 합니다.");
+
+        String loginId = request.getLoginId().trim();
+        Account account = accountRepository.findByLoginIdAndEnabledAndDropped(loginId, true, false)
+                .orElseThrow(() -> new AccountNotFoundException("일치하는 회원 정보를 찾을 수 없습니다."));
+
+        if (!account.getSignType().equals(SignType.GENERAL) && !account.getSignType().equals(SignType.DEFAULT)) {
+            throw new AccountNotFoundException("비밀번호 변경을 지원하지 않는 계정입니다.");
+        }
+
+        Optional<String> storedHash = accountRepository.findPasswordHashByLoginId(loginId);
+        if (storedHash.isEmpty() || !passwordEncoder.matches(request.getCurrentPassword(), storedHash.get())) {
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        accountRepository.updatePasswordBySeq(account.getSeq(), passwordEncoder.encode(request.getNewPassword()));
+
+        boolean emailSent = trySendPasswordChangedEmail(account);
+        String message = emailSent
+                ? "비밀번호가 변경되었습니다. 등록된 이메일로 변경 안내 메일을 발송했습니다."
+                : "비밀번호가 변경되었습니다.";
+
+        return PatientChangePasswordResponse.builder()
+                .changed(true)
+                .emailSent(emailSent)
+                .message(message)
+                .build();
+    }
+
+    private boolean trySendPasswordChangedEmail(Account account) {
+        if (isBlank(account.getEmail())) {
+            return false;
+        }
+        String email = account.getEmail().trim();
+        if (!jhUtil.checkEmail(email)) {
+            log.warn("Skip password-changed email: invalid email for accountSeq={}", account.getSeq());
+            return false;
+        }
+        try {
+            String name = isBlank(account.getName()) ? "회원" : account.getName().trim();
+            emailService.sendPlainText(
+                    email,
+                    "[CAMA] 비밀번호 변경 안내",
+                    "안녕하세요, " + name + "님.\n\n"
+                            + "회원님의 계정 비밀번호가 변경되었습니다.\n"
+                            + "본인이 변경한 것이 아니라면 즉시 고객센터로 문의해 주세요.\n\n"
+                            + "보안을 위해 새 비밀번호는 메일에 포함하지 않습니다.");
+            return true;
+        } catch (Exception e) {
+            log.warn("Failed to send password-changed email for accountSeq={}", account.getSeq(), e);
+            return false;
+        }
     }
 
     private void validateRegisterRequest(PatientRegisterRequest request) {

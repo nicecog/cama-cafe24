@@ -1,5 +1,9 @@
 // Account mutations
-export { useWithdrawAccount } from "./useAccountMutations";
+export {
+  useChangeAccountPassword,
+  useUpdateAccountProfile,
+  useWithdrawAccount,
+} from "./useAccountMutations";
 
 // Auth mutations
 export { useLogin, useLogout } from "./useAuthMutations";

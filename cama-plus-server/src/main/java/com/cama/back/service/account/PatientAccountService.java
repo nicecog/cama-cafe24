@@ -19,4 +19,8 @@ public interface PatientAccountService {
     PatientFindPasswordResponse sendTemporaryPassword(PatientFindPasswordRequest request);
 
     PatientResetPasswordResponse resetPassword(PatientResetPasswordRequest request);
+
+    PatientProfileUpdateResponse updateProfile(PatientProfileUpdateRequest request);
+
+    PatientChangePasswordResponse changePassword(PatientChangePasswordRequest request);
 }

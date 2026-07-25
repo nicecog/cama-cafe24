@@ -11,6 +11,7 @@ import {
 import { AuthField } from "@/components/auth/AuthField";
 import { Button } from "@/components/ui/Button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
+import useAlert from "@/hooks/useAlert";
 import { useToast } from "@/hooks/use-toast";
 import {
   normalizePhone,
@@ -30,6 +31,7 @@ type TabValue = "id" | "password";
 
 function FindAccountPage() {
   const { toast } = useToast();
+  const { alert } = useAlert();
   const [tab, setTab] = React.useState<TabValue>("id");
   const [loading, setLoading] = React.useState(false);
   const [resultMessage, setResultMessage] = React.useState("");
@@ -116,15 +118,16 @@ function FindAccountPage() {
         name: form.name.trim(),
         phone: normalizePhone(form.phone),
       });
+
+      // 임시 비밀번호는 항상 alert로 표시.
+      // emailSent=true 일 때만 서버 message에 메일 발송 완료 문구가 포함된다.
       const message =
         response.reset && response.temporaryPassword
           ? `${response.message}\n\n임시 비밀번호: ${response.temporaryPassword}\n\n※ 새로 발급된 임시 비밀번호만 사용할 수 있습니다. 이전에 받은 임시 비밀번호는 더 이상 사용할 수 없습니다.`
           : response.message;
+
       setResultMessage(message);
-      toast({
-        title: "비밀번호 초기화",
-        description: response.message,
-      });
+      await alert(message);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "요청에 실패했습니다.";
@@ -133,6 +136,7 @@ function FindAccountPage() {
         title: "비밀번호 초기화 실패",
         description: message,
       });
+      await alert(message);
     } finally {
       setLoading(false);
     }
@@ -161,7 +165,7 @@ function FindAccountPage() {
             text={
               tab === "id"
                 ? "가입 시 등록한 이름과 전화번호로 아이디를 찾습니다."
-                : "아이디, 이름, 전화번호가 일치하면 임시 비밀번호를 발급합니다."
+                : "아이디, 이름, 전화번호가 일치하면 임시 비밀번호를 발급합니다. 등록된 이메일이 있으면 메일로도 함께 안내합니다."
             }
             tag="p"
             textAlign="left"

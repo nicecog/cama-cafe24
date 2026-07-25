@@ -52,6 +52,10 @@ export type {
   PatientRegisterRequest,
   PatientResetPasswordRequest,
   PatientResetPasswordResponse,
+  PatientProfileUpdateRequest,
+  PatientProfileUpdateResponse,
+  PatientChangePasswordRequest,
+  PatientChangePasswordResponse,
 } from "./patientAuth.types";
 // User types
 export type {
