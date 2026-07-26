@@ -1,1 +1,1 @@
-export { default } from "../../component/ImportText";
+export { default } from "../../component/-ImportText";

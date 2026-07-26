@@ -25,15 +25,19 @@ export function useDialog() {
    */
   const confirm = async (
     params: Params<"confirm">,
-    onOk?: () => void,
-    onCancel?: () => void,
+    onOk?: () => void | Promise<void>,
+    onCancel?: () => void | Promise<void>,
   ) => {
     const result = await openDialog({
       ...(typeof params === "string" ? { title: params } : params),
       type: "confirm",
     });
 
-    result ? onOk?.() : onCancel?.();
+    if (result) {
+      await onOk?.();
+    } else {
+      await onCancel?.();
+    }
   };
 
   /**
@@ -42,13 +46,16 @@ export function useDialog() {
    * @param onClose - 닫기 버튼 클릭 시 콜백
    * @returns Promise<void>
    */
-  const alert = async (params: Params<"alert">, onClose?: () => void) => {
+  const alert = async (
+    params: Params<"alert">,
+    onClose?: () => void | Promise<void>,
+  ) => {
     await openDialog({
       ...(typeof params === "string" ? { title: params } : params),
       type: "alert",
     });
 
-    onClose?.();
+    await onClose?.();
   };
 
   return { confirm, alert };

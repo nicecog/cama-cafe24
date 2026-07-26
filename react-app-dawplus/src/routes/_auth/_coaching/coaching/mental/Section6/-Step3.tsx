@@ -9,7 +9,7 @@ import MentalCareCard5 from "../-component/CareCards/Card5";
 import MentalCareCard6 from "../-component/CareCards/Card6";
 import MentalCareCard7 from "../-component/CareCards/Card7";
 import MentalCareCard8 from "../-component/CareCards/Card8";
-import TextBox from "../../component/Layout/TextBox";
+import TextBox from "../../component/Layout/-TextBox";
 import { careTypeAtom } from "./-session6Atoms";
 
 export default function Step3() {

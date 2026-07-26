@@ -1,6 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
 import iconHelp from "@/assets/icons/billive/icon_help.svg";
-import iconMyOff from "@/assets/icons/billive/icon_my_off.svg";
 import logo from "@/assets/images/logo/logo.svg";
 import { cn } from "@/lib/utils";
 
@@ -12,10 +11,6 @@ export function WebViewLogoHeader({ className }: { className?: string }) {
 
   const goHome = () => {
     navigate({ to: "/home" });
-  };
-
-  const goMyPage = () => {
-    navigate({ to: "/mypage" });
   };
 
   const goHelp = () => {
@@ -34,14 +29,6 @@ export function WebViewLogoHeader({ className }: { className?: string }) {
       </button>
 
       <div className="flex items-center">
-        <button
-          type="button"
-          onClick={goMyPage}
-          className="flex h-[50px] items-center justify-center pr-1.5"
-          aria-label="내정보"
-        >
-          <img src={iconMyOff} alt="" width={26} height={26} />
-        </button>
         <button
           type="button"
           onClick={goHelp}

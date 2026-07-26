@@ -1,3 +1,8 @@
+import type { CamaFirebase } from "@/apis/types/auth.types";
+import type {
+  TabletHealthDataPayload,
+  TabletQrPayload,
+} from "@/lib/tablet/tabletTransfer.types";
 import type {
   BiometricAuthOptions,
   BiometricAuthResult,
@@ -14,11 +19,6 @@ import type {
   VitalSamplesResult,
   VitalTypeCd,
 } from "@/lib/webview/nativeBridge.types";
-import type { CamaFirebase } from "@/apis/types/auth.types";
-import type {
-  TabletHealthDataPayload,
-  TabletQrPayload,
-} from "@/lib/tablet/tabletTransfer.types";
 
 function getReactNativeWebView() {
   return (
@@ -28,12 +28,22 @@ function getReactNativeWebView() {
   ).ReactNativeWebView;
 }
 
+function canPostMessageToNative(): boolean {
+  return typeof getReactNativeWebView()?.postMessage === "function";
+}
+
 export function postMessageToNative(payload: Record<string, unknown>) {
+  if (!canPostMessageToNative()) {
+    return false;
+  }
   getReactNativeWebView()?.postMessage(JSON.stringify(payload));
+  return true;
 }
 
 export function isReactNativeWebView(): boolean {
-  return Boolean(getReactNativeWebView()) || Boolean(window.__CAMA_NATIVE_BRIDGE__);
+  return (
+    Boolean(getReactNativeWebView()) || Boolean(window.__CAMA_NATIVE_BRIDGE__)
+  );
 }
 
 function createRequestId(prefix: string): string {
@@ -42,7 +52,9 @@ function createRequestId(prefix: string): string {
     : `${prefix}-${Date.now()}`;
 }
 
-function waitForNativeResponse<T extends NativeBridgeResponseBase & { type: string }>(
+function waitForNativeResponse<
+  T extends NativeBridgeResponseBase & { type: string },
+>(
   responseType: T["type"],
   requestId: string,
   timeoutMs: number,
@@ -50,14 +62,23 @@ function waitForNativeResponse<T extends NativeBridgeResponseBase & { type: stri
   return new Promise((resolve) => {
     const onNative = (event: Event) => {
       const detail = (event as CustomEvent<T>).detail;
-      if (!detail || detail.type !== responseType || detail.requestId !== requestId) {
+      if (
+        !detail ||
+        detail.type !== responseType ||
+        detail.requestId !== requestId
+      ) {
         return;
       }
       window.removeEventListener("cama-native", onNative as EventListener);
       clearTimeout(timer);
       if (detail.ok) {
-        const { requestId: _rid, ok: _ok, error: _err, type: _type, ...data } =
-          detail;
+        const {
+          requestId: _rid,
+          ok: _ok,
+          error: _err,
+          type: _type,
+          ...data
+        } = detail;
         resolve({ ok: true, data });
       } else {
         resolve({ ok: false, error: detail.error ?? "UNKNOWN" });
@@ -73,23 +94,30 @@ function waitForNativeResponse<T extends NativeBridgeResponseBase & { type: stri
   });
 }
 
-async function requestBridge<T extends NativeBridgeResponseBase & { type: string }>(
+async function requestBridge<
+  T extends NativeBridgeResponseBase & { type: string },
+>(
   request: Record<string, unknown>,
   responseType: T["type"],
   timeoutMs = 10000,
 ): Promise<NativeBridgeResult<T>> {
-  if (!isReactNativeWebView()) {
+  if (!canPostMessageToNative()) {
     return { ok: false, error: "UNAVAILABLE" };
   }
   const requestId = createRequestId(String(request.type ?? "bridge"));
   const pending = waitForNativeResponse<T>(responseType, requestId, timeoutMs);
-  postMessageToNative({ ...request, requestId });
+  if (!postMessageToNative({ ...request, requestId })) {
+    return { ok: false, error: "UNAVAILABLE" };
+  }
   return pending;
 }
 
 export function requestNativeCapabilities(timeoutMs = 8000) {
   return requestBridge<
-    NativeBridgeResponseBase & { type: "capabilities"; capabilities?: DeviceCapabilities }
+    NativeBridgeResponseBase & {
+      type: "capabilities";
+      capabilities?: DeviceCapabilities;
+    }
   >({ type: "getCapabilities" }, "capabilities", timeoutMs);
 }
 
@@ -182,26 +210,36 @@ export function requestNativeBiometricAuth(
   >({ type: "authenticateBiometric", options }, "biometric", timeoutMs);
 }
 
-export function requestNativeStepCount(timeoutMs = 8000): Promise<number | null> {
+export function requestNativeStepCount(
+  timeoutMs = 8000,
+): Promise<number | null> {
   if (!isReactNativeWebView()) {
     return Promise.resolve(null);
   }
   return requestBridge<
     NativeBridgeResponseBase & { type: "stepCount"; steps?: number }
   >({ type: "getStepCount" }, "stepCount", timeoutMs).then((result) => {
-    if (result.ok && typeof result.data.steps === "number" && result.data.steps >= 0) {
+    if (
+      result.ok &&
+      typeof result.data.steps === "number" &&
+      result.data.steps >= 0
+    ) {
       return Math.floor(result.data.steps);
     }
     return null;
   });
 }
 
-export function requestNativeOpenHealthConnectSettings(timeoutMs = 10000): Promise<boolean> {
+export function requestNativeOpenHealthConnectSettings(
+  timeoutMs = 10000,
+): Promise<boolean> {
   return requestBridge<
     NativeBridgeResponseBase & { type: "healthConnectSettings" }
-  >({ type: "openHealthConnectSettings" }, "healthConnectSettings", timeoutMs).then(
-    (result) => result.ok,
-  );
+  >(
+    { type: "openHealthConnectSettings" },
+    "healthConnectSettings",
+    timeoutMs,
+  ).then((result) => result.ok);
 }
 
 export async function checkNativeSpeechRecognitionAvailable(
@@ -217,7 +255,11 @@ export async function checkNativeSpeechRecognitionAvailable(
       available?: boolean;
       implemented?: boolean;
     }
-  >({ type: "checkSpeechRecognitionAvailable" }, "speechRecognition", timeoutMs);
+  >(
+    { type: "checkSpeechRecognitionAvailable" },
+    "speechRecognition",
+    timeoutMs,
+  );
 
   if (!result.ok) {
     return { available: false, implemented: false };
@@ -232,7 +274,7 @@ export async function checkNativeSpeechRecognitionAvailable(
 export function startNativeSpeechRecognition(
   options: SpeechRecognitionOptions = {},
 ): string | null {
-  if (!isReactNativeWebView()) {
+  if (!canPostMessageToNative()) {
     return null;
   }
   const requestId = createRequestId("stt");
@@ -250,7 +292,7 @@ export function startNativeSpeechRecognition(
 }
 
 export function stopNativeSpeechRecognition(): string | null {
-  if (!isReactNativeWebView()) {
+  if (!canPostMessageToNative()) {
     return null;
   }
   const requestId = createRequestId("stt-stop");
@@ -259,7 +301,7 @@ export function stopNativeSpeechRecognition(): string | null {
 }
 
 export function cancelNativeSpeechRecognition(): string | null {
-  if (!isReactNativeWebView()) {
+  if (!canPostMessageToNative()) {
     return null;
   }
   const requestId = createRequestId("stt-cancel");
@@ -267,7 +309,9 @@ export function cancelNativeSpeechRecognition(): string | null {
   return requestId;
 }
 
-export function requestNativeFcmToken(timeoutMs = 10000): Promise<CamaFirebase | null> {
+export function requestNativeFcmToken(
+  timeoutMs = 10000,
+): Promise<CamaFirebase | null> {
   if (!isReactNativeWebView()) {
     return Promise.resolve(null);
   }
@@ -291,7 +335,7 @@ type NativeSpeechCommand =
   | { type: "resumeSpeech" };
 
 export function postNativeSpeechCommand(command: NativeSpeechCommand) {
-  if (!isReactNativeWebView()) {
+  if (!canPostMessageToNative()) {
     return null;
   }
 

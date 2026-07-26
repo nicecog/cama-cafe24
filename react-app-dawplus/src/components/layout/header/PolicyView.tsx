@@ -1,5 +1,5 @@
-import Popup from "@/components/ui/Popup";
 import { PolicyPageContent } from "@/components/mypage/PolicyPageContent";
+import Popup from "@/components/ui/Popup";
 
 type PolicyViewProps = {
   open: boolean;
@@ -7,7 +7,6 @@ type PolicyViewProps = {
   type: "terms" | "privacy" | "";
 };
 
-/** @deprecated 팝업 — /mypage/terms, /mypage/privacy 페이지 사용 권장 */
 export default function PolicyView(props: PolicyViewProps) {
   const { open, setOpen, type } = props;
   const title =

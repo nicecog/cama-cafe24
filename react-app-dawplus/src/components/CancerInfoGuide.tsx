@@ -1,7 +1,7 @@
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import Lottie from "lottie-react";
 import { Activity, Calendar, Check, FileText, Stethoscope } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import type {
   CancerInfoSelection,
   CareTrackNewDto,
@@ -9,7 +9,10 @@ import type {
 } from "@/apis/types";
 import guideAnimation from "@/assets/lottie/cancerGuide.json";
 import { accountHospitalAtom, accountMeAtom } from "@/atoms/accountAtoms";
-import { cancerInfoGuideOpenAtom } from "@/atoms/cancerInfoGuideAtom";
+import {
+  cancerInfoGuideCloseGuardUntilAtom,
+  cancerInfoGuideOpenAtom,
+} from "@/atoms/cancerInfoGuideAtom";
 import Popup from "@/components/ui/Popup";
 import { useApplyCareTrackService } from "@/hooks/mutations";
 import { useHospitalDiseaseList } from "@/hooks/queries/useHospitalQueries";
@@ -17,17 +20,22 @@ import { useDialog } from "@/hooks/useDialog";
 import { cn } from "@/lib/utils";
 
 type CancerInfoGuideProps = {
-  /** 전체 페이지 모드 (/mypage/care-track/apply) */
+  /** 전체 페이지처럼 렌더링할 때 사용 */
   asPage?: boolean;
   onPageClose?: () => void;
+  onPopupClose?: () => void;
 };
+
+const POPUP_CLOSE_GUARD_MS = 350;
 
 export default function CancerInfoGuide({
   asPage = false,
   onPageClose,
+  onPopupClose,
 }: CancerInfoGuideProps = {}) {
   // 전역 상태로 open 관리 (팝업 모드)
   const [open, setOpen] = useAtom(cancerInfoGuideOpenAtom);
+  const setCloseGuardUntil = useSetAtom(cancerInfoGuideCloseGuardUntilAtom);
 
   const { data: hospital } = useAtomValue(accountHospitalAtom);
 
@@ -258,6 +266,8 @@ export default function CancerInfoGuide({
     if (asPage) {
       onPageClose?.();
     } else {
+      onPopupClose?.();
+      setCloseGuardUntil(Date.now() + POPUP_CLOSE_GUARD_MS);
       setOpen(false);
     }
     setCurrentStep(1);
@@ -301,53 +311,53 @@ export default function CancerInfoGuide({
 
   return wrapContent(
     <div className="flex flex-col h-full min-h-0">
-        {/* 헤더 - 스텝 인디케이터 */}
-        <div className="relative bg-gradient-to-br from-primary via-primary to-primary/90 border-b overflow-hidden h-48">
-          <div className="relative z-10 px-5 pt-2 pb-4">
-            {/* 로티 애니메이션 */}
-            <div className="flex justify-center mb-3">
-              <Lottie
-                animationData={guideAnimation}
-                className="w-20 h-20"
-                loop={true}
-              />
-            </div>
+      {/* 헤더 - 스텝 인디케이터 */}
+      <div className="relative bg-gradient-to-br from-primary via-primary to-primary/90 border-b overflow-hidden h-48">
+        <div className="relative z-10 px-5 pt-2 pb-4">
+          {/* 로티 애니메이션 */}
+          <div className="flex justify-center mb-3">
+            <Lottie
+              animationData={guideAnimation}
+              className="w-20 h-20"
+              loop={true}
+            />
+          </div>
 
-            {/* 스텝 인디케이터 - 컴팩트 버전 */}
-            <div className="space-y-3">
-              {/* 전체 진행률 표시 - 아이콘 */}
-              <div className="flex items-center justify-center gap-5">
-                {steps.map((step) => {
-                  const isCompleted = currentStep > step.number;
-                  const isCurrent = currentStep === step.number;
+          {/* 스텝 인디케이터 - 컴팩트 버전 */}
+          <div className="space-y-3">
+            {/* 전체 진행률 표시 - 아이콘 */}
+            <div className="flex items-center justify-center gap-5">
+              {steps.map((step) => {
+                const isCompleted = currentStep > step.number;
+                const isCurrent = currentStep === step.number;
 
-                  // 각 스텝에 맞는 아이콘
-                  const getIcon = () => {
-                    switch (step.number) {
-                      case 1:
-                        return Stethoscope; // 질환
-                      case 2:
-                        return Calendar; // 치료시기
-                      case 3:
-                        return FileText; // 암 종류
-                      case 4:
-                        return Activity; // 고려사항
-                      case 5:
-                        return Calendar; // 기간
-                      default:
-                        return FileText;
-                    }
-                  };
+                // 각 스텝에 맞는 아이콘
+                const getIcon = () => {
+                  switch (step.number) {
+                    case 1:
+                      return Stethoscope; // 질환
+                    case 2:
+                      return Calendar; // 치료시기
+                    case 3:
+                      return FileText; // 암 종류
+                    case 4:
+                      return Activity; // 고려사항
+                    case 5:
+                      return Calendar; // 기간
+                    default:
+                      return FileText;
+                  }
+                };
 
-                  const Icon = getIcon();
+                const Icon = getIcon();
 
-                  return (
+                return (
+                  <div
+                    key={step.number}
+                    className="flex flex-col items-center gap-1.5"
+                  >
                     <div
-                      key={step.number}
-                      className="flex flex-col items-center gap-1.5"
-                    >
-                      <div
-                        className={`
+                      className={`
 													transition-all duration-300 rounded-full flex items-center justify-center
 													${
                             isCompleted
@@ -357,332 +367,309 @@ export default function CancerInfoGuide({
                                 : "w-9 h-9 bg-white/30"
                           }
 												`}
-                      >
-                        {isCompleted ? (
-                          <Check
-                            className="w-5 h-5 text-white"
-                            strokeWidth={3}
-                          />
-                        ) : (
-                          <Icon
-                            className={`
+                    >
+                      {isCompleted ? (
+                        <Check className="w-5 h-5 text-white" strokeWidth={3} />
+                      ) : (
+                        <Icon
+                          className={`
 															${
                                 isCurrent
                                   ? "w-6 h-6 text-primary"
                                   : "w-4 h-4 text-white/50"
                               }
 														`}
-                            strokeWidth={2}
-                          />
-                        )}
-                      </div>
-                      <span
-                        className={`
+                          strokeWidth={2}
+                        />
+                      )}
+                    </div>
+                    <span
+                      className={`
 													text-[11px] transition-all duration-300
 													${
                             isCurrent ? "text-white font-bold" : "text-white/60"
                           }
 												`}
-                      >
-                        {step.label}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+                    >
+                      {step.label}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
+      </div>
 
-        {/* 컨텐츠 */}
-        <div className="flex-1 overflow-y-auto p-5">
-          {/* Step 1: 어떤 질환인가요? */}
-          {currentStep === 1 && (
-            <div>
-              <div className="flex items-center justify-center gap-2 mb-4 p-3 border border-primary/20 rounded-lg shadow-sm bg-primary/5">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
-                  <Stethoscope
-                    className="w-4 h-4 text-primary"
-                    strokeWidth={2.5}
-                  />
-                </div>
-                <h3 className="text-base font-semibold text-gray-800">
-                  어떤 질환인가요?
-                </h3>
+      {/* 컨텐츠 */}
+      <div className="flex-1 overflow-y-auto p-5">
+        {/* Step 1: 어떤 질환인가요? */}
+        {currentStep === 1 && (
+          <div>
+            <div className="flex items-center justify-center gap-2 mb-4 p-3 border border-primary/20 rounded-lg shadow-sm bg-primary/5">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
+                <Stethoscope
+                  className="w-4 h-4 text-primary"
+                  strokeWidth={2.5}
+                />
               </div>
-              <div className="space-y-2">
-                {diseaseList?.response?.map((disease) => (
-                  <button
-                    key={disease.seq}
-                    onClick={() => handleDiseaseSelect(disease)}
-                    className={cn(
-                      "w-full px-4 py-2.5 text-left border-2 rounded-lg transition-all",
-                      selection.disease?.seq === disease.seq
-                        ? "border-primary bg-primary/10 font-semibold"
-                        : "border-gray-200 hover:border-primary hover:bg-primary/5",
-                    )}
-                  >
-                    {disease.diseaseName}
-                  </button>
-                ))}
-              </div>
+              <h3 className="text-base font-semibold text-gray-800">
+                어떤 질환인가요?
+              </h3>
             </div>
-          )}
-
-          {/* Step 2: 치료시기를 선택하세요 */}
-          {currentStep === 2 && selection.disease && (
-            <div>
-              <div className="flex items-center justify-center gap-2 mb-4 p-3 border border-primary/20 rounded-lg shadow-sm bg-primary/5">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
-                  <Calendar
-                    className="w-4 h-4 text-primary"
-                    strokeWidth={2.5}
-                  />
-                </div>
-                <h3 className="text-base font-semibold text-gray-800">
-                  치료시기를 선택하세요.
-                </h3>
-              </div>
-              <div className="space-y-2">
-                {selection.disease.diseaseTreatment.map((treatment) => (
-                  <button
-                    key={treatment.seq}
-                    onClick={() => handleSelect("treatment", treatment)}
-                    className={cn(
-                      "w-full px-4 py-2.5 text-left border-2 rounded-lg transition-all",
-                      selection.treatment?.seq === treatment.seq
-                        ? "border-primary bg-primary/10 font-semibold"
-                        : "border-gray-200 hover:border-primary hover:bg-primary/5",
-                    )}
-                  >
-                    {treatment.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Step 3: 암 종류를 선택해 주세요 */}
-          {currentStep === 3 && diseaseTypeOptions.length > 0 && (
-            <div>
-              <div className="flex items-center justify-center gap-2 mb-4 p-3 border border-primary/20 rounded-lg shadow-sm bg-primary/5">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
-                  <FileText
-                    className="w-4 h-4 text-primary"
-                    strokeWidth={2.5}
-                  />
-                </div>
-                <h3 className="text-base font-semibold text-gray-800">
-                  {diseaseTypeOptions[0].groupName}를 선택해 주세요.
-                </h3>
-              </div>
-              <div className="space-y-2">
-                {diseaseTypeOptions.map((option) => (
-                  <button
-                    key={option.seq}
-                    onClick={() => handleSelect("diseaseType", option)}
-                    className={cn(
-                      "w-full px-4 py-2.5 text-left border-2 rounded-lg transition-all",
-                      selection.diseaseType?.seq === option.seq
-                        ? "border-primary bg-primary/10 font-semibold"
-                        : "border-gray-200 hover:border-primary hover:bg-primary/5",
-                    )}
-                  >
-                    {option.optionName}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Step 4: 그 외 고려사항을 선택해주세요 (단일 선택) */}
-          {currentStep === 4 && otherConsiderationOptions.length > 0 && (
-            <div>
-              <div className="flex items-center justify-center gap-2 mb-4 p-3 border border-primary/20 rounded-lg shadow-sm bg-primary/5">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
-                  <Activity
-                    className="w-4 h-4 text-primary"
-                    strokeWidth={2.5}
-                  />
-                </div>
-                <h3 className="text-base font-semibold text-gray-800">
-                  그 외 고려사항을 선택해주세요.
-                </h3>
-              </div>
-              <div className="space-y-2">
-                {otherConsiderationOptions.map((option) => (
-                  <button
-                    key={option.seq}
-                    onClick={() => handleSelect("otherOption", option)}
-                    className={cn(
-                      "w-full px-4 py-2.5 text-left border-2 rounded-lg transition-all",
-                      selection.otherOption?.seq === option.seq
-                        ? "border-primary bg-primary/10 font-semibold"
-                        : "border-gray-200 hover:border-primary hover:bg-primary/5",
-                    )}
-                  >
-                    {option.optionName}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Step 5: 관심있는 영역 선택 (다중 선택) */}
-          {currentStep === 5 && (
-            <div>
-              <div className="flex items-center justify-center gap-2 mb-4 p-3 border border-primary/20 rounded-lg shadow-sm bg-primary/5">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
-                  <FileText
-                    className="w-4 h-4 text-primary"
-                    strokeWidth={2.5}
-                  />
-                </div>
-                <h3 className="text-base font-semibold text-gray-800">
-                  관심있는 영역을 선택해주세요.
-                </h3>
-              </div>
-              <p className="text-sm text-gray-600 mb-4 text-center">
-                여러 개를 선택할 수 있습니다.
-              </p>
-
-              {/* 모두 선택하기 - 구분된 스타일 */}
-              <div className="mb-4 pb-4 border-b-2 border-gray-200">
+            <div className="space-y-2">
+              {diseaseList?.response?.map((disease) => (
                 <button
-                  onClick={() => {
-                    const currentAreas = selection.interestAreas || [];
-                    const allSelected =
-                      currentAreas.length === interestAreaOptions.length;
-
-                    if (allSelected) {
-                      // 모두 선택 해제
-                      setSelection((prev) => ({ ...prev, interestAreas: [] }));
-                    } else {
-                      // 모두 선택
-                      setSelection((prev) => ({
-                        ...prev,
-                        interestAreas: interestAreaOptions,
-                      }));
-                    }
-                  }}
+                  key={disease.seq}
+                  onClick={() => handleDiseaseSelect(disease)}
                   className={cn(
-                    "w-full px-4 py-3 text-left border-2 rounded-lg transition-all flex items-center gap-3",
-                    selection.interestAreas?.length ===
-                      interestAreaOptions.length
-                      ? "border-secondary bg-secondary/15 font-bold shadow-sm"
-                      : "border-gray-400 bg-gray-50 hover:bg-gray-100 hover:border-gray-500",
+                    "w-full px-4 py-2.5 text-left border-2 rounded-lg transition-all",
+                    selection.disease?.seq === disease.seq
+                      ? "border-primary bg-primary/10 font-semibold"
+                      : "border-gray-200 hover:border-primary hover:bg-primary/5",
                   )}
                 >
-                  <div
+                  {disease.diseaseName}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: 치료시기를 선택하세요 */}
+        {currentStep === 2 && selection.disease && (
+          <div>
+            <div className="flex items-center justify-center gap-2 mb-4 p-3 border border-primary/20 rounded-lg shadow-sm bg-primary/5">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
+                <Calendar className="w-4 h-4 text-primary" strokeWidth={2.5} />
+              </div>
+              <h3 className="text-base font-semibold text-gray-800">
+                치료시기를 선택하세요.
+              </h3>
+            </div>
+            <div className="space-y-2">
+              {selection.disease.diseaseTreatment.map((treatment) => (
+                <button
+                  key={treatment.seq}
+                  onClick={() => handleSelect("treatment", treatment)}
+                  className={cn(
+                    "w-full px-4 py-2.5 text-left border-2 rounded-lg transition-all",
+                    selection.treatment?.seq === treatment.seq
+                      ? "border-primary bg-primary/10 font-semibold"
+                      : "border-gray-200 hover:border-primary hover:bg-primary/5",
+                  )}
+                >
+                  {treatment.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: 암 종류를 선택해 주세요 */}
+        {currentStep === 3 && diseaseTypeOptions.length > 0 && (
+          <div>
+            <div className="flex items-center justify-center gap-2 mb-4 p-3 border border-primary/20 rounded-lg shadow-sm bg-primary/5">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
+                <FileText className="w-4 h-4 text-primary" strokeWidth={2.5} />
+              </div>
+              <h3 className="text-base font-semibold text-gray-800">
+                {diseaseTypeOptions[0].groupName}를 선택해 주세요.
+              </h3>
+            </div>
+            <div className="space-y-2">
+              {diseaseTypeOptions.map((option) => (
+                <button
+                  key={option.seq}
+                  onClick={() => handleSelect("diseaseType", option)}
+                  className={cn(
+                    "w-full px-4 py-2.5 text-left border-2 rounded-lg transition-all",
+                    selection.diseaseType?.seq === option.seq
+                      ? "border-primary bg-primary/10 font-semibold"
+                      : "border-gray-200 hover:border-primary hover:bg-primary/5",
+                  )}
+                >
+                  {option.optionName}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: 그 외 고려사항을 선택해주세요 (단일 선택) */}
+        {currentStep === 4 && otherConsiderationOptions.length > 0 && (
+          <div>
+            <div className="flex items-center justify-center gap-2 mb-4 p-3 border border-primary/20 rounded-lg shadow-sm bg-primary/5">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
+                <Activity className="w-4 h-4 text-primary" strokeWidth={2.5} />
+              </div>
+              <h3 className="text-base font-semibold text-gray-800">
+                그 외 고려사항을 선택해주세요.
+              </h3>
+            </div>
+            <div className="space-y-2">
+              {otherConsiderationOptions.map((option) => (
+                <button
+                  key={option.seq}
+                  onClick={() => handleSelect("otherOption", option)}
+                  className={cn(
+                    "w-full px-4 py-2.5 text-left border-2 rounded-lg transition-all",
+                    selection.otherOption?.seq === option.seq
+                      ? "border-primary bg-primary/10 font-semibold"
+                      : "border-gray-200 hover:border-primary hover:bg-primary/5",
+                  )}
+                >
+                  {option.optionName}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step 5: 관심있는 영역 선택 (다중 선택) */}
+        {currentStep === 5 && (
+          <div>
+            <div className="flex items-center justify-center gap-2 mb-4 p-3 border border-primary/20 rounded-lg shadow-sm bg-primary/5">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
+                <FileText className="w-4 h-4 text-primary" strokeWidth={2.5} />
+              </div>
+              <h3 className="text-base font-semibold text-gray-800">
+                관심있는 영역을 선택해주세요.
+              </h3>
+            </div>
+            <p className="text-sm text-gray-600 mb-4 text-center">
+              여러 개를 선택할 수 있습니다.
+            </p>
+
+            {/* 모두 선택하기 - 구분된 스타일 */}
+            <div className="mb-4 pb-4 border-b-2 border-gray-200">
+              <button
+                onClick={() => {
+                  const currentAreas = selection.interestAreas || [];
+                  const allSelected =
+                    currentAreas.length === interestAreaOptions.length;
+
+                  if (allSelected) {
+                    // 모두 선택 해제
+                    setSelection((prev) => ({ ...prev, interestAreas: [] }));
+                  } else {
+                    // 모두 선택
+                    setSelection((prev) => ({
+                      ...prev,
+                      interestAreas: interestAreaOptions,
+                    }));
+                  }
+                }}
+                className={cn(
+                  "w-full px-4 py-3 text-left border-2 rounded-lg transition-all flex items-center gap-3",
+                  selection.interestAreas?.length === interestAreaOptions.length
+                    ? "border-secondary bg-secondary/15 font-bold shadow-sm"
+                    : "border-gray-400 bg-gray-50 hover:bg-gray-100 hover:border-gray-500",
+                )}
+              >
+                <div
+                  className={cn(
+                    "w-6 h-6 rounded border-2 flex items-center justify-center transition-all",
+                    selection.interestAreas?.length ===
+                      interestAreaOptions.length
+                      ? "bg-secondary border-secondary"
+                      : "border-gray-500 bg-white",
+                  )}
+                >
+                  {selection.interestAreas?.length ===
+                    interestAreaOptions.length && (
+                    <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                  )}
+                </div>
+                <span className="text-base font-bold text-gray-800">
+                  모두 선택하기
+                </span>
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              {interestAreaOptions.map((area) => {
+                const isSelected = selection.interestAreas?.includes(area);
+                return (
+                  <button
+                    key={area}
+                    onClick={() => handleInterestAreaToggle(area)}
                     className={cn(
-                      "w-6 h-6 rounded border-2 flex items-center justify-center transition-all",
-                      selection.interestAreas?.length ===
-                        interestAreaOptions.length
-                        ? "bg-secondary border-secondary"
-                        : "border-gray-500 bg-white",
+                      "w-full px-4 py-2.5 text-left border-2 rounded-lg transition-all flex items-center gap-3",
+                      isSelected
+                        ? "border-primary bg-primary/10 font-semibold"
+                        : "border-gray-200 hover:border-primary hover:bg-primary/5",
                     )}
                   >
-                    {selection.interestAreas?.length ===
-                      interestAreaOptions.length && (
-                      <Check className="w-4 h-4 text-white" strokeWidth={3} />
-                    )}
-                  </div>
-                  <span className="text-base font-bold text-gray-800">
-                    모두 선택하기
-                  </span>
-                </button>
-              </div>
-
-              <div className="space-y-2">
-                {interestAreaOptions.map((area) => {
-                  const isSelected = selection.interestAreas?.includes(area);
-                  return (
-                    <button
-                      key={area}
-                      onClick={() => handleInterestAreaToggle(area)}
+                    <div
                       className={cn(
-                        "w-full px-4 py-2.5 text-left border-2 rounded-lg transition-all flex items-center gap-3",
+                        "w-5 h-5 rounded border-2 flex items-center justify-center transition-all",
                         isSelected
-                          ? "border-primary bg-primary/10 font-semibold"
-                          : "border-gray-200 hover:border-primary hover:bg-primary/5",
+                          ? "bg-primary border-primary"
+                          : "border-gray-300",
                       )}
                     >
-                      <div
-                        className={cn(
-                          "w-5 h-5 rounded border-2 flex items-center justify-center transition-all",
-                          isSelected
-                            ? "bg-primary border-primary"
-                            : "border-gray-300",
-                        )}
-                      >
-                        {isSelected && (
-                          <Check
-                            className="w-3 h-3 text-white"
-                            strokeWidth={3}
-                          />
-                        )}
-                      </div>
-                      <span>{area}</span>
-                    </button>
-                  );
-                })}
-              </div>
+                      {isSelected && (
+                        <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                      )}
+                    </div>
+                    <span>{area}</span>
+                  </button>
+                );
+              })}
             </div>
-          )}
-
-          {/* Step 6: 컨텐츠 기간 선택 */}
-          {currentStep === 6 && selection.treatment && (
-            <div>
-              <StepHeader
-                icon={Calendar}
-                title="추천 컨텐츠를 며칠에 걸쳐 보시겠어요?"
-              />
-              <div className="space-y-2">
-                {selection.treatment.treatmentPeriod
-                  .split(",")
-                  .map((period) => (
-                    <OptionButton
-                      key={period}
-                      label={period}
-                      isSelected={selection.contentPeriod === Number(period)}
-                      onClick={() =>
-                        handleSelect("contentPeriod", Number(period))
-                      }
-                    />
-                  ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* 푸터 - 이전/다음 버튼 */}
-        <div className="px-5 py-3.5 border-t bg-white">
-          <div className="flex gap-3">
-            {/* 이전 버튼 */}
-            {currentStep > 1 && (
-              <button
-                onClick={handleBack}
-                className="flex-1 p-2 border-2 rounded-lg hover:bg-gray-50 transition-all font-medium"
-              >
-                이전
-              </button>
-            )}
-
-            {/* 다음 버튼 */}
-            <button
-              onClick={handleNext}
-              disabled={!isCurrentStepValid()}
-              className={cn(
-                "flex-1 p-2 rounded-lg transition-all font-medium",
-                isCurrentStepValid()
-                  ? "bg-primary text-white hover:bg-primary/90"
-                  : "bg-gray-200 text-gray-400 cursor-not-allowed",
-              )}
-            >
-              {currentStep === 6 ? "완료" : "다음"}
-            </button>
           </div>
+        )}
+
+        {/* Step 6: 컨텐츠 기간 선택 */}
+        {currentStep === 6 && selection.treatment && (
+          <div>
+            <StepHeader
+              icon={Calendar}
+              title="추천 컨텐츠를 며칠에 걸쳐 보시겠어요?"
+            />
+            <div className="space-y-2">
+              {selection.treatment.treatmentPeriod.split(",").map((period) => (
+                <OptionButton
+                  key={period}
+                  label={period}
+                  isSelected={selection.contentPeriod === Number(period)}
+                  onClick={() => handleSelect("contentPeriod", Number(period))}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 푸터 - 이전/다음 버튼 */}
+      <div className="px-5 py-3.5 border-t bg-white">
+        <div className="flex gap-3">
+          {/* 이전 버튼 */}
+          {currentStep > 1 && (
+            <button
+              onClick={handleBack}
+              className="flex-1 p-2 border-2 rounded-lg hover:bg-gray-50 transition-all font-medium"
+            >
+              이전
+            </button>
+          )}
+
+          {/* 다음 버튼 */}
+          <button
+            onClick={handleNext}
+            disabled={!isCurrentStepValid()}
+            className={cn(
+              "flex-1 p-2 rounded-lg transition-all font-medium",
+              isCurrentStepValid()
+                ? "bg-primary text-white hover:bg-primary/90"
+                : "bg-gray-200 text-gray-400 cursor-not-allowed",
+            )}
+          >
+            {currentStep === 6 ? "완료" : "다음"}
+          </button>
         </div>
+      </div>
     </div>,
   );
 }

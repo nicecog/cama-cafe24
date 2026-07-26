@@ -7,7 +7,7 @@ import resultImage from "@/assets/images/character/result.png";
 import mentalHeaderImage from "@/assets/images/coaching/mental/mentalheader.png";
 import missionImage from "@/assets/images/coaching/mental/mission.png";
 import useAlert from "@/hooks/useAlert";
-import ImporText from "../../component/ImportText";
+import ImporText from "../../component/-ImportText";
 import {
   MentalCardSummary1,
   MentalCardSummary2,

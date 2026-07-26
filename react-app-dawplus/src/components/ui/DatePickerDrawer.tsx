@@ -19,6 +19,7 @@ interface DatePickerDrawerProps {
   format?: DateFormat;
   value?: string | Date;
   onChange?: (date: Date | undefined) => void;
+  onOpenChange?: (open: boolean) => void;
   className?: string;
   disabled?:
     | (Omit<
@@ -87,6 +88,7 @@ export function DatePickerDrawer({
   format = "yyyy.MM.dd",
   value,
   onChange,
+  onOpenChange,
   disabled: disabledProp,
   className,
 }: DatePickerDrawerProps) {
@@ -143,15 +145,20 @@ export function DatePickerDrawer({
     setDisplayValue(formatDate(parsed, format));
   }, [value, format]);
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    onOpenChange?.(nextOpen);
+  };
+
   const handleSelect = (selectedDate: Date | undefined) => {
     setDate(selectedDate);
     setDisplayValue(formatDate(selectedDate, format));
     onChange?.(selectedDate);
     // 선택 즉시 닫기
-    setTimeout(() => setOpen(false), 200);
+    setTimeout(() => handleOpenChange(false), 200);
   };
 
-  const openPicker = () => setOpen(true);
+  const openPicker = () => handleOpenChange(true);
 
   const triggerClassName = cn(
     "relative flex h-9 w-full items-center rounded-md border border-input bg-background px-3 py-1 text-base shadow-sm transition-colors",
@@ -180,7 +187,11 @@ export function DatePickerDrawer({
       </button>
 
       {/* Popup(z-201) 위에 표시; iOS WebView 중첩 모달 시 배경 스케일 비활성화 */}
-      <Drawer open={open} onOpenChange={setOpen} shouldScaleBackground={false}>
+      <Drawer
+        open={open}
+        onOpenChange={handleOpenChange}
+        shouldScaleBackground={false}
+      >
         <DrawerContent className="h-auto">
           <DrawerHeader className="border-b border-gray-100 pb-3">
             <DrawerTitle className="text-center text-base font-semibold text-gray-800">

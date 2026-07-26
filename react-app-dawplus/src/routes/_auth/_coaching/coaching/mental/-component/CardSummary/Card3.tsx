@@ -15,7 +15,7 @@ import {
   CareCardSelectButton,
   CareCardSurface,
 } from "../CareCards/-components";
-import ImporText from "../../component/ImportText";
+import ImporText from "../../component/-ImportText";
 import {
   CardSummaryPopup,
   CardSummaryShell,

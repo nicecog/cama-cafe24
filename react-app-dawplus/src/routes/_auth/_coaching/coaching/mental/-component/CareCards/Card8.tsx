@@ -14,7 +14,7 @@ import {
   CareCardSurface,
   useCareCardStepScrollReset,
 } from "./-components";
-import ImporText from "../../component/ImportText";
+import ImporText from "../../component/-ImportText";
 import { MentalCardSummary2 } from "../CardSummary";
 import { prevStepAtom as prevSectionStepAtom } from "../../Section6/-session6Atoms";
 import {

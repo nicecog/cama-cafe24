@@ -1,8 +1,8 @@
 import { useSetAtom } from "jotai";
 import useDiseaseName from "@/hooks/useDiseaseName";
-import TextBox from "../../component/Layout/TextBox";
-import Bubble from "../component/Bubble";
-import Footer from "../component/Footer";
+import TextBox from "../../component/Layout/-TextBox";
+import Bubble from "../component/-Bubble";
+import Footer from "../component/-Footer";
 import { prevStepAtom, setCareTypeAtom } from "./-session6Atoms";
 
 type ButtonLabel =

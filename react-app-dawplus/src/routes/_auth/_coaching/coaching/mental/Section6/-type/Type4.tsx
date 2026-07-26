@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import useGetAnswer, { getMentalTypeCode } from "@/hooks/useGetAnswer";
-import TextArea from "@/routes/_auth/_coaching/coaching/component/Layout/TextArea";
-import ImporText from "../../component/ImportText";
+import TextArea from "@/routes/_auth/_coaching/coaching/component/Layout/-TextArea";
+import ImporText from "../../component/-ImportText";
 
 export default function Type4() {
   const mentalTypeCd = getMentalTypeCode("자포자기형");

@@ -1,10 +1,7 @@
-import { format, parse } from "date-fns";
 import { useNavigate } from "@tanstack/react-router";
+import { format, parse } from "date-fns";
 import { useAtomValue } from "jotai";
-import {
-  Bell,
-  Heart,
-} from "lucide-react";
+import { Bell, Heart } from "lucide-react";
 import * as motion from "motion/react-client";
 import { useMemo, useState } from "react";
 import HeadImg from "@/assets/images/character/head/type5.png";
@@ -63,7 +60,6 @@ export default function CareTrackInfo({
             onSuccess: () => {
               alert("가이드가 중단되었습니다.");
               setOpen(false);
-              if (pageMode) navigate({ to: "/mypage" });
             },
             onError: () => {
               alert("중단 처리에 실패했습니다. 다시 시도해 주세요.");
@@ -123,7 +119,9 @@ export default function CareTrackInfo({
           </p>
         </div>
       </div>
-      <p className="text-xs text-gray-500 mb-2">암정보 가이드가 진행중 입니다.</p>
+      <p className="text-xs text-gray-500 mb-2">
+        암정보 가이드가 진행중 입니다.
+      </p>
       <MotionProgress
         value={Number(careTrackInfo.process.toFixed(1))}
         suffix="%"
@@ -142,16 +140,20 @@ export default function CareTrackInfo({
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-white/10 rounded-xl p-3 border border-white/20">
             <p className="text-[10px] text-white/70 font-bold">진행 기간</p>
-            <p className="text-xl font-black text-white">{careTrackInfo.days}일</p>
+            <p className="text-xl font-black text-white">
+              {careTrackInfo.days}일
+            </p>
           </div>
           <div className="bg-white/10 rounded-xl p-3 border border-white/20">
             <p className="text-[10px] text-white/70 font-bold">암치료 시기</p>
             <div className="flex flex-wrap gap-1">
-              {parsedData.disease.diseaseTreatment.map((t: { seq: number; name: string }) => (
-                <span key={t.seq} className="text-lg font-black text-white">
-                  {t.name}
-                </span>
-              ))}
+              {parsedData.disease.diseaseTreatment.map(
+                (t: { seq: number; name: string }) => (
+                  <span key={t.seq} className="text-lg font-black text-white">
+                    {t.name}
+                  </span>
+                ),
+              )}
             </div>
           </div>
         </div>
@@ -163,7 +165,9 @@ export default function CareTrackInfo({
                 key={`${option.groupName}-${option.optionName}`}
                 className="flex items-center justify-between py-1.5 text-white"
               >
-                <span className="text-xs text-white/60">{option.groupName}</span>
+                <span className="text-xs text-white/60">
+                  {option.groupName}
+                </span>
                 <span className="text-sm font-bold">{option.optionName}</span>
               </div>
             )}

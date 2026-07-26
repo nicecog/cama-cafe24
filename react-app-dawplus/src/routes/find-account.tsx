@@ -1,18 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { motion, type Variants } from "framer-motion";
+import { KeyRound, Search, ShieldAlert } from "lucide-react";
 import * as React from "react";
 import { z } from "zod";
-import { KeyRound, Search, ShieldAlert } from "lucide-react";
-import { motion, type Variants } from "framer-motion";
-import SplitText from "@/components/SplitText";
 import {
   findPatientLoginId,
   resetPatientPassword,
 } from "@/apis/api/patientAuth";
 import { AuthField } from "@/components/auth/AuthField";
+import SplitText from "@/components/SplitText";
 import { Button } from "@/components/ui/Button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
-import useAlert from "@/hooks/useAlert";
 import { useToast } from "@/hooks/use-toast";
+import useAlert from "@/hooks/useAlert";
 import {
   normalizePhone,
   validateLoginId,
@@ -70,7 +70,9 @@ function FindAccountPage() {
   const validateCommon = () => {
     const nextErrors = {
       loginId:
-        tab === "password" ? validateLoginId(form.loginId) : (null as string | null),
+        tab === "password"
+          ? validateLoginId(form.loginId)
+          : (null as string | null),
       name: validateName(form.name),
       phone: validatePhone(form.phone),
     };
@@ -87,9 +89,10 @@ function FindAccountPage() {
         name: form.name.trim(),
         phone: normalizePhone(form.phone),
       });
-      const message = response.found && response.loginId
-        ? `회원 아이디: ${response.loginId}`
-        : response.message;
+      const message =
+        response.found && response.loginId
+          ? `회원 아이디: ${response.loginId}`
+          : response.message;
       setResultMessage(message);
       toast({
         title: "아이디 찾기",
@@ -210,7 +213,9 @@ function FindAccountPage() {
                 <div className="rounded-xl bg-primary/10 p-2">
                   <Search className="size-5 text-primary" strokeWidth={2.5} />
                 </div>
-                <h3 className="text-xl font-bold text-slate-800">아이디 찾기</h3>
+                <h3 className="text-xl font-bold text-slate-800">
+                  아이디 찾기
+                </h3>
               </div>
               <AuthField
                 label="이름"

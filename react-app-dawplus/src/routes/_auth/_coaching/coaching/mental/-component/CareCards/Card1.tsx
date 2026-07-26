@@ -10,7 +10,7 @@ import MissionTitle from "@/routes/_auth/_coaching/coaching/-components/elements
 import useAlert from "@/hooks/useAlert";
 import resultImage from "@/assets/images/character/result.png";
 
-import ImporText from "../../component/ImportText";
+import ImporText from "../../component/-ImportText";
 import { MentalCardSummary1, MentalCardSummary3 } from "../CardSummary";
 import {
   MentalCardFooter,

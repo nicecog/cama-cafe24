@@ -32,13 +32,13 @@ export default ({ mode }: { mode: string }): UserConfig => {
 
   return defineConfig({
     plugins: [
-      react(),
-      tsconfigPaths(),
       tanstackRouter({
         target: "react",
         autoCodeSplitting: true,
         routeFileIgnorePattern: "((step\\d+)|utils)\\.tsx?$|_shared",
       }),
+      react(),
+      tsconfigPaths(),
     ],
     resolve: {
       alias: {

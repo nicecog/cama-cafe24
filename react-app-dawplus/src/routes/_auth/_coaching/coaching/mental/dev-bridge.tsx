@@ -3,12 +3,12 @@ import * as React from "react";
 import { useToast } from "@/hooks/use-toast";
 import {
   MentalSection1Page,
-} from "./Section1";
-import { MentalSection2Page } from "./Section2";
-import { MentalSection3Page } from "./Section3";
-import { MentalSection4Page } from "./Section4";
-import { MentalSection5Page } from "./Section5";
-import { MentalSection6Page } from "./Section6";
+} from "./Section1/-index";
+import { MentalSection2Page } from "./Section2/-index";
+import { MentalSection3Page } from "./Section3/-index";
+import { MentalSection4Page } from "./Section4/-index";
+import { MentalSection5Page } from "./Section5/-index";
+import { MentalSection6Page } from "./Section6/-index";
 import {
   MentalCard1,
   MentalCard2,

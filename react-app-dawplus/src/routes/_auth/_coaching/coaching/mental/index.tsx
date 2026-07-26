@@ -4,12 +4,12 @@ import { accountMeAtom } from "@/atoms/accountAtoms";
 import Textbox from "../-components/elements/Textbox";
 import { useUserAnswerInfoList } from "@/hooks/queries";
 import { getMentalSession } from "./-component/-mentalSectionConfig";
-import { MentalSection1Page } from "./Section1";
-import { MentalSection2Page } from "./Section2";
-import { MentalSection3Page } from "./Section3";
-import { MentalSection4Page } from "./Section4";
-import { MentalSection5Page } from "./Section5";
-import { MentalSection6Page } from "./Section6";
+import { MentalSection1Page } from "./Section1/-index";
+import { MentalSection2Page } from "./Section2/-index";
+import { MentalSection3Page } from "./Section3/-index";
+import { MentalSection4Page } from "./Section4/-index";
+import { MentalSection5Page } from "./Section5/-index";
+import { MentalSection6Page } from "./Section6/-index";
 
 export const Route = createFileRoute("/_auth/_coaching/coaching/mental/")({
   component: MentalRoutePage,

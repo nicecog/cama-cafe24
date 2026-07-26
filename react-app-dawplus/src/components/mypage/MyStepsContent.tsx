@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { Activity, Loader2 } from "lucide-react";
 import { useAtomValue } from "jotai";
+import { Activity, Loader2 } from "lucide-react";
 import { useState } from "react";
 import {
   Bar,
@@ -14,22 +14,28 @@ import {
 import "@/assets/fonts/jalnan-gothic.css";
 import activity from "@/assets/images/character/activity.png";
 import { accountMeAtom } from "@/atoms/accountAtoms";
-import { Button } from "@/components/ui/Button";
 import IncrementNumber from "@/components/effect/IncrementNumber";
+import { Button } from "@/components/ui/Button";
 import { useCareTrackStepList } from "@/hooks/queries";
-import { useDialog } from "@/hooks/useDialog";
 import { useToast } from "@/hooks/use-toast";
+import { useDialog } from "@/hooks/useDialog";
 import { syncHeartRate } from "@/lib/health/syncHeartRate";
-import { requestNativeOpenHealthConnectSettings } from "@/lib/webview/rnBridge";
-import { isReactNativeWebView } from "@/lib/webview/rnBridge";
+import {
+  isReactNativeWebView,
+  requestNativeOpenHealthConnectSettings,
+} from "@/lib/webview/rnBridge";
 
 type MyStepsContentProps = {
   /** false면 API 조회 비활성 (팝업 닫힘) */
   active?: boolean;
+  onNestedDialogOpenChange?: (open: boolean) => void;
 };
 
 /** cama-billive StepInfoScreen 본문 */
-export function MyStepsContent({ active = true }: MyStepsContentProps) {
+export function MyStepsContent({
+  active = true,
+  onNestedDialogOpenChange,
+}: MyStepsContentProps) {
   const { toast } = useToast();
   const { confirm } = useDialog();
   const inApp = isReactNativeWebView();
@@ -74,8 +80,9 @@ export function MyStepsContent({ active = true }: MyStepsContentProps) {
   }));
   const latestSteps = chartData?.[chartData.length - 1]?.steps ?? 0;
 
-  const promptOpenHealthSettings = (detail: string) => {
-    void confirm(
+  const promptOpenHealthSettings = async (detail: string) => {
+    onNestedDialogOpenChange?.(true);
+    await confirm(
       {
         title: "헬스케어 연동이 필요합니다",
         body: `${detail}\n\n해당 설정화면으로 이동하시겠습니까?`,
@@ -86,6 +93,9 @@ export function MyStepsContent({ active = true }: MyStepsContentProps) {
         void requestNativeOpenHealthConnectSettings();
       },
     );
+    window.setTimeout(() => {
+      onNestedDialogOpenChange?.(false);
+    }, 350);
   };
 
   const handleHealthCareSync = async () => {
@@ -102,19 +112,19 @@ export function MyStepsContent({ active = true }: MyStepsContentProps) {
         return;
       }
       if (result.reason === "permission_denied") {
-        promptOpenHealthSettings(
+        await promptOpenHealthSettings(
           "Health Connect에서 심박수 읽기 권한을 허용해 주세요.",
         );
         return;
       }
       if (result.reason === "no_samples") {
-        promptOpenHealthSettings(
+        await promptOpenHealthSettings(
           "연동할 심박 데이터가 없습니다. Health Connect에 심박 기록이 있는지 확인해 주세요.",
         );
         return;
       }
       if (result.reason === "unavailable") {
-        promptOpenHealthSettings(
+        await promptOpenHealthSettings(
           "Health Connect 앱 설치 또는 업데이트가 필요합니다.",
         );
         return;
@@ -185,7 +195,9 @@ export function MyStepsContent({ active = true }: MyStepsContentProps) {
 
       <div className="px-6 pb-6 pt-4">
         {isLoading ? (
-          <p className="py-12 text-center text-gray-600">데이터를 불러오는 중...</p>
+          <p className="py-12 text-center text-gray-600">
+            데이터를 불러오는 중...
+          </p>
         ) : !chartData || chartData.length === 0 ? (
           <p className="py-12 text-center text-gray-600">
             걸음수 데이터가 없습니다
@@ -194,7 +206,9 @@ export function MyStepsContent({ active = true }: MyStepsContentProps) {
           <>
             <div className="border-2 border-primary rounded-xl shadow-sm mb-4 pt-14 font-jalnanGothic relative">
               <div className="absolute top-4 left-5 z-10 font-jalnan">
-                <p className="text-base-fixed text-gray-600 mb-1">최근 걸음수</p>
+                <p className="text-base-fixed text-gray-600 mb-1">
+                  최근 걸음수
+                </p>
                 <p className="text-3xl-fixed font-bold text-gray-900">
                   {latestSteps.toLocaleString()}
                 </p>
@@ -206,16 +220,36 @@ export function MyStepsContent({ active = true }: MyStepsContentProps) {
                   barGap={-40}
                   barCategoryGap={0}
                 >
-                  <XAxis dataKey="dayOfWeek" tickLine={false} axisLine={false} height={50} />
+                  <XAxis
+                    dataKey="dayOfWeek"
+                    tickLine={false}
+                    axisLine={false}
+                    height={50}
+                  />
                   <YAxis hide />
-                  <Bar dataKey="maxSteps" fill="#E5E7EB" radius={[25, 25, 25, 25]} maxBarSize={14} />
-                  <Bar dataKey="steps" fill="#0066CC" radius={[25, 25, 25, 25]} maxBarSize={14} />
+                  <Bar
+                    dataKey="maxSteps"
+                    fill="#E5E7EB"
+                    radius={[25, 25, 25, 25]}
+                    maxBarSize={14}
+                  />
+                  <Bar
+                    dataKey="steps"
+                    fill="#0066CC"
+                    radius={[25, 25, 25, 25]}
+                    maxBarSize={14}
+                  />
                   <ReferenceLine
                     y={average}
                     stroke="tomato"
                     strokeDasharray="2 2"
                     strokeWidth={1}
-                    label={{ value: "평균", position: "right", fill: "#374151", fontSize: 12 }}
+                    label={{
+                      value: "평균",
+                      position: "right",
+                      fill: "#374151",
+                      fontSize: 12,
+                    }}
                   />
                 </ComposedChart>
               </ResponsiveContainer>
@@ -244,8 +278,8 @@ export function MyStepsContent({ active = true }: MyStepsContentProps) {
         {inApp && (
           <div className="mt-6 border-t border-gray-100 pt-6">
             <p className="mb-3 text-sm text-gray-600">
-              Samsung Health·Google Fit 등에 저장된 심박수를 Health Connect를 통해
-              서버에 연동합니다.
+              Samsung Health·Google Fit 등에 저장된 심박수를 Health Connect를
+              통해 서버에 연동합니다.
             </p>
             <Button
               type="button"

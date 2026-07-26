@@ -1,1 +1,1 @@
-export { default } from "../../component/Bubble";
+export { default } from "../../component/-Bubble";

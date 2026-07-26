@@ -8,7 +8,7 @@ import {
 import {
   CareCardSelectButton,
 } from "../CareCards/-components";
-import ImporText from "../../component/ImportText";
+import ImporText from "../../component/-ImportText";
 import { CardSummaryPopup, CardSummaryShell, EncourageAlertDialog } from "./-utils";
 import type { CardSummaryPopupProps } from "./-types";
 

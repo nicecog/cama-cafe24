@@ -1,1 +1,1 @@
-export { default } from "../../component/Footer";
+export { default } from "../../component/-Footer";

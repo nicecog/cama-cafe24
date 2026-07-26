@@ -40,6 +40,7 @@ export function AlertDialogProvider({
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );
+  const closingRef = useRef(false);
 
   // 컴포넌트 언마운트 시 타임아웃 정리
   useEffect(() => {
@@ -52,6 +53,8 @@ export function AlertDialogProvider({
 
   // 다이얼로그 닫기 (false 반환)
   const handleClose = () => {
+    if (closingRef.current) return;
+    closingRef.current = true;
     // 1단계: open만 false로 변경 (title, body는 유지)
     startClose();
 
@@ -59,11 +62,14 @@ export function AlertDialogProvider({
     // 애니메이션(200ms)보다 조금 더 길게 설정하여 완전히 사라진 후 처리
     closeTimeoutRef.current = setTimeout(() => {
       closeDialog(false);
+      closingRef.current = false;
     }, 250);
   };
 
   // 다이얼로그 확인 (true 반환)
   const handleConfirm = () => {
+    if (closingRef.current) return;
+    closingRef.current = true;
     // 1단계: open만 false로 변경 (title, body는 유지)
     startClose();
 
@@ -71,6 +77,7 @@ export function AlertDialogProvider({
     // 애니메이션(200ms)보다 조금 더 길게 설정하여 완전히 사라진 후 처리
     closeTimeoutRef.current = setTimeout(() => {
       closeDialog(true);
+      closingRef.current = false;
     }, 250);
   };
 
@@ -193,19 +200,34 @@ export function AlertDialogProvider({
             <AlertDialogFooter className="flex gap-3 flex-row p-6 pt-2">
               {state.type !== "alert" ? (
                 <>
-                  <AlertDialogCancel className="w-full h-12 rounded-xl bg-white border-2 border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow mt-0">
+                  <AlertDialogCancel
+                    onClick={(event) => {
+                      event.preventDefault();
+                      handleClose();
+                    }}
+                    className="w-full h-12 rounded-xl bg-white border-2 border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow mt-0"
+                  >
                     {state.cancelButton}
                   </AlertDialogCancel>
 
                   <AlertDialogAction
-                    onClick={handleConfirm}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      handleConfirm();
+                    }}
                     className="w-full h-12 rounded-xl bg-gradient-to-r from-primary via-primary-light to-primary text-white font-semibold hover:shadow-lg hover:scale-[1.02] transition-all duration-200 mt-0 shadow-md"
                   >
                     {state.actionButton}
                   </AlertDialogAction>
                 </>
               ) : (
-                <AlertDialogCancel className="w-full h-12 rounded-xl bg-gradient-to-r from-primary via-primary-light to-primary text-white font-semibold hover:shadow-lg hover:scale-[1.02] transition-all duration-200 mt-0 shadow-md">
+                <AlertDialogCancel
+                  onClick={(event) => {
+                    event.preventDefault();
+                    handleClose();
+                  }}
+                  className="w-full h-12 rounded-xl bg-gradient-to-r from-primary via-primary-light to-primary text-white font-semibold hover:shadow-lg hover:scale-[1.02] transition-all duration-200 mt-0 shadow-md"
+                >
                   {state.cancelButton}
                 </AlertDialogCancel>
               )}

@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import * as React from "react";
 import { checkHospitalService } from "@/apis/api/hospital";
@@ -39,9 +39,7 @@ function LayoutComponent() {
   const setIsScrolled = useSetAtom(isScrolledAtom);
   const setAuthSession = useSetAtom(setAuthSessionAtom);
   const inRnWebView = isReactNativeWebView();
-  const location = useLocation();
-  const isMypageSubRoute = /^\/mypage\/.+/.test(location.pathname);
-  const showWebViewLogoHeader = inRnWebView && !isMypageSubRoute;
+  const showWebViewLogoHeader = inRnWebView;
   const session = useAtomValue(authSessionAtom);
   const accountMe = useAtomValue(accountMeAtom);
   const hasHandledInvalidSession = React.useRef(false);
@@ -85,7 +83,11 @@ function LayoutComponent() {
 
       {/* Main Content */}
       <main className="flex flex-col flex-1 min-w-0">
-        {showWebViewLogoHeader ? <WebViewLogoHeader /> : !inRnWebView ? <Header /> : null}
+        {showWebViewLogoHeader ? (
+          <WebViewLogoHeader />
+        ) : !inRnWebView ? (
+          <Header />
+        ) : null}
         <div
           id={import.meta.env.VITE_MAIN_SCROLL_CONTAINER_ID}
           onScroll={handleScroll}
