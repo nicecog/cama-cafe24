@@ -2,7 +2,8 @@
 
 > 작성일: 2026-07-27  
 > 목적: 온디바이스 음식 탐지 + 서버 영양 DB/가이드 아키텍처의 데이터·모델·학습·양자화·로드맵 정리  
-> 상태: 기획 초안 (구현 전)
+> 상태: 기획 초안 (구현 전)  
+> 실행 런북: [CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md](./CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md)
 
 ---
 
@@ -307,6 +308,18 @@ Gemini 등에서 자주 추천되는 **YOLOv8-nano**는 “검증된 시작점�
 - MVP: 종당 대략 **800~2,000장** 수준이면 nano 파인튜닝으로 시작 가능
 - 수백만 장 전체를 한 번에 쓰면 전처리·스토리지·라벨 품질 관리 비용이 먼저 폭발한다
 
+### 6.4 개발 PC 기준 (RTX 4060 Ti 16GB)
+
+| 항목 | 값 |
+|------|-----|
+| GPU | **RTX 4060 Ti 16GB** (VRAM 여유로 batch 32 가능) |
+| 1차 학습 (100종 × ~1,000장, epochs=100, imgsz=640) | 대략 **6~14시간** |
+| 소규모 PoC (200장, 1~2종, epochs=50~100) | 대략 **10~40분** |
+| Int8 export (416/320) | GPU당 **수 분~30분** (프로필 수에 따라) |
+| 권장 batch | 4060 Ti 16GB → **batch=32** (OOM 시 16으로 하향) |
+
+> 위 시간은 Ultralytics YOLO26n 기준 **감**이며, 디스크 I/O·증강·workers 설정에 따라 달라진다.
+
 ---
 
 ## 7. 서버·앱 연동 개요
@@ -353,7 +366,7 @@ Gemini 등에서 자주 추천되는 **YOLOv8-nano**는 “검증된 시작점�
 |------|-----------|--------|-----------|
 | **0. 범위 확정** | 1~2주 | 다빈도 음식 100종 목록 + 식품코드 매핑 초안 | 매핑률 ≥ 90% |
 | **1. 데이터** | 2~4주 | AI Hub 승인·다운로드·YOLO 변환·스플릿 | 라벨 검수 샘플 오류율 &lt; 5% |
-| **2. 학습 PoC** | 2~3주 | YOLO26n vs YOLOv8n 비교 리포트 | val mAP + 혼동 Top 이슈 목록 |
+| **2. 학습 PoC** | 2~3주 | YOLO26n 베이스라인(7A) + s→n KD(7B) + Int8 | val mAP·혼동 Top + 7A vs 7B 승자 |
 | **3. 서버 API** | 2주 | 텍스트 → 영양조회 → 가이드 API | 이미지 없이 E2E 가이드 응답 |
 | **4. 양자화·앱 연동** | 3~4주 | Android/iOS 온디바이스 추론 + 브릿지 | 중·저사양 1장 ≤ 1~2s, 발열 허용 |
 | **5. UX·고도화** | 지속 | 양 보정·오분류 피드백·히스토리 | 사용자 수정률·가이드 만족 지표 |
@@ -374,20 +387,27 @@ Gemini 등에서 자주 추천되는 **YOLOv8-nano**는 “검증된 시작점�
 
 ## 10. 바로 실행할 결정 요약
 
-1. **본선 모델: YOLO26n** (비교군: YOLOv8n)
-2. **배포: Int8 양자화** + 저사양용 **imgsz 320/416** 프로필
-3. **데이터: AI Hub 이미지·BBox + 식약처 영양 DB**
-4. **MVP 클래스: 다빈도 80~150종**
-5. **폰 → 서버: 텍스트만** (이미지 미전송)
-6. **학습 PC: NVIDIA 12GB+ / Ubuntu + CUDA**
-7. **칼로리: DB 조회 정본** + 사용자 양 보정
+1. **본선 배포 모델: YOLO26n** (학습 비교군: YOLOv8n 선택)
+2. **정밀도 보강: YOLO26s → YOLO26n Knowledge Distillation (KD)** — 폰 추론 속도 변화 없음
+3. **배포: Int8 양자화** + 저사양용 **imgsz 320/416** 프로필
+4. **데이터: AI Hub 이미지·BBox + 식약처 영양 DB**
+5. **MVP 클래스: 다빈도 80~150종**
+6. **폰 → 서버: 텍스트만** (이미지 미전송)
+7. **학습 PC: NVIDIA 12GB+ / Ubuntu + CUDA** (실사용: RTX 4060 Ti 16GB)
+8. **칼로리: DB 조회 정본** + 사용자 양 보정
 
-### 다음 액션
+### 다음 액션 (실행 순서)
 
-1. 다빈도 100종 목록 확정  
-2. AI Hub 데이터셋 신청·승인  
-3. 로컬 GPU 환경(Ubuntu+CUDA) 준비  
-4. YOLO 라벨 변환 스크립트 PoC (`scripts/food-calorie/`)
+1. **수동** — AI Hub **71564** 신청·승인·다운로드 (런북 Step 2)  
+2. **수동+반자동** — 100종 매핑표 확정 (런북 Step 3)  
+3. **Cursor** — 종당 1,000장 추출 + YOLO 변환 (런북 Step 4~5)  
+4. **수동** — 라벨 스팟 검수 (런북 Step 6)  
+5. **Cursor** — YOLO26n 베이스라인 학습 (런북 Step **7A**)  
+6. **Cursor** — YOLO26s Teacher + YOLO26n KD (런북 Step **7B**, 권장)  
+7. **Cursor** — 승자 1개만 Int8 416/320 export (런북 Step 8)  
+8. 이후 Step 9~12 (약한 종 보강 → 서버 → 앱 → 실기기)
+
+> Cursor에게는 런북을 **먼저 읽게** 한 뒤 지정 Step만 실행시킨다. 프롬프트는 런북 §0.2 · 본 문서 §16.4 참고.
 
 ---
 
@@ -400,6 +420,10 @@ Gemini 등에서 자주 추천되는 **YOLOv8-nano**는 “검증된 시작점�
 - [공공데이터포털](https://www.data.go.kr/) (검색: `식품영양성분 통합`)
 - 전처리 스크립트: [`scripts/food-calorie/convert_aihub_to_yolo.py`](../scripts/food-calorie/convert_aihub_to_yolo.py)
 - **학습 실행 런북 (Step-by-Step):** [`CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md`](./CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md)
+- [Ultralytics Knowledge Distillation](https://docs.ultralytics.com/guides/knowledge-distillation)
+- **작업 주체·자동화 구분:** 본 문서 §16
+- **학습 데이터·추가학습 전략:** 본 문서 §15
+- **정밀도·속도 최적화 (KD 포함):** 본 문서 §17
 
 ---
 
@@ -606,55 +630,263 @@ pip install -U ultralytics
 python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"
 ```
 
-### 14.2 학습 (본선)
+### 14.2 학습 (Step 7A · 베이스라인)
 
 ```bash
+# 4060 Ti 16GB → batch=32 권장 (OOM 시 16)
 yolo detect train \
   model=yolo26n.pt \
   data=datasets/food_mvp/data.yaml \
   epochs=100 \
   imgsz=640 \
-  batch=16 \
+  batch=32 \
   device=0 \
   project=runs/food \
-  name=yolo26n_mvp
+  name=yolo26n_mvp_1000
 ```
 
-비교군(베이스라인):
+비교군(선택):
 
 ```bash
 yolo detect train model=yolov8n.pt data=datasets/food_mvp/data.yaml \
-  epochs=100 imgsz=640 batch=16 device=0 project=runs/food name=yolov8n_mvp
+  epochs=100 imgsz=640 batch=32 device=0 project=runs/food name=yolov8n_mvp_1000
 ```
 
-### 14.3 검증·Export (모바일)
+### 14.3 Knowledge Distillation (Step 7B · 권장)
+
+정밀도↑ · **폰 추론 속도 변화 없음**. Teacher는 학습용만, 배포는 Student(n)만.
 
 ```bash
-# 검증
-yolo detect val model=runs/food/yolo26n_mvp/weights/best.pt data=datasets/food_mvp/data.yaml
-
-# Android TFLite Int8 (캘리브레이션에 data.yaml 사용)
-yolo export model=runs/food/yolo26n_mvp/weights/best.pt \
-  format=tflite imgsz=416 int8=True data=datasets/food_mvp/data.yaml
-
-# iOS CoreML Int8
-yolo export model=runs/food/yolo26n_mvp/weights/best.pt \
-  format=coreml imgsz=416 int8=True
-
-# 저사양 추가 프로필
-yolo export model=runs/food/yolo26n_mvp/weights/best.pt \
-  format=tflite imgsz=320 int8=True data=datasets/food_mvp/data.yaml
+# 1) Teacher (같은 음식 data.yaml)
+yolo detect train \
+  model=yolo26s.pt \
+  data=datasets/food_mvp/data.yaml \
+  epochs=100 imgsz=640 batch=16 device=0 \
+  project=runs/food name=yolo26s_teacher
 ```
-
-### 14.4 Python API 예
 
 ```python
+# 2) Student + KD
 from ultralytics import YOLO
 
-model = YOLO("yolo26n.pt")
-model.train(data="datasets/food_mvp/data.yaml", epochs=100, imgsz=640, device=0)
-model.export(format="tflite", imgsz=416, int8=True, data="datasets/food_mvp/data.yaml")
+teacher = "runs/food/yolo26s_teacher/weights/best.pt"
+student = YOLO("yolo26n.pt")
+student.train(
+    data="datasets/food_mvp/data.yaml",
+    epochs=100,
+    imgsz=640,
+    batch=24,
+    device=0,
+    project="runs/food",
+    name="yolo26n_kd",
+    distill_model=teacher,
+    dis=6.0,
+)
 ```
+
+- Teacher·Student는 **같은 YOLO26 family** (교차 세대 미지원)
+- Teacher는 COCO pretrained가 아니라 **음식 MVP로 학습한 `best.pt`**
+- 공식 권장 페어: **n ← s** (n ← l/x는 비권장)
+- 학습 시간 약 **1.2~1.5×**, 추론 비용 **0 추가**
+
+### 14.4 검증·Export (모바일 · Step 8)
+
+7A vs 7B 비교 후 **승자 1개**만 export:
+
+```bash
+# 예: KD 승자
+BEST=runs/food/yolo26n_kd/weights/best.pt
+# 또는 베이스라인: BEST=runs/food/yolo26n_mvp_1000/weights/best.pt
+
+yolo detect val model=$BEST data=datasets/food_mvp/data.yaml
+
+yolo export model=$BEST format=tflite imgsz=416 int8=True data=datasets/food_mvp/data.yaml
+yolo export model=$BEST format=tflite imgsz=320 int8=True data=datasets/food_mvp/data.yaml
+yolo export model=$BEST format=coreml imgsz=416 int8=True
+```
+
+---
+
+## 15. 학습 데이터·학습 방식 설계 원칙
+
+### 15.1 “이미지가 많으면 정확도가 떨어진다”는 말에 대해
+
+**절반만 맞다.** 문제는 “장수” 자체가 아니라 아래 조합이다.
+
+| 원인 | 설명 |
+|------|------|
+| **클래스 불균형** | 김치찌개 5만 장 vs 희소 음식 50장 → 희소 클래스 무시 |
+| **중복·저품질** | 거의 같은 각도·조명만 반복 → 과적합, 일반화 저하 |
+| **라벨 노이즈** | BBox 어긋남·오표기가 많으면 많을수록 학습 방해 |
+| **도메인 불일치** | AI Hub 스튜디오 촬영 vs 실제 식탁 사진 → 장수만 늘려도 실사용 개선 없음 |
+| **전처리 비용** | 수백만 장 한 번에 넣으면 검수·스토리지·학습 시간이 먼저 폭발 |
+
+**실무 권장:** 다빈도 클래스부터 **종당 800~1,200장의 양질·다양성** 확보 → 배포 후 오분류 수집 → **선별 추가**.
+
+### 15.2 1차 학습 vs 추가 학습 vs 재학습
+
+| 방식 | 언제 | 데이터 | 시간 감 | 비고 |
+|------|------|--------|---------|------|
+| **1차 전체 학습** | MVP 100종 첫 구축 | 전체 ~10만 장 | 6~14h (4060 Ti) | `yolo26n.pt`에서 시작 |
+| **추가 학습 (fine-tune)** | 약한 20~30종만 보강 | 해당 종 +200~500장 | 1~4h (epochs 30~50) | `best.pt`에서 이어서 — **처음부터 아님** |
+| **재학습 (full retrain)** | 클래스 대폭 변경·매핑 전면 수정 | 전체 데이터셋 재구성 | 1차와 비슷 | 새 `data.yaml`·클래스 목록일 때 |
+
+**핵심:** 추가 학습은 **이미 학습된 가중치(`best.pt`)에서 이어서** 하므로, 1차 100 epoch 전체를 다시 돌리는 것보다 **훨씬 짧다**.  
+다만 **새 클래스를 대량 추가**하거나 **기존 클래스 정의를 바꾸면** 사실상 재학습에 가깝다.
+
+### 15.3 실무 권장 운영 루프
+
+```
+1차: P0 다빈도 × 종당 ~1,000장 → YOLO26n 베이스라인 (Step 7A)
+  ↓
+(권장) YOLO26s Teacher → YOLO26n KD (Step 7B) → 승자 Int8 배포
+  ↓
+실기기 오분류·혼동행렬 분석
+  ↓
+약한 20~30종만 +200~500장 추출 → fine-tune (epochs 30~50)
+  ↓
+(필요 시) P1/P2 클래스 확장 → 데이터 병합 후 재학습 또는 단계적 fine-tune
+```
+
+- **한 번에 전 종을 최대 장수로 학습하지 않는다.** 다빈도·품질 우선.
+- 국·찌개·나물 등 시각 유사 클래스는 **혼동행렬 기반**으로 보강 대상을 고른다.
+- KD는 **정밀도만** 보강하고 폰 속도는 nano 그대로다. 상세는 §17.
+
+---
+
+## 16. 작업 주체 구분 (수동 / 반자동 / 자동)
+
+학습·배포 파이프라인에서 **누가 무엇을 해야 하는지**를 미리 고정한다.  
+상세 실행 순서는 [`CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md`](./CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md)를 따른다.
+
+### 16.1 범례
+
+| 표시 | 의미 | 사람이 하는 일 |
+|------|------|----------------|
+| **수동** | 처음부터 끝까지 사람 필수 | AI Hub 로그인·신청, 매핑 확정, 육안 검수, 실기기 테스트 |
+| **반자동** | 스크립트 실행 + 사람 확인 | 경로·옵션 확인, 결과 리포트 검토, 일부 판단(제외/보강) |
+| **자동·Cursor** | 명령 한 번으로 반복 가능 | 변환·학습·export·코드 스캐폴딩 (Cursor에 위임 가능) |
+
+> **반자동 ≠ 전부 손작업.** 스크립트/Cursor가 대부분 실행하고, **확인·결정만** 사람이 한다.
+
+### 16.2 단계별 주체 요약
+
+| Step | 내용 | 주체 | 사람이 할 일 (요약) |
+|------|------|------|---------------------|
+| 1 | 환경·폴더 준비 | 반자동 | CUDA 동작 확인, venv·경로 확인 (10~30분) |
+| 2 | AI Hub 신청·다운로드·해제 | **수동** | 로그인, 승인 대기, zip 수신·해제 |
+| 3 | 100종 ↔ AI Hub 매핑표 | 수동 → 반자동 | 스크립트 초안 검토 후 **매핑 확정** |
+| 4 | 종당 ~1,000장 추출 | 반자동 / 자동 | 클래스별 count 리포트 확인, 부족 종 처리 결정 |
+| 5 | JSON → YOLO 변환 | 자동·Cursor | (거의 없음) 완료 후 폴더 구조만 확인 |
+| 6 | 라벨 스팟 검수 | **수동** | 클래스당 2~3장, 전체 40~60장 육안 확인 |
+| **7A** | YOLO26n 베이스라인 학습 | 자동·Cursor | 결과 mAP·혼동행렬 확인 |
+| **7B** | YOLO26s→n KD 학습 (권장) | 자동·Cursor | 7A 대비 개선폭 확인, 승자 선택 |
+| 8 | 승자 Int8 export (416/320) | 자동·Cursor | 산출물·용량 확인 |
+| 9 | 약한 종 추가 학습 | 반자동 | **어떤 20~30종을 더 학습할지** 선택 |
+| 10 | 서버 영양·가이드 API | 설계 수동 → 구현 자동 | API 스펙 확정 후 Cursor 구현 |
+| 11 | 앱 온디바이스 연동 | 자동·Cursor | 실기기 빌드·설치는 사람 |
+| 12 | 실기기 피드백 루프 | 수동 + 자동 | 촬영·오분류 기록; 재학습 큐는 스크립트 |
+
+### 16.3 권장 진행 순서 (처음 시작 시)
+
+1. **수동** — AI Hub 데이터셋 **71564** (필수) 신청·다운로드 (Step 2)  
+2. **수동 + 반자동** — 100종 매핑표 확정 (Step 3)  
+3. **Cursor 위임** — Step 4~5 (추출·YOLO 변환)  
+4. **수동** — 라벨 스팟 검수 (Step 6)  
+5. **Cursor 위임** — Step **7A** (n 베이스라인) → **7B** (s→n KD) → **8** (승자 Int8)  
+6. 이후 서버/앱 연동·실기기 검증
+
+### 16.4 Cursor에 맡길 때 프롬프트 예시
+
+```text
+docs/CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md 를 먼저 읽고,
+지정한 Step만 순서대로 실행해줘.
+실행 전 필요한 입력값(경로/파일명)만 물어보고,
+실행 후에는 산출물 경로와 검증 결과를 체크리스트로 보고해줘.
+대용량 데이터(data/aihub, datasets, runs, exports)는 git 커밋하지 마.
+```
+
+```text
+docs/CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md 를 읽고 Step 4~6을 실행해줘.
+- 입력: AI Hub raw 경로, food_mvp_100_classes.csv
+- 출력: subset, class별 count CSV/MD, 스팟검수용 이미지
+```
+
+```text
+docs/CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md 를 읽고 Step 7A를 실행해줘.
+- YOLO26n 베이스라인 학습 + mAP/혼동행렬 요약
+```
+
+```text
+docs/CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md 를 읽고 Step 7B를 실행해줘.
+- YOLO26s teacher → YOLO26n KD (distill_model, dis=6.0)
+- Step 7A 대비 비교표 + 승자 경로를 Step 8에 전달
+```
+
+```text
+docs/CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md 를 읽고 Step 8을 실행해줘.
+- 승자 모델 Int8 416/320 + CoreML export, 파일명 규칙 통일
+```
+
+```text
+Step 10: class_key→food_code 매핑 CSV 로더와
+영양 조회·가이드 응답 API 스켈레톤을 cama-plus-server에 추가해줘.
+```
+
+### 16.5 단계별 산출물 경로
+
+```text
+data/aihub/raw/                      # AI Hub 원본
+data/aihub/mapped/                   # 클래스 매핑·필터 결과
+datasets/food_mvp/                   # YOLO images/labels + data.yaml
+runs/food/yolo26n_mvp_1000/weights/  # 7A baseline best.pt
+runs/food/yolo26s_teacher/weights/   # 7B teacher best.pt
+runs/food/yolo26n_kd/weights/        # 7B student best.pt (배포 후보)
+exports/                             # tflite/coreml int8
+docs/food_mvp_100_classes.mapped.csv # AI Hub명 ↔ class_key ↔ 식약처코드
+```
+
+> `data/aihub/`, `datasets/`, `runs/food/`, `exports/` 는 `.gitignore` 대상 — GitHub에 원본·대용량 산출물을 올리지 않는다.
+
+---
+
+## 17. 정밀도↑ + 저사양 속도 유지 전략
+
+### 17.1 한 줄 조합
+
+```text
+YOLO26n + 양질 데이터 + (권장) YOLO26s→n KD + Int8 + imgsz 416
+```
+
+| 목표 | 담당 수단 | 폰 속도 |
+|------|-----------|---------|
+| 정밀도↑ | 데이터 품질, KD, 약한 종 fine-tune | **변화 없음** |
+| 속도 유지 | YOLO26n 배포 고정, Int8, imgsz 416/320 | **본선** |
+
+### 17.2 우선순위
+
+| 우선 | 방법 | 비고 |
+|------|------|------|
+| **P0** | 종당 800~1,200장 양질·라벨 검수 | 보통 KD보다 효과 큼 |
+| **P0** | 배포 YOLO26n + Int8 416 (320 폴백) | 저사양 속도 본선 |
+| **P1** | KD n←s (같은 음식 Teacher) | Ultralytics `distill_model` |
+| **P1** | 약한 20~30종 fine-tune | 혼동행렬 기준 |
+| **P2** | Progressive m→s→n / QAT | 일정·VRAM↑ 또는 Int8 이슈 시 |
+| **비권장** | 폰에 Large 배포, n←l/x 강제 | 속도↓ 또는 효율 낮음 |
+
+### 17.3 사용자·Cursor 실행 흐름
+
+```text
+Step 1~3  환경·AI Hub·매핑          [수동/반자동]
+Step 4~6  추출·변환·스팟 검수        [Cursor + 수동 검수]
+Step 7A   YOLO26n 베이스라인         [Cursor]
+Step 7B   YOLO26s Teacher + n KD    [Cursor · 권장]
+Step 8    승자 1개 Int8 export       [Cursor]
+Step 9    약한 종 fine-tune          [반자동]
+Step 10~12 서버·앱·실기기            [Cursor + 수동]
+```
+
+상세 커맨드·완료 조건·복붙 프롬프트: [`CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md`](./CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md) §0.1 · §0.2 · Step 7A/7B/8.
 
 ---
 
@@ -666,3 +898,5 @@ model.export(format="tflite", imgsz=416, int8=True, data="datasets/food_mvp/data
 | 2026-07-27 | AI Hub 다운로드 링크·JSON→YOLO 전처리·YOLO26n 학습 커맨드 추가 |
 | 2026-07-27 | 1차 학습 다빈도 100종 초안 목록·CSV 추가 |
 | 2026-07-27 | 학습 Step 런북 문서 링크 추가 (`CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md`) |
+| 2026-07-27 | §15 학습 데이터·방식 원칙, §16 작업 주체(수동/반자동/자동), §6.4 4060 Ti 학습 시간 감 추가 |
+| 2026-07-27 | §14 KD·7A/7B, §16 Step 동기화, §17 정밀도·속도 전략, 다음 액션·Cursor 프롬프트 동기화 |

@@ -12,7 +12,7 @@
 
 | 항목 | 값 |
 |------|-----|
-| 모델 | **YOLO26n** (비교군 YOLOv8n 선택) |
+| 모델 | **YOLO26n** (정밀도 보강: YOLO26s→YOLO26n KD 선택) |
 | 클래스 | 다빈도 **100종** (`food_mvp_100_classes.csv`) |
 | 종당 목표 | **약 1,000장** (합계 ~10만 장) |
 | GPU | RTX 4060 Ti 16GB 등 |
@@ -36,6 +36,64 @@ docs/food_mvp_100_classes.mapped.csv# AI Hub명 ↔ class_key ↔ 식약처코�
 | `[수동]` | 로그인·승인·라이선스·육안 검수 등 사람 필요 |
 | `[반자동]` | 스크립트 + 사람이 경로/파라미터 확인 |
 | `[자동·Cursor]` | 이후 Cursor 에이전트/스크립트로 반복 실행 가능 |
+
+---
+
+## 0.1 사용자 실행 순서 (정밀도↑ + 저사양 속도 유지 기준)
+
+아래 순서대로 진행하면 된다. 핵심은 **배포 모델은 YOLO26n(Int8)** 으로 고정하고, 정밀도는 데이터/KD로 올리는 구조다.
+
+1. Step 1~3: 환경 준비, AI Hub 다운로드, 100종 매핑 확정  
+2. Step 4~6: 종당 ~1,000장 추출, YOLO 변환, 라벨 스팟 검수  
+3. Step 7A: **YOLO26n 베이스라인 학습**  
+4. Step 7B: (권장) **YOLO26s Teacher 학습 + YOLO26n KD 학습**  
+5. Step 8: 베이스라인 vs KD 비교 후 **승자 1개만** Int8 export (416/320)  
+6. Step 9: 약한 클래스 선택 보강(fine-tune)  
+7. Step 10~12: 서버/API, 앱 연동, 실기기 피드백 루프
+
+> 속도는 `YOLO26n + Int8 + imgsz 416/320`에서 결정되고, KD는 학습 단계에서만 추가 비용이 발생한다.
+
+---
+
+## 0.2 Cursor AI 실행 방식 (문서 읽고 진행)
+
+Cursor에게 작업을 맡길 때는 아래처럼 **문서를 먼저 읽게 지시**한다.
+
+### 공통 프롬프트 템플릿
+
+```text
+docs/CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md 를 먼저 읽고,
+지정한 Step만 순서대로 실행해줘.
+실행 전 필요한 입력값(경로/파일명)만 물어보고,
+실행 후에는 산출물 경로와 검증 결과를 체크리스트로 보고해줘.
+대용량 데이터(data/aihub, datasets, runs, exports)는 git 커밋하지 마.
+```
+
+### 바로 실행용 프롬프트 (권장 순서)
+
+```text
+docs/CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md 를 읽고 Step 4~6을 실행해줘.
+- 입력: AI Hub raw 경로, food_mvp_100_classes.csv
+- 출력: subset 결과, class별 count CSV/MD, 라벨 스팟검수용 이미지
+```
+
+```text
+docs/CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md 를 읽고 Step 7A를 실행해줘.
+- YOLO26n 베이스라인 학습
+- 완료 후 mAP/혼동행렬 요약 리포트 작성
+```
+
+```text
+docs/CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md 를 읽고 Step 7B를 실행해줘.
+- YOLO26s teacher 학습 후 YOLO26n KD 학습
+- baseline 대비 개선폭 비교표 작성
+```
+
+```text
+docs/CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md 를 읽고 Step 8을 실행해줘.
+- Step 7A/7B 승자 모델 1개를 Int8 416/320 및 CoreML로 export
+- 파일명 규칙 통일 + 성능 비교표 작성
+```
 
 ---
 
@@ -242,9 +300,65 @@ yolo detect train model=yolov8n.pt data=datasets/food_mvp/data.yaml \
 
 ---
 
+## Step 7B — Teacher-Student KD 학습(권장) `[자동·Cursor]`
+
+> 목표: **추론 속도는 YOLO26n 그대로 유지**하면서 정밀도 보강.
+
+### 할 일
+1. 같은 `data.yaml`로 `YOLO26s` Teacher 학습  
+2. `YOLO26n` Student를 Teacher로 distillation 학습  
+3. Step 7A 베이스라인과 mAP/혼동행렬 비교
+
+```bash
+# 1) Teacher
+yolo detect train \
+  model=yolo26s.pt \
+  data=datasets/food_mvp/data.yaml \
+  epochs=100 \
+  imgsz=640 \
+  batch=16 \
+  device=0 \
+  project=runs/food \
+  name=yolo26s_teacher
+
+# 2) Student + KD (Python API 권장)
+python - <<'PY'
+from ultralytics import YOLO
+
+teacher = "runs/food/yolo26s_teacher/weights/best.pt"
+student = YOLO("yolo26n.pt")
+student.train(
+    data="datasets/food_mvp/data.yaml",
+    epochs=100,
+    imgsz=640,
+    batch=24,
+    device=0,
+    project="runs/food",
+    name="yolo26n_kd",
+    distill_model=teacher,
+    dis=6.0,
+)
+PY
+```
+
+### 완료 조건
+- [ ] `runs/food/yolo26s_teacher/weights/best.pt` 생성  
+- [ ] `runs/food/yolo26n_kd/weights/best.pt` 생성  
+- [ ] Step 7A 대비 `yolo26n_kd` mAP 비교표 작성  
+- [ ] 혼동행렬 기준 약한 클래스 변화(개선/악화) 기록
+
+### 주의
+- Teacher와 Student는 **같은 YOLO family(YOLO26)** 사용  
+- Teacher는 COCO 기본 가중치가 아니라 **같은 음식 데이터로 학습한 best.pt** 사용  
+- KD 학습은 일반 학습 대비 대략 **1.2~1.5x** 느릴 수 있음
+
+---
+
 ## Step 8 — 양자화·해상도 프로필 Export `[자동·Cursor]`
 
 ```bash
+# Step 7A/7B 비교 후 승자 모델 경로를 BEST로 지정
+# 예) BEST=runs/food/yolo26n_kd/weights/best.pt
 BEST=runs/food/yolo26n_mvp_1000/weights/best.pt
 mkdir -p exports
 
@@ -258,6 +372,7 @@ yolo export model=$BEST format=coreml imgsz=416 int8=True
 - [ ] Android용 `*-416-int8.tflite`, `*-320-int8.tflite`  
 - [ ] iOS용 CoreML 패키지  
 - [ ] FP32 대비 Int8 val 성능 메모
+- [ ] Step 7A vs 7B 중 **승자 1개**를 배포 후보로 확정
 
 ### Cursor 자동화 후보
 - export 일괄 + 파일 네이밍 + 용량/지연 벤치 표 생성
@@ -339,8 +454,9 @@ yolo detect train \
 | 4 | 종당 ~1000장 추출 | Cursor 자동 가능 |
 | 5 | YOLO 변환·data.yaml | Cursor 자동 |
 | 6 | 스팟 검수 | 수동 |
-| 7 | YOLO26n 학습 | Cursor 자동 |
-| 8 | Int8 export (416/320) | Cursor 자동 |
+| 7A | YOLO26n 베이스라인 학습 | Cursor 자동 |
+| 7B | YOLO26s→YOLO26n KD 학습 (권장) | Cursor 자동 |
+| 8 | 승자 모델 Int8 export (416/320) | Cursor 자동 |
 | 9 | 약한 종 추가 학습 | 반자동 |
 | 10 | 서버 영양·가이드 API | Cursor 구현 |
 | 11 | 앱 온디바이스 연동 | Cursor 구현 |
@@ -371,6 +487,14 @@ Step 10: class_key→food_code 매핑 CSV 로더와
 영양 조회·가이드 응답 API 스켈레톤을 cama-plus-server에 추가해줘.
 ```
 
+```text
+docs/CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md 를 읽고 Step 7B를 실행해줘.
+- YOLO26s teacher 학습
+- YOLO26n KD(distill_model, dis=6.0) 학습
+- Step 7A 대비 mAP/혼동행렬 비교표 작성
+- 승자 모델 경로를 Step 8에 넘겨줘
+```
+
 ---
 
 ## 주의사항
@@ -387,3 +511,4 @@ Step 10: class_key→food_code 매핑 CSV 로더와
 | 날짜 | 내용 |
 |------|------|
 | 2026-07-27 | 100종 학습 Step 런북 초안 (다운로드→변환→학습→양자화→앱/서버·Cursor 자동화) |
+| 2026-07-27 | 정밀도·속도 동시 달성용 실행 순서 추가 (Step 7A/7B, KD, Cursor 실행 템플릿) |
