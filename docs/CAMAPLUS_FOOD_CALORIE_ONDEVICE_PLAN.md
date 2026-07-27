@@ -399,6 +399,7 @@ Gemini 등에서 자주 추천되는 **YOLOv8-nano**는 “검증된 시작점�
 - [K-FIND 식품영양성분 DB](https://various.foodsafetykorea.go.kr/nutrient)
 - [공공데이터포털](https://www.data.go.kr/) (검색: `식품영양성분 통합`)
 - 전처리 스크립트: [`scripts/food-calorie/convert_aihub_to_yolo.py`](../scripts/food-calorie/convert_aihub_to_yolo.py)
+- **학습 실행 런북 (Step-by-Step):** [`CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md`](./CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md)
 
 ---
 
@@ -664,3 +665,4 @@ model.export(format="tflite", imgsz=416, int8=True, data="datasets/food_mvp/data
 | 2026-07-27 | 초안 작성: 아키텍처, 데이터, YOLO26n 추천, 양자화·로드맵 |
 | 2026-07-27 | AI Hub 다운로드 링크·JSON→YOLO 전처리·YOLO26n 학습 커맨드 추가 |
 | 2026-07-27 | 1차 학습 다빈도 100종 초안 목록·CSV 추가 |
+| 2026-07-27 | 학습 Step 런북 문서 링크 추가 (`CAMAPLUS_FOOD_CALORIE_TRAINING_RUNBOOK.md`) |
