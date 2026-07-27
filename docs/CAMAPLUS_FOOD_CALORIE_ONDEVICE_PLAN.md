@@ -59,11 +59,7 @@
 | **AI Hub** 영양·중량 메타(실중량, 1인분 표준중량 등) | 양·영양 보조 | 양 추정 고도화에 유리 | 탐지 클래스 ↔ 식품코드 매핑 테이블 필수 |
 | **공공데이터포털 · 식약처 식품영양성분 DB** | 서버 조회 정본 | 공공·공식 성분값 | 요리명≠원재료명 매핑, 갱신 주기 관리 |
 
-참고 데이터셋 예시 (AI Hub):
-
-- 당뇨관리 앱 연계 음식 이미지 + BBox (약 200여 종, 수십만 장 규모)
-- 건강관리용 음식 이미지·카테고리 (다빈도 한국 음식 중심, 대규모)
-- 음식 이미지 및 영양정보(2D/3D BBox, 중량·영양 메타 포함 고도화 데이터)
+참고 데이터셋·다운로드 링크는 **§12**에 정리했다.
 
 ### 3.2 MVP 클래스 범위
 
@@ -267,7 +263,7 @@ Gemini 등에서 자주 추천되는 **YOLOv8-nano**는 “검증된 시작점�
 1. 다빈도 100종 목록 확정  
 2. AI Hub 데이터셋 신청·승인  
 3. 로컬 GPU 환경(Ubuntu+CUDA) 준비  
-4. YOLO 라벨 변환 스크립트 PoC  
+4. YOLO 라벨 변환 스크립트 PoC (`scripts/food-calorie/`)
 
 ---
 
@@ -275,8 +271,265 @@ Gemini 등에서 자주 추천되는 **YOLOv8-nano**는 “검증된 시작점�
 
 - [Ultralytics YOLO26](https://docs.ultralytics.com/models/yolo26)
 - [YOLOv8 vs YOLO26 비교](https://docs.ultralytics.com/compare/yolov8-vs-yolo26)
-- [AI Hub](https://aihub.or.kr/)
-- 공공데이터포털 · 식품의약품안전처 식품영양성분 데이터베이스
+- [AI Hub](https://www.aihub.or.kr/)
+- [K-FIND 식품영양성분 DB](https://various.foodsafetykorea.go.kr/nutrient)
+- [공공데이터포털](https://www.data.go.kr/) (검색: `식품영양성분 통합`)
+- 전처리 스크립트: [`scripts/food-calorie/convert_aihub_to_yolo.py`](../scripts/food-calorie/convert_aihub_to_yolo.py)
+
+---
+
+## 12. AI Hub 음식 이미지 다운로드 안내
+
+> AI Hub는 **로그인 → 데이터셋별 다운로드 신청 → 승인 후** API/파일 목록 다운로드가 가능하다.  
+> 공개 직링크(무인증 CDN)는 제공되지 않으며, 아래는 **데이터셋 소개·신청 페이지 URL**이다.  
+> ※ 내국인 신청 중심. 보건의료 성격 데이터는 안심존 절차가 필요할 수 있다.
+
+### 12.1 추천 데이터셋 (학습용)
+
+| 우선순위 | dataSetSn | 명칭(요약) | 규모(소개 기준) | 라벨 | 소개/신청 페이지 |
+|----------|-----------|------------|-----------------|------|------------------|
+| **1 (MVP 권장)** | **71564** | 비전영역 음식이미지 및 정보(고도화) | 약 **800종 / 23만 장**, jpg+json | 2D BBox + 영양·중량 메타 | [열기](https://www.aihub.or.kr/aihubdata/data/view.do?aihubDataSe=data&currMenu=115&dataSetSn=71564&topMenu=100) |
+| **2** | **71392** | 당뇨관리 앱 음식 이미지·BBox | 약 **204종 / 50만+ 장** 규모 | BBox(JSON), 일부 좌표 정규화 | [열기](https://www.aihub.or.kr/aihubdata/data/view.do?dataSetSn=71392) |
+| **3** | **74** | 음식 이미지 및 영양정보 텍스트(초기 구축) | 400종+ / 약 84만 장 규모(소개) | json/xml + 영양 메타 | [열기](https://www.aihub.or.kr/aihubdata/data/view.do?aihubDataSe=data&currMenu=11&dataSetSn=74&topMenu=) |
+
+검색 팁: AI Hub 상단 **데이터 찾기**에서 `음식 이미지`, `바운딩박스`, `영양정보`로 검색.
+
+### 12.2 다운로드 절차
+
+1. [AI Hub](https://www.aihub.or.kr/) 회원 로그인  
+2. 위 데이터셋 페이지 진입 → **다운로드 / 관심 데이터 / 활용 신청**  
+3. 승인 완료 후 **파일 목록 (API 다운로드)** 에서 분할 zip 수신  
+4. 리눅스에서 part 파일 병합 후 압축 해제:
+
+```bash
+# 예: 다운로드 폴더에서 part 병합
+DATASET_DIR="/data/aihub/71564"
+PART_PREFIX="음식이미지"   # 실제 part 파일명에 맞게 수정
+
+find "$DATASET_DIR" -name "${PART_PREFIX}*.zip.part*" -print0 \
+  | sort -zt'.' -k2V \
+  | xargs -0 cat > "${DATASET_DIR}/${PART_PREFIX}.zip"
+
+unzip "${DATASET_DIR}/${PART_PREFIX}.zip" -d "${DATASET_DIR}/raw"
+```
+
+> Windows는 WSL 권장. 병합 결과가 0바이트면 경로/파일명 glob을 다시 확인.
+
+### 12.3 71564 JSON 스키마(요약)
+
+탐지 학습에 쓰는 핵심 필드:
+
+| 경로 | 의미 | YOLO 변환 시 |
+|------|------|--------------|
+| `data.image_info.file_name` | 이미지 파일명 | 이미지 경로 매칭 |
+| `data.image_info.width` / `height` | 픽셀 크기 | 정규화 분모 |
+| `data.image_info.weight` / `s_weight` | 실중량·1인분 표준중량(g) | 서버/양추정 메타(탐지 라벨에는 미포함) |
+| `data.2d_annotation.x,y,width,height` | **픽셀** BBox (좌상단 x,y + w,h) | YOLO `cx cy w h` (0~1) |
+| `data.nutrition.*` | 에너지·탄단지 등 | 서버 DB 보조 / 매핑 검증 |
+| `data.food_type.fc` 등 | 음식 분류 문자열 | `class_id` 매핑 키 |
+
+> 실제 JSON 키 nesting은 배포본마다 `data` 래핑 여부·리스트형 annotation 차이가 있을 수 있다.  
+> 샘플 1건을 `jq`/`python`으로 확인한 뒤 변환 스크립트의 키 경로를 맞춘다.
+
+### 12.4 71392 라벨 특징(요약)
+
+소개 문서 기준 속성 예:
+
+| 속성 | 의미 |
+|------|------|
+| `Code Name` | 원천 파일명 |
+| `Name` | 음식 클래스명 (약 204종) |
+| `W`, `H` | BBox 폭·높이 (**이미 0~1 정규화**일 수 있음) |
+| `Point(x,y)` | BBox 중점 (**0~1**) |
+
+이미 정규화된 중점+크기를 쓰면 YOLO 변환은 `cx,cy,w,h`를 거의 그대로 쓰면 된다.  
+픽셀 좌표인지 정규화인지 **반드시 샘플로 확인**할 것.
+
+### 12.5 식약처 영양 DB (서버용)
+
+| 구분 | URL |
+|------|-----|
+| K-FIND 식품영양성분 DB | https://various.foodsafetykorea.go.kr/nutrient |
+| 영양성분 DB 내려받기 | https://various.foodsafetykorea.go.kr/nutrient/general/down/list.do |
+| Open API 안내 | https://various.foodsafetykorea.go.kr/nutrient/industry/openApi/info.do |
+| 공공데이터포털 검색 | https://www.data.go.kr/ (검색: `식품영양성분 통합`) |
+
+서버에는 식품코드·식품명·100g당 에너지/탄단지 등을 적재하고, 온디바이스 `classId`와 매핑 테이블로 연결한다.
+
+---
+
+## 13. JSON → YOLO 텍스트 전처리
+
+### 13.1 YOLO 라벨 포맷
+
+이미지 `foo.jpg`에 대응하는 `foo.txt` (한 줄 = 객체 1개):
+
+```text
+class_id cx cy w h
+```
+
+- `class_id`: 0 이상 정수 (names 리스트 인덱스)  
+- `cx, cy, w, h`: 이미지 너비·높이로 나눈 **0~1 정규화** 값  
+- 여러 음식이면 여러 줄
+
+Ultralytics 데이터셋 레이아웃 예:
+
+```text
+datasets/food_mvp/
+  images/train/  *.jpg
+  images/val/    *.jpg
+  labels/train/  *.txt
+  labels/val/    *.txt
+  data.yaml
+  classes.json      # class_name -> id
+```
+
+`data.yaml` 예:
+
+```yaml
+path: /data/datasets/food_mvp
+train: images/train
+val: images/val
+names:
+  0: kimchi_jjigae
+  1: doenjang_jjigae
+  # ...
+```
+
+### 13.2 좌표 변환 공식
+
+픽셀 BBox `(x, y, bw, bh)` → YOLO:
+
+```text
+cx = (x + bw / 2) / img_w
+cy = (y + bh / 2) / img_h
+w  = bw / img_w
+h  = bh / img_h
+```
+
+클리핑: 모든 값을 `[0, 1]`로 clamp.
+
+### 13.3 변환 스크립트 (기본 코드)
+
+저장 위치: [`scripts/food-calorie/convert_aihub_to_yolo.py`](../scripts/food-calorie/convert_aihub_to_yolo.py)
+
+핵심 로직(요약):
+
+```python
+def xywh_pixel_to_yolo(x, y, w, h, img_w, img_h):
+    cx = (x + w / 2.0) / img_w
+    cy = (y + h / 2.0) / img_h
+    nw = w / img_w
+    nh = h / img_h
+    def clip(v):
+        return max(0.0, min(1.0, v))
+    return clip(cx), clip(cy), clip(nw), clip(nh)
+```
+
+71564형(픽셀 BBox) / 71392형(정규화 중점) 모두 처리하도록 스크립트에 `--schema auto|71564|71392` 옵션을 둔다.
+
+실행 예:
+
+```bash
+cd /path/to/cama-cafe24
+
+# 1) 클래스 목록 생성(음식명 빈도 상위 N종만 MVP로)
+python scripts/food-calorie/convert_aihub_to_yolo.py build-classes \
+  --raw-dir /data/aihub/71564/raw \
+  --schema 71564 \
+  --top-k 120 \
+  --out datasets/food_mvp/classes.json
+
+# 2) YOLO 라벨·이미지 심볼릭/복사 + train/val 분할
+python scripts/food-calorie/convert_aihub_to_yolo.py convert \
+  --raw-dir /data/aihub/71564/raw \
+  --schema 71564 \
+  --classes datasets/food_mvp/classes.json \
+  --out datasets/food_mvp \
+  --val-ratio 0.1 \
+  --seed 42
+
+# 3) data.yaml 생성
+python scripts/food-calorie/convert_aihub_to_yolo.py write-yaml \
+  --out datasets/food_mvp \
+  --classes datasets/food_mvp/classes.json
+```
+
+> 실제 AI Hub 압축 해제 폴더 구조는 데이터셋마다 다르다.  
+> 스크립트는 `**/*.json`을 재귀 탐색하고, 같은 stem의 `.jpg/.png`를 찾는다.  
+> 경로가 어긋나면 `--image-root`로 이미지 루트를 지정한다.
+
+### 13.4 변환 후 검수 체크리스트
+
+- [ ] `labels/*.txt` 줄 수 ≈ 이미지 내 객체 수  
+- [ ] `cx,cy,w,h` 모두 0~1  
+- [ ] 빈 라벨(객체 0) 비율이 비정상적으로 높지 않은지  
+- [ ] `classes.json` 음식명 ↔ 식약처 코드 매핑 초안 작성  
+- [ ] 샘플 20장을 그려서 BBox 시각 검수 (스크립트 `preview` 옵션)
+
+---
+
+## 14. YOLO26n 학습·Export 기본 커맨드
+
+### 14.1 환경
+
+```bash
+# Ubuntu + CUDA 12.x 권장
+python -m venv .venv && source .venv/bin/activate
+pip install -U ultralytics
+# GPU 확인
+python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"
+```
+
+### 14.2 학습 (본선)
+
+```bash
+yolo detect train \
+  model=yolo26n.pt \
+  data=datasets/food_mvp/data.yaml \
+  epochs=100 \
+  imgsz=640 \
+  batch=16 \
+  device=0 \
+  project=runs/food \
+  name=yolo26n_mvp
+```
+
+비교군(베이스라인):
+
+```bash
+yolo detect train model=yolov8n.pt data=datasets/food_mvp/data.yaml \
+  epochs=100 imgsz=640 batch=16 device=0 project=runs/food name=yolov8n_mvp
+```
+
+### 14.3 검증·Export (모바일)
+
+```bash
+# 검증
+yolo detect val model=runs/food/yolo26n_mvp/weights/best.pt data=datasets/food_mvp/data.yaml
+
+# Android TFLite Int8 (캘리브레이션에 data.yaml 사용)
+yolo export model=runs/food/yolo26n_mvp/weights/best.pt \
+  format=tflite imgsz=416 int8=True data=datasets/food_mvp/data.yaml
+
+# iOS CoreML Int8
+yolo export model=runs/food/yolo26n_mvp/weights/best.pt \
+  format=coreml imgsz=416 int8=True
+
+# 저사양 추가 프로필
+yolo export model=runs/food/yolo26n_mvp/weights/best.pt \
+  format=tflite imgsz=320 int8=True data=datasets/food_mvp/data.yaml
+```
+
+### 14.4 Python API 예
+
+```python
+from ultralytics import YOLO
+
+model = YOLO("yolo26n.pt")
+model.train(data="datasets/food_mvp/data.yaml", epochs=100, imgsz=640, device=0)
+model.export(format="tflite", imgsz=416, int8=True, data="datasets/food_mvp/data.yaml")
+```
 
 ---
 
@@ -285,3 +538,4 @@ Gemini 등에서 자주 추천되는 **YOLOv8-nano**는 “검증된 시작점�
 | 날짜 | 내용 |
 |------|------|
 | 2026-07-27 | 초안 작성: 아키텍처, 데이터, YOLO26n 추천, 양자화·로드맵 |
+| 2026-07-27 | AI Hub 다운로드 링크·JSON→YOLO 전처리·YOLO26n 학습 커맨드 추가 |
