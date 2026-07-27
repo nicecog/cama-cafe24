@@ -75,6 +75,130 @@
 
 매핑률 목표: MVP 기준 **≥ 90%**.
 
+### 3.4 1차 학습 초안 목록 (다빈도 100종)
+
+> 목적: AI Hub 대용량 데이터에서 **추출·학습할 MVP 클래스** 초안.  
+> 기준: 한국인 다빈도 식사·외식·분식 중심, 시각 구분 가능성, 식약처 DB 매핑 용이성.  
+> 상태: **초안** — AI Hub 실제 클래스명과 1:1 매칭·확보 가능 장수는 다운로드 후 조정.  
+> 추출 목표: 종당 **800~1,200장** (합계 약 **8~12만 장**), val 약 10%.
+
+| ID | class_key | 표준 음식명 | 대분류 | 추출 우선 |
+|----|-----------|-------------|--------|-----------|
+| 0 | white_rice | 흰밥(공기밥) | 밥·면 | P0 |
+| 1 | brown_rice | 현미밥 | 밥·면 | P1 |
+| 2 | gimbap | 김밥 | 밥·면 | P0 |
+| 3 | bibimbap | 비빔밥 | 밥·면 | P0 |
+| 4 | bokkeumbap | 볶음밥 | 밥·면 | P0 |
+| 5 | deopbap | 덮밥(제육/불고기 등) | 밥·면 | P0 |
+| 6 | curry_rice | 카레라이스 | 밥·면 | P1 |
+| 7 | omurice | 오므라이스 | 밥·면 | P1 |
+| 8 | ramyeon | 라면(봉지/컵) | 밥·면 | P0 |
+| 9 | jjajangmyeon | 짜장면 | 밥·면 | P0 |
+| 10 | jjamppong | 짬뽕 | 밥·면 | P0 |
+| 11 | udon | 우동 | 밥·면 | P1 |
+| 12 | naengmyeon | 냉면 | 밥·면 | P0 |
+| 13 | kalguksu | 칼국수 | 밥·면 | P0 |
+| 14 | jjolmyeon | 쫄면 | 밥·면 | P1 |
+| 15 | spaghetti | 스파게티/파스타 | 밥·면 | P1 |
+| 16 | kimchi_jjigae | 김치찌개 | 국·찌개 | P0 |
+| 17 | doenjang_jjigae | 된장찌개 | 국·찌개 | P0 |
+| 18 | sundubu_jjigae | 순두부찌개 | 국·찌개 | P0 |
+| 19 | unitguk | 미역국 | 국·찌개 | P0 |
+| 20 | yukgaejang | 육개장 | 국·찌개 | P0 |
+| 21 | seolleongtang | 설렁탕 | 국·찌개 | P0 |
+| 22 | gomtang | 곰탕 | 국·찌개 | P1 |
+| 23 | galbitang | 갈비탕 | 국·찌개 | P0 |
+| 24 | samgyetang | 삼계탕 | 국·찌개 | P1 |
+| 25 | doenjangguk | 된장국 | 국·찌개 | P1 |
+| 26 | egg_soup | 계란국 | 국·찌개 | P1 |
+| 27 | kongnamulguk | 콩나물국 | 국·찌개 | P1 |
+| 28 | budae_jjigae | 부대찌개 | 국·찌개 | P0 |
+| 29 | maeuntang | 매운탕 | 국·찌개 | P1 |
+| 30 | samgyeopsal | 삼겹살구이 | 구이·볶음 | P0 |
+| 31 | moksal | 목살/항정살구이 | 구이·볶음 | P1 |
+| 32 | bulgogi | 불고기 | 구이·볶음 | P0 |
+| 33 | jeyuk_bokkeum | 제육볶음 | 구이·볶음 | P0 |
+| 34 | dakgalbi | 닭갈비 | 구이·볶음 | P0 |
+| 35 | chicken_fried | 치킨(후라이드) | 구이·볶음 | P0 |
+| 36 | chicken_seasoned | 치킨(양념) | 구이·볶음 | P0 |
+| 37 | grilled_mackerel | 고등어구이 | 구이·볶음 | P0 |
+| 38 | grilled_saury | 삼치/꽁치구이 | 구이·볶음 | P1 |
+| 39 | grilled_hairtail | 갈치구이 | 구이·볶음 | P1 |
+| 40 | pork_cutlet | 돈까스 | 구이·볶음 | P0 |
+| 41 | fish_cutlet | 생선까스 | 구이·볶음 | P1 |
+| 42 | tteokgalbi | 떡갈비 | 구이·볶음 | P1 |
+| 43 | bossam | 보쌈 | 구이·볶음 | P1 |
+| 44 | jokbal | 족발 | 구이·볶음 | P1 |
+| 45 | egg_roll | 계란말이 | 구이·볶음 | P0 |
+| 46 | fried_egg | 계란후라이 | 구이·볶음 | P0 |
+| 47 | scrambled_egg | 스크램블에그 | 구이·볶음 | P2 |
+| 48 | kimchi | 배추김치 | 반찬 | P0 |
+| 49 | kkakdugi | 깍두기 | 반찬 | P1 |
+| 50 | oi_sobagi | 오이소박이/오이무침 | 반찬 | P1 |
+| 51 | spinach_namul | 시금치나물 | 반찬 | P1 |
+| 52 | bean_sprout_namul | 콩나물무침 | 반찬 | P0 |
+| 53 | fernbrake_namul | 고사리나물 | 반찬 | P2 |
+| 54 | hob_bokkeum | 멸치볶음 | 반찬 | P0 |
+| 55 | potato_jorim | 감자조림 | 반찬 | P0 |
+| 56 | quail_egg_jorim | 메추리알장조림 | 반찬 | P1 |
+| 57 | eomuk_bokkeum | 어묵볶음 | 반찬 | P0 |
+| 58 | japchae | 잡채 | 반찬 | P0 |
+| 59 | salad | 샐러드 | 반찬 | P1 |
+| 60 | tteokbokki | 떡볶이 | 분식·간편 | P0 |
+| 61 | sundae | 순대 | 분식·간편 | P0 |
+| 62 | twigim | 모듬튀김 | 분식·간편 | P0 |
+| 63 | hotdog | 핫도그 | 분식·간편 | P1 |
+| 64 | pizza | 피자 | 분식·간편 | P0 |
+| 65 | hamburger | 햄버거 | 분식·간편 | P0 |
+| 66 | sandwich | 샌드위치 | 분식·간편 | P1 |
+| 67 | toast | 토스트 | 분식·간편 | P1 |
+| 68 | dumplings | 만두(찐/군) | 분식·간편 | P0 |
+| 69 | jjinppang | 찐빵/호빵 | 분식·간편 | P2 |
+| 70 | soondae_gukbap | 순대국밥 | 분식·간편 | P1 |
+| 71 | pork_soup_rice | 돼지국밥 | 분식·간편 | P0 |
+| 72 | kimbap_triangle | 삼각김밥 | 분식·간편 | P1 |
+| 73 | convenience_lunchbox | 도시락(시판) | 분식·간편 | P1 |
+| 74 | apple | 사과 | 과일·유제품 | P0 |
+| 75 | banana | 바나나 | 과일·유제품 | P0 |
+| 76 | orange | 귤/오렌지 | 과일·유제품 | P0 |
+| 77 | grape | 포도 | 과일·유제품 | P1 |
+| 78 | strawberry | 딸기 | 과일·유제품 | P1 |
+| 79 | watermelon | 수박 | 과일·유제품 | P1 |
+| 80 | pear | 배 | 과일·유제품 | P1 |
+| 81 | persimmon | 감 | 과일·유제품 | P2 |
+| 82 | yogurt | 요거트 | 과일·유제품 | P1 |
+| 83 | milk | 우유 | 과일·유제품 | P0 |
+| 84 | soy_milk | 두유 | 과일·유제품 | P1 |
+| 85 | americano | 아메리카노 | 음료 | P0 |
+| 86 | latte | 카페라떼 | 음료 | P0 |
+| 87 | juice | 과일주스 | 음료 | P1 |
+| 88 | soft | 탄산음료 | 음료 | P1 |
+| 89 | ion_drink | 이온음료 | 음료 | P2 |
+| 90 | tofu | 두부(부침/조림) | 기타 주식 | P0 |
+| 91 | jeon_kimchi | 김치전 | 기타 주식 | P0 |
+| 92 | jeon_pajeon | 파전/해물파전 | 기타 주식 | P0 |
+| 93 | haemul_bokkeum | 주꾸미/낙지볶음 | 기타 주식 | P1 |
+| 94 | raw_fish | 회(모듬) | 기타 주식 | P1 |
+| 95 | gimbap_mayo | 참치마요/샐러드김밥 | 기타 주식 | P1 |
+| 96 | chicken_gangjeong | 닭강정 | 기타 주식 | P1 |
+| 97 | jjigae_cheonggukjang | 청국장찌개 | 기타 주식 | P1 |
+| 98 | bibim_naengmyeon | 비빔냉면 | 기타 주식 | P1 |
+| 99 | fruit_cup | 컵과일/컷팅과일 | 과일·유제품 | P2 |
+
+**우선순위 범례**
+- **P0 (약 45종):** 1차 추출·학습 필수  
+- **P1 (약 45종):** AI Hub 장수 충분하면 1차에 포함  
+- **P2 (약 10종):** 장수 부족·혼동 심하면 2차로 미룸  
+
+**추출·학습 운영 메모**
+1. AI Hub 클래스명과 `class_key`/`표준 음식명` 매핑표를 별도 작성 (`aihub_name → class_key`).  
+2. 종당 목표 **1,000장**을 기본으로 하고, 500장 미만이면 1차에서 제외 또는 유사 클래스와 병합.  
+3. 국·찌개·나물류는 혼동이 크므로 val 혼동행렬을 보고 필요 시 대분류로 묶거나 Top-3 UX로 보완.  
+4. `scripts/food-calorie/convert_aihub_to_yolo.py build-classes --top-k 100` 결과와 본 표를 교차 검증.  
+5. 식약처/K-FIND 식품코드는 다운로드 후 `food_code` 컬럼을 매핑 테이블에 채운다.
+
+머신 가독용 CSV 초안은 [`docs/food_mvp_100_classes.csv`](food_mvp_100_classes.csv) 에 동일 목록을 둔다.
+
 ---
 
 ## 4. 모델 추천: YOLOv8n vs YOLO26n
@@ -539,3 +663,4 @@ model.export(format="tflite", imgsz=416, int8=True, data="datasets/food_mvp/data
 |------|------|
 | 2026-07-27 | 초안 작성: 아키텍처, 데이터, YOLO26n 추천, 양자화·로드맵 |
 | 2026-07-27 | AI Hub 다운로드 링크·JSON→YOLO 전처리·YOLO26n 학습 커맨드 추가 |
+| 2026-07-27 | 1차 학습 다빈도 100종 초안 목록·CSV 추가 |
