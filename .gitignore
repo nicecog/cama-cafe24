@@ -80,3 +80,8 @@ docs/CAFE24_REACT_APP_DEPLOY.md
 react-app-dawplus/docs/superpowers/specs/2026-06-07-exercise-coaching-design.md
 react-app-dawplus/.playwright-mcp/page-2026-06-14T04-20-04-635Z.yml
 react-app-dawplus/.playwright-mcp/page-2026-06-14T04-22-50-648Z.yml
+
+# Food calorie local training artifacts
+datasets/
+exports/
+runs/food/

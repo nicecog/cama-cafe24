@@ -1,0 +1,101 @@
+id,class_key,name_ko,category,priority,target_images
+0,white_rice,흰밥(공기밥),밥·면,P0,1000
+1,brown_rice,현미밥,밥·면,P1,1000
+2,gimbap,김밥,밥·면,P0,1000
+3,bibimbap,비빔밥,밥·면,P0,1000
+4,bokkeumbap,볶음밥,밥·면,P0,1000
+5,deopbap,덮밥,밥·면,P0,1000
+6,curry_rice,카레라이스,밥·면,P1,1000
+7,omurice,오므라이스,밥·면,P1,1000
+8,ramyeon,라면,밥·면,P0,1000
+9,jjajangmyeon,짜장면,밥·면,P0,1000
+10,jjamppong,짬뽕,밥·면,P0,1000
+11,udon,우동,밥·면,P1,1000
+12,naengmyeon,냉면,밥·면,P0,1000
+13,kalguksu,칼국수,밥·면,P0,1000
+14,jjolmyeon,쫄면,밥·면,P1,1000
+15,spaghetti,스파게티/파스타,밥·면,P1,1000
+16,kimchi_jjigae,김치찌개,국·찌개,P0,1000
+17,doenjang_jjigae,된장찌개,국·찌개,P0,1000
+18,sundubu_jjigae,순두부찌개,국·찌개,P0,1000
+19,miyeokguk,미역국,국·찌개,P0,1000
+20,yukgaejang,육개장,국·찌개,P0,1000
+21,seolleongtang,설렁탕,국·찌개,P0,1000
+22,gomtang,곰탕,국·찌개,P1,1000
+23,galbitang,갈비탕,국·찌개,P0,1000
+24,samgyetang,삼계탕,국·찌개,P1,1000
+25,doenjangguk,된장국,국·찌개,P1,1000
+26,egg_soup,계란국,국·찌개,P1,1000
+27,kongnamulguk,콩나물국,국·찌개,P1,1000
+28,budae_jjigae,부대찌개,국·찌개,P0,1000
+29,maeuntang,매운탕,국·찌개,P1,1000
+30,samgyeopsal,삼겹살구이,구이·볶음,P0,1000
+31,moksal,목살구이,구이·볶음,P1,1000
+32,bulgogi,불고기,구이·볶음,P0,1000
+33,jeyuk_bokkeum,제육볶음,구이·볶음,P0,1000
+34,dakgalbi,닭갈비,구이·볶음,P0,1000
+35,chicken_fried,치킨(후라이드),구이·볶음,P0,1000
+36,chicken_seasoned,치킨(양념),구이·볶음,P0,1000
+37,grilled_mackerel,고등어구이,구이·볶음,P0,1000
+38,grilled_saury,삼치구이,구이·볶음,P1,1000
+39,grilled_hairtail,갈치구이,구이·볶음,P1,1000
+40,pork_cutlet,돈까스,구이·볶음,P0,1000
+41,fish_cutlet,생선까스,구이·볶음,P1,1000
+42,tteokgalbi,떡갈비,구이·볶음,P1,1000
+43,bossam,보쌈,구이·볶음,P1,1000
+44,jokbal,족발,구이·볶음,P1,1000
+45,egg_roll,계란말이,구이·볶음,P0,1000
+46,fried_egg,계란후라이,구이·볶음,P0,1000
+47,scrambled_egg,스크램블에그,구이·볶음,P2,800
+48,kimchi,배추김치,반찬,P0,1000
+49,kkakdugi,깍두기,반찬,P1,1000
+50,oi_sobagi,오이무침,반찬,P1,1000
+51,spinach_namul,시금치나물,반찬,P1,1000
+52,bean_sprout_namul,콩나물무침,반찬,P0,1000
+53,fernbrake_namul,고사리나물,반찬,P2,800
+54,anchovy_bokkeum,멸치볶음,반찬,P0,1000
+55,potato_jorim,감자조림,반찬,P0,1000
+56,quail_egg_jorim,메추리알장조림,반찬,P1,1000
+57,eomuk_bokkeum,어묵볶음,반찬,P0,1000
+58,japchae,잡채,반찬,P0,1000
+59,salad,샐러드,반찬,P1,1000
+60,tteokbokki,떡볶이,분식·간편,P0,1000
+61,sundae,순대,분식·간편,P0,1000
+62,twigim,모듬튀김,분식·간편,P0,1000
+63,hotdog,핫도그,분식·간편,P1,1000
+64,pizza,피자,분식·간편,P0,1000
+65,hamburger,햄버거,분식·간편,P0,1000
+66,sandwich,샌드위치,분식·간편,P1,1000
+67,toast,토스트,분식·간편,P1,1000
+68,dumplings,만두,분식·간편,P0,1000
+69,jjinppang,찐빵/호빵,분식·간편,P2,800
+70,soondae_gukbap,순대국밥,분식·간편,P1,1000
+71,pork_soup_rice,돼지국밥,분식·간편,P0,1000
+72,kimbap_triangle,삼각김밥,분식·간편,P1,1000
+73,convenience_lunchbox,도시락,분식·간편,P1,1000
+74,apple,사과,과일·유제품,P0,1000
+75,banana,바나나,과일·유제품,P0,1000
+76,orange,귤/오렌지,과일·유제품,P0,1000
+77,grape,포도,과일·유제품,P1,1000
+78,strawberry,딸기,과일·유제품,P1,1000
+79,watermelon,수박,과일·유제품,P1,1000
+80,pear,배,과일·유제품,P1,1000
+81,persimmon,감,과일·유제품,P2,800
+82,yogurt,요거트,과일·유제품,P1,1000
+83,milk,우유,과일·유제품,P0,1000
+84,soy_milk,두유,과일·유제품,P1,1000
+85,americano,아메리카노,음료,P0,1000
+86,latte,카페라떼,음료,P0,1000
+87,juice,과일주스,음료,P1,1000
+88,soda,탄산음료,음료,P1,1000
+89,ion_drink,이온음료,음료,P2,800
+90,tofu,두부요리,기타 주식,P0,1000
+91,jeon_kimchi,김치전,기타 주식,P0,1000
+92,jeon_pajeon,파전/해물파전,기타 주식,P0,1000
+93,haemul_bokkeum,주꾸미/낙지볶음,기타 주식,P1,1000
+94,raw_fish,회,기타 주식,P1,1000
+95,gimbap_mayo,참치마요김밥,기타 주식,P1,1000
+96,chicken_gangjeong,닭강정,기타 주식,P1,1000
+97,jjigae_cheonggukjang,청국장찌개,기타 주식,P1,1000
+98,bibim_naengmyeon,비빔냉면,기타 주식,P1,1000
+99,fruit_cup,컵과일,과일·유제품,P2,800
