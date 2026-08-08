@@ -25,6 +25,7 @@
         <mapper resource="mapper/VitalMapper.xml"/>
         <mapper resource="mapper/DiseaseMapper.xml"/>
         <mapper resource="mapper/CoachingMapper.xml"/>
+        <mapper resource="mapper/NutritionMapper.xml"/>
     </mappers>
 
 </configuration>

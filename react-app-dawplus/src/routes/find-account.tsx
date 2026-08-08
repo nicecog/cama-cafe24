@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/Button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { useToast } from "@/hooks/use-toast";
 import useAlert from "@/hooks/useAlert";
+import { markForcePasswordChange } from "@/lib/forcePasswordChange";
+import { isReactNativeWebView } from "@/lib/webview/rnBridge";
 import {
   normalizePhone,
   validateLoginId,
@@ -30,6 +32,8 @@ export const Route = createFileRoute("/find-account")({
 type TabValue = "id" | "password";
 
 function FindAccountPage() {
+  const navigate = Route.useNavigate();
+  const search = Route.useSearch();
   const { toast } = useToast();
   const { alert } = useAlert();
   const [tab, setTab] = React.useState<TabValue>("id");
@@ -130,7 +134,20 @@ function FindAccountPage() {
           : response.message;
 
       setResultMessage(message);
+      if (response.reset) {
+        markForcePasswordChange(form.loginId.trim());
+      }
       await alert(message);
+      if (response.reset) {
+        const loginSearch = search.redirect?.trim()
+          ? { redirect: search.redirect.trim() }
+          : ({} as { redirect?: string });
+        if (isReactNativeWebView()) {
+          await navigate({ to: "/webview", search: loginSearch });
+        } else {
+          await navigate({ to: "/login", search: loginSearch });
+        }
+      }
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "요청에 실패했습니다.";

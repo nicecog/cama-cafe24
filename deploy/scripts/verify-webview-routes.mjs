@@ -18,6 +18,10 @@ const RN_WEBVIEW_PATHS = [
   "webview/coaching/wellbeing/$loginId/index.tsx",
   "webview/help/index.tsx",
   "webview/treatment/$seq/index.tsx",
+  "webview/nutrition/meal/capture/index.tsx",
+  "webview/nutrition/meal/review/index.tsx",
+  "webview/nutrition/meal/result/index.tsx",
+  "webview/nutrition/meal/history/index.tsx",
 ];
 
 const INTERNAL_TARGETS = [

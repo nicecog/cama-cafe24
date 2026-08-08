@@ -7,6 +7,9 @@ import type {
   CameraCaptureOptions,
   CameraCaptureResult,
   DeviceCapabilities,
+  FoodAnalysisOptions,
+  FoodImageAnalysisResult,
+  FoodVisionInfo,
   LocationOptions,
   LocationResult,
   SpeechRecognitionAvailability,
@@ -34,6 +37,11 @@ type CamaNativeBridgeNative = {
   authenticateBiometric: (
     options: BiometricAuthOptions,
   ) => Promise<BiometricAuthResult>;
+  storeBiometricSecret: (secret: string) => Promise<{ stored: boolean }>;
+  getBiometricSecret: () => Promise<{ secret: string }>;
+  clearBiometricSecret: () => Promise<{ cleared: boolean }>;
+  hasBiometricSecret: () => Promise<{ hasSecret: boolean }>;
+  getDeviceId: () => Promise<{ deviceId: string }>;
   speakText: (text: string, rate: number) => Promise<boolean>;
   stopSpeech: () => Promise<boolean>;
   pauseSpeech: () => Promise<boolean>;
@@ -45,6 +53,10 @@ type CamaNativeBridgeNative = {
   ) => Promise<boolean>;
   stopSpeechRecognition: () => Promise<boolean>;
   cancelSpeechRecognition: () => Promise<boolean>;
+  analyzeFoodImage: (
+    options: FoodAnalysisOptions,
+  ) => Promise<FoodImageAnalysisResult>;
+  getFoodVisionInfo: () => Promise<FoodVisionInfo>;
 };
 
 const NativeBridge = NativeModules.CamaNativeBridge as
@@ -73,6 +85,7 @@ export function getJsFallbackCapabilities(): DeviceCapabilities {
           : ['NSMotionUsageDescription', 'NSHealthShareUsageDescription'],
     },
     speechRecognition: stubCapability(),
+    foodVision: stubCapability(),
     vitals: {
       HEART_RATE: stubCapability(),
       SPO2: stubCapability(),
@@ -152,6 +165,28 @@ export function authenticateBiometric(
   return invokeNative('authenticateBiometric', options);
 }
 
+export function storeBiometricSecret(
+  secret: string,
+): Promise<{ stored: boolean }> {
+  return invokeNative('storeBiometricSecret', secret);
+}
+
+export function getBiometricSecret(): Promise<{ secret: string }> {
+  return invokeNative('getBiometricSecret');
+}
+
+export function clearBiometricSecret(): Promise<{ cleared: boolean }> {
+  return invokeNative('clearBiometricSecret');
+}
+
+export function hasBiometricSecret(): Promise<{ hasSecret: boolean }> {
+  return invokeNative('hasBiometricSecret');
+}
+
+export function getDeviceId(): Promise<{ deviceId: string }> {
+  return invokeNative('getDeviceId');
+}
+
 export function speakText(text: string, rate = 0.9): Promise<boolean> {
   return invokeNative('speakText', text, rate);
 }
@@ -188,4 +223,18 @@ export function stopSpeechRecognition(): Promise<boolean> {
 
 export function cancelSpeechRecognition(): Promise<boolean> {
   return invokeNative('cancelSpeechRecognition');
+}
+
+/**
+ * 촬영·온디바이스 추론·클래스 집계를 네이티브에서 한 번에 수행한다.
+ * 원본 이미지는 네이티브 임시 파일로만 존재하고 JS·서버로 전달되지 않는다.
+ */
+export function analyzeFoodImage(
+  options: FoodAnalysisOptions = {},
+): Promise<FoodImageAnalysisResult> {
+  return invokeNative('analyzeFoodImage', options);
+}
+
+export function getFoodVisionInfo(): Promise<FoodVisionInfo> {
+  return invokeNative('getFoodVisionInfo');
 }

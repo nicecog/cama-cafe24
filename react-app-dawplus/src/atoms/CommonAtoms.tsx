@@ -10,6 +10,9 @@ export const HelpPopupAtom = atom<boolean>(false);
 // 내정보
 export const MyPageAtom = atom<boolean>(false);
 
+/** 임시 비밀번호 로그인 후 비밀번호 변경 강제 */
+export const forcePasswordChangeAtom = atom<boolean>(false);
+
 // DockBar 보임여부
 export const ShowDockBarAtom = atom<boolean>(true);
 

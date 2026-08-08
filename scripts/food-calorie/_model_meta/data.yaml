@@ -1,0 +1,68 @@
+# Val-only subset for Mac Int8 calibration (TFLite/CoreML)
+# On Mac: set path to the absolute path of this food_mvp_val folder.
+path: food_mvp_val
+train: images/val
+val: images/val
+names:
+  0: gimbap
+  1: bibimbap
+  2: bokkeumbap
+  3: deopbap
+  4: curry_rice
+  5: ramyeon
+  6: jjajangmyeon
+  7: jjamppong
+  8: udon
+  9: naengmyeon
+  10: kalguksu
+  11: spaghetti
+  12: kimchi_jjigae
+  13: doenjang_jjigae
+  14: sundubu_jjigae
+  15: miyeokguk
+  16: yukgaejang
+  17: gomtang
+  18: samgyetang
+  19: budae_jjigae
+  20: maeuntang
+  21: samgyeopsal
+  22: bulgogi
+  23: jeyuk_bokkeum
+  24: dakgalbi
+  25: chicken_fried
+  26: chicken_seasoned
+  27: grilled_mackerel
+  28: grilled_saury
+  29: grilled_hairtail
+  30: pork_cutlet
+  31: jokbal
+  32: egg_roll
+  33: kimchi
+  34: eomuk_bokkeum
+  35: japchae
+  36: salad
+  37: tteokbokki
+  38: sundae
+  39: twigim
+  40: hotdog
+  41: pizza
+  42: hamburger
+  43: sandwich
+  44: toast
+  45: dumplings
+  46: jjinppang
+  47: pork_soup_rice
+  48: banana
+  49: orange
+  50: strawberry
+  51: pear
+  52: persimmon
+  53: milk
+  54: americano
+  55: latte
+  56: juice
+  57: tofu
+  58: haemul_bokkeum
+  59: raw_fish
+  60: gimbap_mayo
+  61: chicken_gangjeong

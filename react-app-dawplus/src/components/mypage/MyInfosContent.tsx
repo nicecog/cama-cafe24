@@ -38,6 +38,8 @@ import {
 type MyInfosContentProps = {
   onClose?: () => void;
   onNestedDialogOpenChange?: (open: boolean) => void;
+  forceOpenPasswordChange?: boolean;
+  onForcePasswordChangeDone?: () => void;
 };
 
 type ProfileForm = {
@@ -64,6 +66,8 @@ const NESTED_DIALOG_RELEASE_MS = NESTED_DIALOG_CLOSE_GUARD_MS * 2;
 export function MyInfosContent({
   onClose,
   onNestedDialogOpenChange,
+  forceOpenPasswordChange = false,
+  onForcePasswordChangeDone,
 }: MyInfosContentProps) {
   const { confirm, alert } = useDialog();
   const { data: accountData } = useAtomValue(accountMeAtom);
@@ -94,6 +98,7 @@ export function MyInfosContent({
   const childDrawerOpenRef = React.useRef(false);
   const nestedDialogOpenRef = React.useRef(false);
   const ignoreChildCloseUntilRef = React.useRef(0);
+  const forcePasswordOpenedRef = React.useRef(false);
 
   const syncChildDrawerOpen = React.useCallback(
     (
@@ -215,7 +220,15 @@ export function MyInfosContent({
     syncChildDrawerOpen(profileDrawerOpen, true);
   };
 
+  React.useEffect(() => {
+    if (!forceOpenPasswordChange || forcePasswordOpenedRef.current) return;
+    forcePasswordOpenedRef.current = true;
+    openPasswordDrawer();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- open once when forced
+  }, [forceOpenPasswordChange]);
+
   const closePasswordDrawer = () => {
+    if (forceOpenPasswordChange) return;
     setPasswordDrawerOpen(false);
     resetPasswordForm();
     ignoreChildCloseUntilRef.current =
@@ -340,6 +353,12 @@ export function MyInfosContent({
       resetPasswordForm();
       setPasswordDrawerOpen(false);
       syncChildDrawerOpen(profileDrawerOpen, false);
+      onForcePasswordChangeDone?.();
+      try {
+        sessionStorage.setItem("cama.offerBiometric", "1");
+      } catch {
+        // ignore
+      }
       await runWithNestedDialogGuard(() =>
         alert(response.message || "비밀번호가 변경되었습니다."),
       );
@@ -647,7 +666,9 @@ export function MyInfosContent({
                     </div>
                     <h3 className="text-lg font-bold">안전하게 바꿔요</h3>
                     <p className="mt-1 text-xs leading-5 text-white/85">
-                      사용 중인 비밀번호 확인 후 새 비밀번호를 저장합니다
+                      {forceOpenPasswordChange
+                        ? "임시 비밀번호로 로그인했습니다. 새 비밀번호로 변경해 주세요"
+                        : "사용 중인 비밀번호 확인 후 새 비밀번호를 저장합니다"}
                     </p>
                   </div>
                 </div>

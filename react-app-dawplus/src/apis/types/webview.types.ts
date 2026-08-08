@@ -23,6 +23,9 @@ export interface WebviewAccount {
   userTypeCd: string; // "20" 등
   createdAt: string; // "2024-12-01 23:19:56" 형식
   updatedAt: string; // "2024-12-01 23:54:47" 형식
+  passwordMustChange?: boolean;
+  biometricLoginEnabled?: boolean;
+  biometricPromptDeclined?: boolean;
 }
 
 /**

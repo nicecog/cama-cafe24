@@ -9,6 +9,11 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { usePatientSession } from "@/hooks/auth/usePatientSession";
 import { useToast } from "@/hooks/use-toast";
+import {
+  isReactNativeWebView,
+  requestNativeGetBiometricSecret,
+  requestNativeHasBiometricSecret,
+} from "@/lib/webview/rnBridge";
 import { validateLoginId } from "@/utils/patientAuthValidation";
 
 export const Route = createFileRoute("/login/credentials")({
@@ -24,15 +29,50 @@ function LoginCredentialsPage() {
   const navigate = Route.useNavigate();
   const search = Route.useSearch();
   const { toast } = useToast();
-  const { completePatientLogin, handleLoginError } = usePatientSession();
+  const { completePatientLogin, completeBiometricLogin, handleLoginError } =
+    usePatientSession();
   const [submitting, setSubmitting] = React.useState(false);
   const [pwVisible, setPwVisible] = React.useState(false);
   const [loginId, setLoginId] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [hasBiometric, setHasBiometric] = React.useState(false);
+  const [showPasswordForm, setShowPasswordForm] = React.useState(true);
   const [errors, setErrors] = React.useState<{
     loginId?: string | null;
     password?: string | null;
   }>({});
+
+  React.useEffect(() => {
+    if (!isReactNativeWebView()) return;
+    void requestNativeHasBiometricSecret().then((result) => {
+      const ready = result.ok && Boolean(result.data.hasSecret);
+      setHasBiometric(ready);
+      if (ready) setShowPasswordForm(false);
+    });
+  }, []);
+
+  const afterLogin = async (route: "home" | "selectInfo" | "forcePasswordChange") => {
+    await router.invalidate();
+    if (route === "forcePasswordChange") {
+      // MyPage 강제 비밀번호 변경 플로우 (atom)
+      const target = search.redirect || import.meta.env.VITE_DEFAULT_PAGE;
+      await navigate({ to: target });
+      return;
+    }
+    const target =
+      search.redirect ||
+      (route === "selectInfo"
+        ? "/hospital/select"
+        : import.meta.env.VITE_DEFAULT_PAGE);
+    if (route === "selectInfo" && search.redirect) {
+      await navigate({
+        to: "/hospital/select",
+        search: { redirect: search.redirect },
+      });
+      return;
+    }
+    await navigate({ to: target });
+  };
 
   const onSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -50,24 +90,43 @@ function LoginCredentialsPage() {
     setSubmitting(true);
     try {
       const route = await completePatientLogin(loginId, password);
-      await router.invalidate();
-      const target =
-        search.redirect ||
-        (route === "selectInfo"
-          ? "/hospital/select"
-          : import.meta.env.VITE_DEFAULT_PAGE);
-      if (route === "selectInfo" && search.redirect) {
-        await navigate({
-          to: "/hospital/select",
-          search: { redirect: search.redirect },
-        });
-        return;
-      }
-      await navigate({ to: target });
+      await afterLogin(route);
     } catch (error) {
       toast({
         variant: "destructive",
         title: "로그인 실패",
+        description: handleLoginError(error),
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const onBiometricLogin = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      const secret = await requestNativeGetBiometricSecret();
+      if (!secret.ok || !secret.data.secret) {
+        setShowPasswordForm(true);
+        toast({
+          title: "생체 로그인 불가",
+          description: "아이디/비밀번호로 로그인해 주세요.",
+        });
+        return;
+      }
+      const route = await completeBiometricLogin(secret.data.secret);
+      try {
+        sessionStorage.removeItem("cama.offerBiometric");
+      } catch {
+        // ignore
+      }
+      await afterLogin(route);
+    } catch (error) {
+      setShowPasswordForm(true);
+      toast({
+        variant: "destructive",
+        title: "생체 로그인 실패",
         description: handleLoginError(error),
       });
     } finally {
@@ -113,70 +172,108 @@ function LoginCredentialsPage() {
             <div className="mt-3 flex flex-col items-center gap-2 text-center">
               <div className="h-px w-12 bg-[linear-gradient(90deg,transparent,rgba(96,165,126,0.45),transparent)]" />
               <p className="text-[15px] font-semibold tracking-[-0.03em] text-slate-700">
-                계정 정보를 입력해 로그인해 주세요
+                {hasBiometric && !showPasswordForm
+                  ? "생체 인증으로 빠르게 로그인하세요"
+                  : "계정 정보를 입력해 로그인해 주세요"}
               </p>
             </div>
           </div>
 
-          <form className="mt-5 flex w-full flex-col gap-3" onSubmit={onSubmit}>
-            <div className="space-y-3">
-              <AuthField
-                label="아이디"
-                value={loginId}
-                name="loginId"
-                autoComplete="username"
-                placeholder="아이디 입력"
-                error={errors.loginId}
-                className="rounded-[0.95rem] border border-[#dfe7e1] bg-[#fbfdfc] px-5 shadow-none transition focus-within:border-primary/35"
-                onChange={(e) => {
-                  setLoginId(e.target.value);
-                  setErrors((prev) => ({ ...prev, loginId: null }));
-                }}
-              />
-
-              <label className="block space-y-1.5">
-                <span className="ml-1 text-sm font-semibold text-slate-500">
-                  비밀번호
-                </span>
-                <div className="relative">
-                  <Input
-                    value={password}
-                    type={pwVisible ? "text" : "password"}
-                    autoComplete="current-password"
-                    placeholder="비밀번호 입력"
-                    className="h-14 w-full rounded-[0.95rem] border border-[#dfe7e1] bg-[#fbfdfc] px-5 pr-12 text-lg text-slate-900 placeholder:text-slate-400 shadow-none transition-all focus-visible:ring-2 focus-visible:ring-primary/20 md:text-lg"
+          {hasBiometric && !showPasswordForm ? (
+            <div className="mt-5 space-y-3">
+              <Button
+                type="button"
+                disabled={submitting}
+                onClick={() => void onBiometricLogin()}
+                className="h-12 w-full rounded-[0.95rem] text-base font-bold shadow-[0_14px_28px_rgba(92,148,111,0.22)]"
+              >
+                {submitting ? "인증 중..." : "생체 로그인"}
+              </Button>
+              <button
+                type="button"
+                className="w-full text-center text-sm text-slate-500 underline"
+                onClick={() => setShowPasswordForm(true)}
+              >
+                아이디로 로그인
+              </button>
+            </div>
+          ) : (
+            <>
+              <form
+                className="mt-5 flex w-full flex-col gap-3"
+                onSubmit={onSubmit}
+              >
+                <div className="space-y-3">
+                  <AuthField
+                    label="아이디"
+                    value={loginId}
+                    name="loginId"
+                    autoComplete="username"
+                    placeholder="아이디 입력"
+                    error={errors.loginId}
+                    className="rounded-[0.95rem] border border-[#dfe7e1] bg-[#fbfdfc] px-5 shadow-none transition focus-within:border-primary/35"
                     onChange={(e) => {
-                      setPassword(e.target.value);
-                      setErrors((prev) => ({ ...prev, password: null }));
+                      setLoginId(e.target.value);
+                      setErrors((prev) => ({ ...prev, loginId: null }));
                     }}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setPwVisible((prev) => !prev)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-slate-600"
-                    aria-label={pwVisible ? "비밀번호 숨기기" : "비밀번호 보기"}
-                  >
-                    {pwVisible ? <EyeClosed size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
-                {errors.password ? (
-                  <p className="ml-1 text-sm font-medium text-red-500">
-                    {errors.password}
-                  </p>
-                ) : null}
-              </label>
-            </div>
-          </form>
 
-          <Button
-            type="button"
-            disabled={submitting}
-            data-testid="login-submit"
-            onClick={() => void onSubmit()}
-            className="mt-5 h-12 w-full rounded-[0.95rem] text-base font-bold shadow-[0_14px_28px_rgba(92,148,111,0.22)] transition-transform hover:scale-[1.01] active:scale-[0.99]"
-          >
-            {submitting ? "로그인 중..." : "로그인"}
-          </Button>
+                  <label className="block space-y-1.5">
+                    <span className="ml-1 text-sm font-semibold text-slate-500">
+                      비밀번호
+                    </span>
+                    <div className="relative">
+                      <Input
+                        value={password}
+                        type={pwVisible ? "text" : "password"}
+                        autoComplete="current-password"
+                        placeholder="비밀번호 입력"
+                        className="h-14 w-full rounded-[0.95rem] border border-[#dfe7e1] bg-[#fbfdfc] px-5 pr-12 text-lg text-slate-900 placeholder:text-slate-400 shadow-none transition-all focus-visible:ring-2 focus-visible:ring-primary/20 md:text-lg"
+                        onChange={(e) => {
+                          setPassword(e.target.value);
+                          setErrors((prev) => ({ ...prev, password: null }));
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setPwVisible((prev) => !prev)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-slate-600"
+                        aria-label={
+                          pwVisible ? "비밀번호 숨기기" : "비밀번호 보기"
+                        }
+                      >
+                        {pwVisible ? <EyeClosed size={20} /> : <Eye size={20} />}
+                      </button>
+                    </div>
+                    {errors.password ? (
+                      <p className="ml-1 text-sm font-medium text-red-500">
+                        {errors.password}
+                      </p>
+                    ) : null}
+                  </label>
+                </div>
+              </form>
+
+              <Button
+                type="button"
+                disabled={submitting}
+                data-testid="login-submit"
+                onClick={() => void onSubmit()}
+                className="mt-5 h-12 w-full rounded-[0.95rem] text-base font-bold shadow-[0_14px_28px_rgba(92,148,111,0.22)] transition-transform hover:scale-[1.01] active:scale-[0.99]"
+              >
+                {submitting ? "로그인 중..." : "로그인"}
+              </Button>
+              {hasBiometric ? (
+                <button
+                  type="button"
+                  className="mt-3 w-full text-center text-sm text-primary underline"
+                  onClick={() => setShowPasswordForm(false)}
+                >
+                  생체 로그인
+                </button>
+              ) : null}
+            </>
+          )}
 
           <div className="mt-3 grid grid-cols-2 gap-2">
             <Button

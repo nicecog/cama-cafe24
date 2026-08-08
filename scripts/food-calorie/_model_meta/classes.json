@@ -1,0 +1,567 @@
+{
+  "schema": "aihub_filename_foodname",
+  "classes": {
+    "gimbap": 0,
+    "bibimbap": 1,
+    "bokkeumbap": 2,
+    "deopbap": 3,
+    "curry_rice": 4,
+    "ramyeon": 5,
+    "jjajangmyeon": 6,
+    "jjamppong": 7,
+    "udon": 8,
+    "naengmyeon": 9,
+    "kalguksu": 10,
+    "spaghetti": 11,
+    "kimchi_jjigae": 12,
+    "doenjang_jjigae": 13,
+    "sundubu_jjigae": 14,
+    "miyeokguk": 15,
+    "yukgaejang": 16,
+    "gomtang": 17,
+    "samgyetang": 18,
+    "budae_jjigae": 19,
+    "maeuntang": 20,
+    "samgyeopsal": 21,
+    "bulgogi": 22,
+    "jeyuk_bokkeum": 23,
+    "dakgalbi": 24,
+    "chicken_fried": 25,
+    "chicken_seasoned": 26,
+    "grilled_mackerel": 27,
+    "grilled_saury": 28,
+    "grilled_hairtail": 29,
+    "pork_cutlet": 30,
+    "jokbal": 31,
+    "egg_roll": 32,
+    "kimchi": 33,
+    "eomuk_bokkeum": 34,
+    "japchae": 35,
+    "salad": 36,
+    "tteokbokki": 37,
+    "sundae": 38,
+    "twigim": 39,
+    "hotdog": 40,
+    "pizza": 41,
+    "hamburger": 42,
+    "sandwich": 43,
+    "toast": 44,
+    "dumplings": 45,
+    "jjinppang": 46,
+    "pork_soup_rice": 47,
+    "banana": 48,
+    "orange": 49,
+    "strawberry": 50,
+    "pear": 51,
+    "persimmon": 52,
+    "milk": 53,
+    "americano": 54,
+    "latte": 55,
+    "juice": 56,
+    "tofu": 57,
+    "haemul_bokkeum": 58,
+    "raw_fish": 59,
+    "gimbap_mayo": 60,
+    "chicken_gangjeong": 61
+  },
+  "id_to_key": {
+    "0": "gimbap",
+    "1": "bibimbap",
+    "2": "bokkeumbap",
+    "3": "deopbap",
+    "4": "curry_rice",
+    "5": "ramyeon",
+    "6": "jjajangmyeon",
+    "7": "jjamppong",
+    "8": "udon",
+    "9": "naengmyeon",
+    "10": "kalguksu",
+    "11": "spaghetti",
+    "12": "kimchi_jjigae",
+    "13": "doenjang_jjigae",
+    "14": "sundubu_jjigae",
+    "15": "miyeokguk",
+    "16": "yukgaejang",
+    "17": "gomtang",
+    "18": "samgyetang",
+    "19": "budae_jjigae",
+    "20": "maeuntang",
+    "21": "samgyeopsal",
+    "22": "bulgogi",
+    "23": "jeyuk_bokkeum",
+    "24": "dakgalbi",
+    "25": "chicken_fried",
+    "26": "chicken_seasoned",
+    "27": "grilled_mackerel",
+    "28": "grilled_saury",
+    "29": "grilled_hairtail",
+    "30": "pork_cutlet",
+    "31": "jokbal",
+    "32": "egg_roll",
+    "33": "kimchi",
+    "34": "eomuk_bokkeum",
+    "35": "japchae",
+    "36": "salad",
+    "37": "tteokbokki",
+    "38": "sundae",
+    "39": "twigim",
+    "40": "hotdog",
+    "41": "pizza",
+    "42": "hamburger",
+    "43": "sandwich",
+    "44": "toast",
+    "45": "dumplings",
+    "46": "jjinppang",
+    "47": "pork_soup_rice",
+    "48": "banana",
+    "49": "orange",
+    "50": "strawberry",
+    "51": "pear",
+    "52": "persimmon",
+    "53": "milk",
+    "54": "americano",
+    "55": "latte",
+    "56": "juice",
+    "57": "tofu",
+    "58": "haemul_bokkeum",
+    "59": "raw_fish",
+    "60": "gimbap_mayo",
+    "61": "chicken_gangjeong"
+  },
+  "meta": {
+    "gimbap": {
+      "yolo_id": 0,
+      "name_ko": "김밥",
+      "aihub_names": "스팸김밥|꼬마김밥|땡초김밥|멸치김밥|새우김밥|누드김밥|충무김밥|돈가스김밥|땡초멸치김밥|빨간참치김밥",
+      "available_images": 2780,
+      "status": "ok"
+    },
+    "bibimbap": {
+      "yolo_id": 1,
+      "name_ko": "비빔밥",
+      "aihub_names": "돌솥비빔밥|멍게비빔밥|꼬막비빔밥|우삼겹비빔밥",
+      "available_images": 780,
+      "status": "ok"
+    },
+    "bokkeumbap": {
+      "yolo_id": 2,
+      "name_ko": "볶음밥",
+      "aihub_names": "게살볶음밥|나시고랭볶음밥",
+      "available_images": 690,
+      "status": "ok"
+    },
+    "deopbap": {
+      "yolo_id": 3,
+      "name_ko": "덮밥",
+      "aihub_names": "돈부리덮밥|연어회덮밥|낙지덮밥|참치마요덮밥|훈제연어덮밥|치킨마요덮밥|칠리새우덮밥",
+      "available_images": 1790,
+      "status": "ok"
+    },
+    "curry_rice": {
+      "yolo_id": 4,
+      "name_ko": "카레라이스",
+      "aihub_names": "카레우동|카레컵밥|카레고로케",
+      "available_images": 870,
+      "status": "ok"
+    },
+    "ramyeon": {
+      "yolo_id": 5,
+      "name_ko": "라면",
+      "aihub_names": "냉라멘|시오라멘|미소라멘|소유라멘|차슈라멘|해물라면|만두라면|돈코츠라멘|떡만두라면",
+      "available_images": 3130,
+      "status": "ok"
+    },
+    "jjajangmyeon": {
+      "yolo_id": 6,
+      "name_ko": "짜장면",
+      "aihub_names": "쟁반짜장|삼선간짜장",
+      "available_images": 290,
+      "status": "low"
+    },
+    "jjamppong": {
+      "yolo_id": 7,
+      "name_ko": "짬뽕",
+      "aihub_names": "나가사끼짬뽕|꼬막짬뽕|차돌짬뽕|쟁반짬뽕|순두부짬뽕|짬뽕 쌀국수|짬뽕차돌쌀국수",
+      "available_images": 1790,
+      "status": "ok"
+    },
+    "udon": {
+      "yolo_id": 8,
+      "name_ko": "우동",
+      "aihub_names": "냉우동|크림우동|유부우동|새우튀김우동",
+      "available_images": 800,
+      "status": "ok"
+    },
+    "naengmyeon": {
+      "yolo_id": 9,
+      "name_ko": "냉면",
+      "aihub_names": "중화냉면|진주냉면|코다리냉면",
+      "available_images": 800,
+      "status": "ok"
+    },
+    "kalguksu": {
+      "yolo_id": 10,
+      "name_ko": "칼국수",
+      "aihub_names": "칼국수|팥칼국수|추어칼국수|얼큰칼국수|바지락칼국수",
+      "available_images": 1460,
+      "status": "ok"
+    },
+    "spaghetti": {
+      "yolo_id": 11,
+      "name_ko": "스파게티/파스타",
+      "aihub_names": "오일파스타|로제파스타|빠네로제파스타|새우로제파스타|새우오일파스타|까르보나라파스타|까르보나라떡볶이|봉골레파스타|새우토마토스파게티",
+      "available_images": 3210,
+      "status": "ok"
+    },
+    "kimchi_jjigae": {
+      "yolo_id": 12,
+      "name_ko": "김치찌개",
+      "aihub_names": "꽁치김치찌개",
+      "available_images": 120,
+      "status": "low"
+    },
+    "doenjang_jjigae": {
+      "yolo_id": 13,
+      "name_ko": "된장찌개",
+      "aihub_names": "차돌된장찌개|바지락된장찌개",
+      "available_images": 550,
+      "status": "ok"
+    },
+    "sundubu_jjigae": {
+      "yolo_id": 14,
+      "name_ko": "순두부찌개",
+      "aihub_names": "해물순두부찌개",
+      "available_images": 280,
+      "status": "low"
+    },
+    "miyeokguk": {
+      "yolo_id": 15,
+      "name_ko": "미역국",
+      "aihub_names": "황태미역국",
+      "available_images": 270,
+      "status": "low"
+    },
+    "yukgaejang": {
+      "yolo_id": 16,
+      "name_ko": "육개장",
+      "aihub_names": "황태닭개장|황태육개장",
+      "available_images": 760,
+      "status": "ok"
+    },
+    "gomtang": {
+      "yolo_id": 17,
+      "name_ko": "곰탕",
+      "aihub_names": "나주곰탕|황태닭곰탕",
+      "available_images": 670,
+      "status": "ok"
+    },
+    "samgyetang": {
+      "yolo_id": 18,
+      "name_ko": "삼계탕",
+      "aihub_names": "반계탕",
+      "available_images": 390,
+      "status": "low"
+    },
+    "budae_jjigae": {
+      "yolo_id": 19,
+      "name_ko": "부대찌개",
+      "aihub_names": "황태부대찌개",
+      "available_images": 380,
+      "status": "low"
+    },
+    "maeuntang": {
+      "yolo_id": 20,
+      "name_ko": "매운탕",
+      "aihub_names": "해천탕|해신탕|우럭매운탕|광어매운탕",
+      "available_images": 1440,
+      "status": "ok"
+    },
+    "samgyeopsal": {
+      "yolo_id": 21,
+      "name_ko": "삼겹살구이",
+      "aihub_names": "삼겹살스테이크",
+      "available_images": 440,
+      "status": "low"
+    },
+    "bulgogi": {
+      "yolo_id": 22,
+      "name_ko": "불고기",
+      "aihub_names": "불고기컵밥|불고기버거|불고기쌀국수|불고기파니니|고추장불고기|불고기피자(팬)|불고기피자(씬)|불백(뚝배기불고기)|콩나물불고기(콩불)",
+      "available_images": 2410,
+      "status": "ok"
+    },
+    "jeyuk_bokkeum": {
+      "yolo_id": 23,
+      "name_ko": "제육볶음",
+      "aihub_names": "제육볶음|제육컵밥",
+      "available_images": 510,
+      "status": "ok"
+    },
+    "dakgalbi": {
+      "yolo_id": 24,
+      "name_ko": "닭갈비",
+      "aihub_names": "닭갈비컵밥|치즈닭갈비|간장닭갈비",
+      "available_images": 700,
+      "status": "ok"
+    },
+    "chicken_fried": {
+      "yolo_id": 25,
+      "name_ko": "치킨(후라이드)",
+      "aihub_names": "순살후라이드치킨|닭윙후라이드치킨|후라이드치킨(뼈)|닭다리후라이드치킨|치킨버거|치킨너겟|치킨파히타|치킨토스트|치킨샐러드|탄두리치킨|순살간장반후라이드반치킨|닭윙간장치킨",
+      "available_images": 3140,
+      "status": "ok"
+    },
+    "chicken_seasoned": {
+      "yolo_id": 26,
+      "name_ko": "치킨(양념)",
+      "aihub_names": "훈제양념치킨|순살양념치킨|닭윙양념치킨|순살간장치킨|닭다리간장치킨|닭다리양념치킨|간장치킨(뼈)|순살훈제양념치킨|닭윙&닭다리양념치킨|닭윙&닭다리간장치킨|순살양념파닭|양념닭가슴살",
+      "available_images": 3190,
+      "status": "ok"
+    },
+    "grilled_mackerel": {
+      "yolo_id": 27,
+      "name_ko": "고등어구이",
+      "aihub_names": "고등어구이",
+      "available_images": 130,
+      "status": "low"
+    },
+    "grilled_saury": {
+      "yolo_id": 28,
+      "name_ko": "삼치구이",
+      "aihub_names": "삼치구이|꽁치구이",
+      "available_images": 410,
+      "status": "low"
+    },
+    "grilled_hairtail": {
+      "yolo_id": 29,
+      "name_ko": "갈치구이",
+      "aihub_names": "갈치구이",
+      "available_images": 140,
+      "status": "low"
+    },
+    "pork_cutlet": {
+      "yolo_id": 30,
+      "name_ko": "돈까스",
+      "aihub_names": "카츠동|로제돈가스|피자돈까스|로스카츠(등심)|에비카츠|카츠나베|고구마돈가스|고구마치즈돈가스|히레카츠(안심)",
+      "available_images": 2910,
+      "status": "ok"
+    },
+    "jokbal": {
+      "yolo_id": 31,
+      "name_ko": "족발",
+      "aihub_names": "미니족발|불족발|냉채족발",
+      "available_images": 380,
+      "status": "low"
+    },
+    "egg_roll": {
+      "yolo_id": 32,
+      "name_ko": "계란말이",
+      "aihub_names": "치즈달걀말이",
+      "available_images": 280,
+      "status": "low"
+    },
+    "kimchi": {
+      "yolo_id": 33,
+      "name_ko": "배추김치",
+      "aihub_names": "김치찜|김치죽|김치알컵밥|김치낙지죽|스팸김치컵밥|김치참치컵밥|김치참치마요컵밥",
+      "available_images": 1920,
+      "status": "ok"
+    },
+    "eomuk_bokkeum": {
+      "yolo_id": 34,
+      "name_ko": "어묵볶음",
+      "aihub_names": "어묵튀김|핫바(어묵소시지)",
+      "available_images": 560,
+      "status": "ok"
+    },
+    "japchae": {
+      "yolo_id": 35,
+      "name_ko": "잡채",
+      "aihub_names": "잡채고로케|잡채말이튀김",
+      "available_images": 530,
+      "status": "ok"
+    },
+    "salad": {
+      "yolo_id": 36,
+      "name_ko": "샐러드",
+      "aihub_names": "콘샐러드|연어샐러드|두부샐러드|비프샐러드|버섯샐러드|치킨포케|연어포케|고구마샐러드|단호박샐러드|케이준샐러드",
+      "available_images": 3140,
+      "status": "ok"
+    },
+    "tteokbokki": {
+      "yolo_id": 37,
+      "name_ko": "떡볶이",
+      "aihub_names": "부대떡볶이|차돌떡볶이|곱창떡볶이|자장떡볶이|치즈떡볶이|크림떡볶이|마라떡볶이|로제떡볶이|우삼겹떡볶이|투움바떡볶이",
+      "available_images": 2680,
+      "status": "ok"
+    },
+    "sundae": {
+      "yolo_id": 38,
+      "name_ko": "순대",
+      "aihub_names": "찰순대|순대전골|모둠순대|아바이순대|오징어순대",
+      "available_images": 1410,
+      "status": "ok"
+    },
+    "twigim": {
+      "yolo_id": 39,
+      "name_ko": "모듬튀김",
+      "aihub_names": "추어튀김|장어튀김|튀김꽃빵|튀김소보루|민물새우튀김",
+      "available_images": 1670,
+      "status": "ok"
+    },
+    "hotdog": {
+      "yolo_id": 40,
+      "name_ko": "핫도그",
+      "aihub_names": "핫도그|감자핫도그|고구마핫도그|모짜렐라핫도그",
+      "available_images": 1070,
+      "status": "ok"
+    },
+    "pizza": {
+      "yolo_id": 41,
+      "name_ko": "피자",
+      "aihub_names": "오피자|피자빵|돌체피자|풍기피자|버섯피자|치즈피자|피자호빵|나폴리피자|루꼴라피자",
+      "available_images": 3280,
+      "status": "ok"
+    },
+    "hamburger": {
+      "yolo_id": 42,
+      "name_ko": "햄버거",
+      "aihub_names": "새우버거|치즈버거|베이컨치즈버거",
+      "available_images": 840,
+      "status": "ok"
+    },
+    "sandwich": {
+      "yolo_id": 43,
+      "name_ko": "샌드위치",
+      "aihub_names": "햄샌드위치|치즈샌드위치|딸기샌드위치|반미샌드위치|에그샌드위치|클럽샌드위치|땅콩샌드위치|새우샌드위치|참치샌드위치|바질샌드위치|베이컨샌드위치|BLT샌드위치",
+      "available_images": 3200,
+      "status": "ok"
+    },
+    "toast": {
+      "yolo_id": 44,
+      "name_ko": "토스트",
+      "aihub_names": "계란토스트|새우토스트|감자토스트|피자토스트|카야토스트|햄치즈토스트|베이컨토스트|프렌치토스트",
+      "available_images": 2130,
+      "status": "ok"
+    },
+    "dumplings": {
+      "yolo_id": 45,
+      "name_ko": "만두",
+      "aihub_names": "샤오롱바오|새우샤오롱바오|추어만두|가지만두|만두전골|새우만두|야끼만두|감자만두|납작만두|갈비만두",
+      "available_images": 3010,
+      "status": "ok"
+    },
+    "jjinppang": {
+      "yolo_id": 46,
+      "name_ko": "찐빵/호빵",
+      "aihub_names": "꽃빵|단팥호빵|야채호빵",
+      "available_images": 950,
+      "status": "ok"
+    },
+    "pork_soup_rice": {
+      "yolo_id": 47,
+      "name_ko": "돼지국밥",
+      "aihub_names": "굴국밥|황태국밥|매생이굴국밥",
+      "available_images": 530,
+      "status": "ok"
+    },
+    "banana": {
+      "yolo_id": 48,
+      "name_ko": "바나나",
+      "aihub_names": "바나나와플|바나나주스|바나나쉐이크|딸기바나나주스",
+      "available_images": 526,
+      "status": "ok"
+    },
+    "orange": {
+      "yolo_id": 49,
+      "name_ko": "귤/오렌지",
+      "aihub_names": "오렌지에이드|청귤차|청귤에이드",
+      "available_images": 249,
+      "status": "low"
+    },
+    "strawberry": {
+      "yolo_id": 50,
+      "name_ko": "딸기",
+      "aihub_names": "딸기빙수|딸기주스|딸기크로플|딸기타르트|딸기케이크|딸기롤케잌|딸기마카롱|생딸기와플|딸기스무디|딸기에이드|딸기크로와상|딸기크레이프",
+      "available_images": 2621,
+      "status": "ok"
+    },
+    "pear": {
+      "yolo_id": 51,
+      "name_ko": "배",
+      "aihub_names": "꽈배기|해물뚝배기|찹쌀꽈배기",
+      "available_images": 830,
+      "status": "ok"
+    },
+    "persimmon": {
+      "yolo_id": 52,
+      "name_ko": "감",
+      "aihub_names": "감바스",
+      "available_images": 230,
+      "status": "low"
+    },
+    "milk": {
+      "yolo_id": 53,
+      "name_ko": "우유",
+      "aihub_names": "우유식빵|우유마카롱|우유크림빵",
+      "available_images": 730,
+      "status": "ok"
+    },
+    "americano": {
+      "yolo_id": 54,
+      "name_ko": "아메리카노",
+      "aihub_names": "아이스아메리카노|아메리카노(HOT)|아이스헤이즐넛아메리카노|헤이즐넛아메리카노(HOT)",
+      "available_images": 303,
+      "status": "low"
+    },
+    "latte": {
+      "yolo_id": 55,
+      "name_ko": "카페라떼",
+      "aihub_names": "아이스카페라떼|연유라떼|흑당라떼|오곡라떼|녹차라떼|말차라떼|카페라떼(HOT)|고구마라떼|달고나라떼|바닐라라떼|토피넛라떼|죠리퐁라떼|민트초코라떼|콜드브루라떼|아이스초코라떼|아이스돌체라떼|아이스모카라떼|아이스코코넛라떼|아이스시나몬라떼|아이스토피넛라떼|초코라떼(HOT)|돌체라떼(HOT)|모카라떼(HOT)|아이스초코모카라떼|아이스티라미수라떼|아이스헤이즐넛라떼|코코넛라떼(HOT)|시나몬라떼(HOT)|초코모카라떼(HOT)|티라미수라떼(HOT)|헤이즐넛라떼(HOT)",
+      "available_images": 2544,
+      "status": "ok"
+    },
+    "juice": {
+      "yolo_id": 56,
+      "name_ko": "과일주스",
+      "aihub_names": "사과주스|망고주스|키위주스|자몽주스|토마토주스",
+      "available_images": 411,
+      "status": "low"
+    },
+    "tofu": {
+      "yolo_id": 57,
+      "name_ko": "두부요리",
+      "aihub_names": "건두부볶음|두부두루치기|두부버섯전골",
+      "available_images": 920,
+      "status": "ok"
+    },
+    "haemul_bokkeum": {
+      "yolo_id": 58,
+      "name_ko": "주꾸미/낙지볶음",
+      "aihub_names": "낙지죽|산낙지회|낙지호롱|낙지전골|낙지탕탕이|주꾸미삽겹살볶음",
+      "available_images": 1510,
+      "status": "ok"
+    },
+    "raw_fish": {
+      "yolo_id": 59,
+      "name_ko": "회",
+      "aihub_names": "물회|막회|광어회|오징어회|소라숙회|육회초밥",
+      "available_images": 1880,
+      "status": "ok"
+    },
+    "gimbap_mayo": {
+      "yolo_id": 60,
+      "name_ko": "참치마요김밥",
+      "aihub_names": "참치마요컵밥",
+      "available_images": 240,
+      "status": "low"
+    },
+    "chicken_gangjeong": {
+      "yolo_id": 61,
+      "name_ko": "닭강정",
+      "aihub_names": "떡강정",
+      "available_images": 270,
+      "status": "low"
+    }
+  }
+}

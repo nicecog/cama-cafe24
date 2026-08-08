@@ -22,6 +22,7 @@ import com.cama.back.repo.account.AccountSecureRepository;
 import com.cama.back.repo.firebase.FirebaseTokenRepository;
 import com.cama.back.security.JwtAuthentication;
 import com.cama.back.service.account.AccountService;
+import com.cama.back.service.account.BiometricAccountService;
 import com.cama.back.service.account.PatientAccountService;
 import com.cama.back.service.iamport.IamportService;
 import com.cama.back.mapper.AccountMapper;
@@ -49,14 +50,16 @@ public class AccountRestController {
     private final JhUtil jhUtil;
     private final IamportService iamportService;
     private final AccountService accountService;
-    private final AccountMapper  accountMapper;
+    private final AccountMapper accountMapper;
     private final PatientAccountService patientAccountService;
+    private final BiometricAccountService biometricAccountService;
 
     public AccountRestController(AccountRepository accountRepository,
                                  AccountAlarmRepository accountAlarmRepository,
                                  FirebaseTokenRepository firebaseTokenRepository, HospitalMapper hospitalMapper, PasswordEncoder passwordEncoder,
                                  JhUtil jhUtil, IamportService iamportService, AccountService accountService, AccountMapper accountMapper,
-                                 PatientAccountService patientAccountService) {
+                                 PatientAccountService patientAccountService,
+                                 BiometricAccountService biometricAccountService) {
         this.accountRepository = accountRepository;
         this.accountAlarmRepository = accountAlarmRepository;
         this.firebaseTokenRepository = firebaseTokenRepository;
@@ -67,6 +70,7 @@ public class AccountRestController {
         this.accountService = accountService;
         this.accountMapper = accountMapper;
         this.patientAccountService = patientAccountService;
+        this.biometricAccountService = biometricAccountService;
     }
 
     @PostMapping(path = "account")
@@ -271,6 +275,36 @@ public class AccountRestController {
     public ApiResult<PatientChangePasswordResponse> postWebviewAccountChangePassword(
             @RequestBody PatientChangePasswordRequest dto) {
         return new ApiResult<>(patientAccountService.changePassword(dto));
+    }
+
+    @PostMapping(path = "webview/account/biometric/status")
+    @Operation(summary = "생체 로그인 상태 조회")
+    public ApiResult<BiometricStatusResponse> postBiometricStatus(@RequestBody BiometricStatusRequest dto) {
+        return new ApiResult<>(biometricAccountService.status(dto));
+    }
+
+    @PostMapping(path = "webview/account/biometric/enroll")
+    @Operation(summary = "생체 로그인 기기 등록")
+    public ApiResult<BiometricEnrollResponse> postBiometricEnroll(@RequestBody BiometricEnrollRequest dto) {
+        return new ApiResult<>(biometricAccountService.enroll(dto));
+    }
+
+    @PostMapping(path = "webview/account/biometric/login")
+    @Operation(summary = "생체 로그인")
+    public ApiResult<BiometricLoginResponse> postBiometricLogin(@RequestBody BiometricLoginRequest dto) {
+        return new ApiResult<>(biometricAccountService.login(dto));
+    }
+
+    @PostMapping(path = "webview/account/biometric/decline")
+    @Operation(summary = "생체 로그인 안내 나중에")
+    public ApiResult<BiometricSimpleResponse> postBiometricDecline(@RequestBody BiometricDeclineRequest dto) {
+        return new ApiResult<>(biometricAccountService.decline(dto));
+    }
+
+    @PostMapping(path = "webview/account/biometric/disable")
+    @Operation(summary = "생체 로그인 해제")
+    public ApiResult<BiometricSimpleResponse> postBiometricDisable(@RequestBody BiometricDisableRequest dto) {
+        return new ApiResult<>(biometricAccountService.disable(dto));
     }
 
     @PostMapping(path = "account/sns/check")

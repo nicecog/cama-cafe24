@@ -10,6 +10,9 @@ import type {
   CameraCaptureOptions,
   CameraCaptureResult,
   DeviceCapabilities,
+  FoodAnalysisOptions,
+  FoodImageAnalysisResult,
+  FoodVisionInfo,
   LocationOptions,
   LocationResult,
   NativeBridgeResponseBase,
@@ -210,6 +213,76 @@ export function requestNativeBiometricAuth(
   >({ type: "authenticateBiometric", options }, "biometric", timeoutMs);
 }
 
+export function requestNativeStoreBiometricSecret(
+  secret: string,
+  timeoutMs = 15000,
+) {
+  return requestBridge<
+    NativeBridgeResponseBase & {
+      type: "biometric";
+      mode?: "storeSecret";
+      stored?: boolean;
+    }
+  >({ type: "storeBiometricSecret", secret }, "biometric", timeoutMs);
+}
+
+export function requestNativeGetBiometricSecret(timeoutMs = 30000) {
+  return requestBridge<
+    NativeBridgeResponseBase & {
+      type: "biometric";
+      mode?: "getSecret";
+      secret?: string;
+    }
+  >({ type: "getBiometricSecret" }, "biometric", timeoutMs);
+}
+
+export function requestNativeClearBiometricSecret(timeoutMs = 10000) {
+  if (!isReactNativeWebView()) {
+    return Promise.resolve({
+      ok: true as const,
+      data: { mode: "clearSecret" as const, cleared: true },
+    });
+  }
+  return requestBridge<
+    NativeBridgeResponseBase & {
+      type: "biometric";
+      mode?: "clearSecret";
+      cleared?: boolean;
+    }
+  >({ type: "clearBiometricSecret" }, "biometric", timeoutMs);
+}
+
+export function requestNativeHasBiometricSecret(timeoutMs = 8000) {
+  if (!isReactNativeWebView()) {
+    return Promise.resolve({
+      ok: true as const,
+      data: { mode: "hasSecret" as const, hasSecret: false },
+    });
+  }
+  return requestBridge<
+    NativeBridgeResponseBase & {
+      type: "biometric";
+      mode?: "hasSecret";
+      hasSecret?: boolean;
+    }
+  >({ type: "hasBiometricSecret" }, "biometric", timeoutMs);
+}
+
+export function requestNativeDeviceId(timeoutMs = 8000) {
+  if (!isReactNativeWebView()) {
+    return Promise.resolve({
+      ok: false as const,
+      error: "UNAVAILABLE",
+    });
+  }
+  return requestBridge<
+    NativeBridgeResponseBase & {
+      type: "deviceId";
+      deviceId?: string;
+    }
+  >({ type: "getDeviceId" }, "deviceId", timeoutMs);
+}
+
 export function requestNativeStepCount(
   timeoutMs = 8000,
 ): Promise<number | null> {
@@ -323,6 +396,27 @@ export function requestNativeFcmToken(
     }
     return null;
   });
+}
+
+/**
+ * 촬영 + 온디바이스 추론을 네이티브에 위임한다.
+ * 촬영 대기 시간이 포함되므로 타임아웃이 다른 요청보다 길다.
+ */
+export function requestNativeAnalyzeFoodImage(
+  options: FoodAnalysisOptions = {},
+  timeoutMs = 45000,
+) {
+  return requestBridge<
+    NativeBridgeResponseBase & {
+      type: "foodImageAnalysis";
+    } & FoodImageAnalysisResult
+  >({ type: "analyzeFoodImage", options }, "foodImageAnalysis", timeoutMs);
+}
+
+export function requestNativeFoodVisionInfo(timeoutMs = 5000) {
+  return requestBridge<
+    NativeBridgeResponseBase & { type: "foodVisionInfo" } & FoodVisionInfo
+  >({ type: "getFoodVisionInfo" }, "foodVisionInfo", timeoutMs);
 }
 
 /** @deprecated use requestNativeCapturePhoto */

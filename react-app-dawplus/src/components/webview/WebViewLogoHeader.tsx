@@ -1,6 +1,10 @@
+import { useSetAtom } from "jotai";
 import { useNavigate } from "@tanstack/react-router";
 import iconHelp from "@/assets/icons/billive/icon_help.svg";
+import iconMy from "@/assets/icons/billive/icon_my_off.svg";
 import logo from "@/assets/images/logo/logo.svg";
+import { MyPageAtom } from "@/atoms/CommonAtoms";
+import MyPage from "@/components/layout/header/myPage";
 import { cn } from "@/lib/utils";
 
 /**
@@ -8,6 +12,7 @@ import { cn } from "@/lib/utils";
  */
 export function WebViewLogoHeader({ className }: { className?: string }) {
   const navigate = useNavigate();
+  const openMyPage = useSetAtom(MyPageAtom);
 
   const goHome = () => {
     navigate({ to: "/home" });
@@ -31,6 +36,14 @@ export function WebViewLogoHeader({ className }: { className?: string }) {
       <div className="flex items-center">
         <button
           type="button"
+          onClick={() => openMyPage(true)}
+          className="flex h-[50px] items-center justify-center pr-1.5"
+          aria-label="내 상세정보"
+        >
+          <img src={iconMy} alt="" width={26} height={26} />
+        </button>
+        <button
+          type="button"
           onClick={goHelp}
           className="flex h-[50px] items-center justify-center pr-2.5"
           aria-label="도움말"
@@ -38,6 +51,7 @@ export function WebViewLogoHeader({ className }: { className?: string }) {
           <img src={iconHelp} alt="" width={26} height={26} />
         </button>
       </div>
+      <MyPage />
     </header>
   );
 }

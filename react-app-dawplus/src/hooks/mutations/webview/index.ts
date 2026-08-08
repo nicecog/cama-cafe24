@@ -5,6 +5,7 @@
 
 export * from "./useCoachingMutations";
 export * from "./useContentsMutations";
+export * from "./useNutritionMutations";
 export * from "./useScheduleMutations";
 export * from "./useConsultationInquiryMutations";
 export * from "./useTrackMutations";

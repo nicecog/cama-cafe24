@@ -42,6 +42,25 @@ export type {
 } from "./disease.types";
 // Hospital types
 export type { Hospital, HospitalListItem } from "./hospital.types";
+// Nutrition (음식 사진 칼로리) types
+export type {
+  FoodCatalogDto,
+  FoodClassDto,
+  FoodSearchQuery,
+  MealClientMeta,
+  MealDailySummaryDto,
+  MealFeedbackRequest,
+  MealGuideDto,
+  MealLogDto,
+  MealLogItemDto,
+  MealLogItemRequest,
+  MealLogQuery,
+  MealLogRequest,
+  MealLogSummaryDto,
+  MealSourceCd,
+  MealTypeCd,
+  NutritionSourceCd,
+} from "./nutrition.types";
 export type {
   PatientAvailabilityRequest,
   PatientAvailabilityResponse,

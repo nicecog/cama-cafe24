@@ -45,6 +45,7 @@ export type DeviceCapabilities = {
   biometrics: CapabilityStatus;
   stepCounter: CapabilityStatus;
   speechRecognition?: CapabilityStatus;
+  foodVision?: CapabilityStatus;
   vitals: Partial<Record<VitalTypeCd, CapabilityStatus>>;
 };
 
@@ -124,6 +125,57 @@ export type BiometricAvailability = {
 export type BiometricAuthResult = {
   authenticated: boolean;
   biometryType?: BiometryType;
+};
+
+/** 온디바이스 음식 추론 입력 해상도 프로필 */
+export type FoodVisionProfile = "416-int8" | "320-int8";
+
+export type FoodVisionSource = "camera" | "library";
+
+export type FoodAnalysisOptions = {
+  source?: FoodVisionSource;
+  maxItems?: number;
+  minConfidence?: number;
+  includeCandidates?: boolean;
+  profile?: FoodVisionProfile;
+};
+
+export type FoodCandidate = {
+  classKey: string;
+  nameKo?: string;
+  confidence: number;
+};
+
+export type FoodDetectedItem = {
+  classKey: string;
+  nameKo?: string;
+  confidence: number;
+  quantity: number;
+  servingG?: number;
+  /** 앱 번들 catalog 기준 미리보기. 서버 정본 값이 도착하면 대체된다 */
+  kcalPreview?: number;
+  /** [x, y, w, h] 정규화 좌표 */
+  bbox?: [number, number, number, number];
+  candidates?: FoodCandidate[];
+};
+
+export type FoodImageAnalysisResult = {
+  items: FoodDetectedItem[];
+  modelVersion: string;
+  catalogVersion: string;
+  profile: FoodVisionProfile;
+  inferenceMs: number;
+  /** ISO-8601 */
+  capturedAt: string;
+  imageWidth?: number;
+  imageHeight?: number;
+};
+
+export type FoodVisionInfo = {
+  modelVersion: string;
+  catalogVersion: string;
+  profile: FoodVisionProfile;
+  classCount: number;
 };
 
 export type NativeBridgeResponseBase = {

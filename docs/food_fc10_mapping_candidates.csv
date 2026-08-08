@@ -1,0 +1,26 @@
+class_key,name_ko,candidate_code,candidate_name,candidate_score
+white_rice,흰밥(공기밥),A013000A039a,"멥쌀, 백미, 밥",manual
+naengmyeon,냉면,A0060000001b,"메밀 냉면, 말린것, 삶은것",manual
+spaghetti,스파게티/파스타,A0240020001b,"스파게티면, 말린것, 삶은것",manual
+bulgogi,불고기,I0190000000a,"돼지불고기, 생것",manual
+pork_cutlet,돈까스,I0180000007a,"포크커틀릿, 냉동",manual
+fried_egg,계란후라이,J0040000009m,"달걀, 부침(달걀프라이)",manual
+scrambled_egg,스크램블에그,J0060000009n,"달걀, 스크램블드에그",manual
+sandwich,샌드위치,S0370020009a,"샌드위치, 닭고기",manual
+toast,토스트,A0210122739f,"빵, 식빵, 쇼트닝 첨가, 구운것",manual
+dumplings,만두,S0260010007a,"만두, 고기 만두, 냉동",manual
+apple,사과,H0500000000a,"사과, 생것",manual
+banana,바나나,H0370000000a,"바나나, 생것",manual
+orange,귤/오렌지,H0100020000a,"귤, 온주밀감, 생것",manual
+grape,포도,H0980010000a,"포도, 거봉, 생것",manual
+pear,배,H0380000000a,"배, 생것",manual
+persimmon,감,H0010010000a,"감, 단감, 생것",manual
+yogurt,요거트,M0080010009a,"요구르트, 액상",manual
+milk,우유,M0090000009a,우유,manual
+soy_milk,두유,D0170000009a,"두유, 대두",manual
+americano,아메리카노,O027001158Pa,"커피, 아메리카노(2샷)",manual
+juice,과일주스,H0720000009a,오렌지 주스,manual
+soda,탄산음료,P0090090009a,"탄산 음료, 콜라",manual
+ion_drink,이온음료,P0080002379a,"이온 음료, 레몬향",manual
+tofu,두부요리,D0150000009a,두부,manual
+raw_fish,회,K0270000000a,"넙치(광어), 생것",manual

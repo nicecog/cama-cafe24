@@ -14,6 +14,8 @@ import com.cama.back.exception.disease.DiseaseNotFoundException;
 import com.cama.back.exception.doctor.AlreadyDoctorDuplicateException;
 import com.cama.back.exception.hospital.*;
 import com.cama.back.exception.iamport.IamportResponseException;
+import com.cama.back.exception.nutrition.FoodClassNotFoundException;
+import com.cama.back.exception.nutrition.MealLogNotFoundException;
 import com.cama.back.exception.sns.SiteLoginTargetException;
 import com.cama.back.exception.sns.SnsDataBindingException;
 import com.cama.back.exception.track.CareTrackNotFoundException;
@@ -275,6 +277,18 @@ public class GeneralExceptionHandler {
     @ExceptionHandler(AlreadyDepartmentDuplicateException.class)
     public ResponseEntity<?> handleAlreadyDepartmentDuplicateException(AlreadyDepartmentDuplicateException e) {
         return createResponse("중복된 전공 이름이 있습니다.", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(FoodClassNotFoundException.class)
+    public ResponseEntity<?> handleFoodClassNotFoundException(FoodClassNotFoundException e) {
+        return createResponse(
+                "등록되지 않은 음식입니다. 앱의 음식 정보를 갱신한 후 다시 시도해 주세요. (" + e.getClassKey() + ")",
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MealLogNotFoundException.class)
+    public ResponseEntity<?> handleMealLogNotFoundException(MealLogNotFoundException e) {
+        return createResponse("식사 기록을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST);
     }
 
     //

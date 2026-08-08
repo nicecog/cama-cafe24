@@ -11,18 +11,23 @@ import {
   Shield,
   TabletSmartphone,
   User,
+  UtensilsCrossed,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import activity from "@/assets/images/character/activity.png";
 import HeadType5 from "@/assets/images/character/head/type5.png";
 import { accountMeAtom } from "@/atoms/accountAtoms";
-import { MyPageAtom } from "@/atoms/CommonAtoms";
+import { forcePasswordChangeAtom, MyPageAtom } from "@/atoms/CommonAtoms";
 import {
   cancerInfoGuideCloseGuardUntilAtom,
   cancerInfoGuideOpenAtom,
 } from "@/atoms/cancerInfoGuideAtom";
 import { ConsultationInquiryPage } from "@/components/mypage/ConsultationInquiryPage";
 import { DoctorTransferPage } from "@/components/mypage/DoctorTransferPage";
+import {
+  MealRecordPage,
+  useMealRecordFlow,
+} from "@/components/mypage/MealRecordPage";
 import { Button } from "@/components/ui/Button";
 import Popup from "@/components/ui/Popup";
 import { useLogout } from "@/hooks/mutations/useAuthMutations";
@@ -73,6 +78,12 @@ const menuItems = [
     color: "text-sky-600",
     bgColor: "bg-sky-50",
   },
+  {
+    icon: UtensilsCrossed,
+    label: "식사기록처리",
+    color: "text-emerald-600",
+    bgColor: "bg-emerald-50",
+  },
 ];
 
 const CHILD_CLOSE_GUARD_MS = 350;
@@ -80,6 +91,9 @@ const CHILD_CLOSE_GUARD_MS = 350;
 export default function MyPage() {
   //  open
   const [open, setOpen] = useAtom(MyPageAtom);
+  const [forcePasswordChange, setForcePasswordChange] = useAtom(
+    forcePasswordChangeAtom,
+  );
   const [cancerInfoGuideOpen, setCancerInfoGuideOpen] = useAtom(
     cancerInfoGuideOpenAtom,
   );
@@ -103,6 +117,12 @@ export default function MyPage() {
   // my Infos
   const [myInfos, setMyinfos] = useState(false);
 
+  useEffect(() => {
+    if (!forcePasswordChange) return;
+    setOpen(true);
+    setMyinfos(true);
+  }, [forcePasswordChange, setOpen]);
+
   // PolicyView
   const [policyView, setPolicyView] = useState<{
     open: boolean;
@@ -116,9 +136,12 @@ export default function MyPage() {
   const [qrPopupOpen, setQrPopupOpen] = useState(false);
   const [consultationInquiryOpen, setConsultationInquiryOpen] = useState(false);
   const [doctorTransferOpen, setDoctorTransferOpen] = useState(false);
+  const [mealRecordOpen, setMealRecordOpen] = useState(false);
+  const mealRecord = useMealRecordFlow();
   const ignoreMainCloseUntilRef = useRef(0);
   const mainNestedDialogOpenRef = useRef(false);
   const consultationNestedDialogOpenRef = useRef(false);
+  const mealRecordNestedDialogOpenRef = useRef(false);
 
   const onClickHandler = (index: number) => {
     if (index === 0) {
@@ -145,6 +168,10 @@ export default function MyPage() {
     if (index === 5) {
       setDoctorTransferOpen(true);
     }
+    if (index === 6) {
+      mealRecord.reset();
+      setMealRecordOpen(true);
+    }
   };
 
   const hasChildPopupOpen =
@@ -154,13 +181,17 @@ export default function MyPage() {
     qrPopupOpen ||
     cancerInfoGuideOpen ||
     consultationInquiryOpen ||
-    doctorTransferOpen;
+    doctorTransferOpen ||
+    mealRecordOpen;
 
   const guardMainClose = () => {
     ignoreMainCloseUntilRef.current = Date.now() + CHILD_CLOSE_GUARD_MS;
   };
 
   const setMainOpen = (nextOpen: boolean) => {
+    if (!nextOpen && forcePasswordChange) {
+      return;
+    }
     if (
       !nextOpen &&
       (hasChildPopupOpen ||
@@ -207,6 +238,15 @@ export default function MyPage() {
     setDoctorTransferOpen(nextOpen);
   };
 
+  const setMealRecordDrawerOpen = (nextOpen: boolean) => {
+    if (!nextOpen && mealRecordNestedDialogOpenRef.current) {
+      guardMainClose();
+      return;
+    }
+    if (!nextOpen) guardMainClose();
+    setMealRecordOpen(nextOpen);
+  };
+
   const openCancerInfoGuide = () => {
     guardMainClose();
     setCancerInfoGuideOpen(true);
@@ -237,7 +277,12 @@ export default function MyPage() {
       {/* 내걸음 */}
       <MySteps open={mySteps} setOpen={setMyStepsOpen} />
       {/*내정보 */}
-      <MyInfos open={myInfos} setOpen={setMyInfosOpen} />
+      <MyInfos
+        open={myInfos}
+        setOpen={setMyInfosOpen}
+        forceOpenPasswordChange={forcePasswordChange}
+        onForcePasswordChangeDone={() => setForcePasswordChange(false)}
+      />
       {/* PolicyView */}
       <PolicyView
         open={policyView.open}
@@ -265,6 +310,20 @@ export default function MyPage() {
       >
         <DoctorTransferPage
           onClose={() => setDoctorTransferDrawerOpen(false)}
+        />
+      </Popup>
+      <Popup
+        open={mealRecordOpen}
+        setOpen={setMealRecordDrawerOpen}
+        title={mealRecord.title}
+        afterClose={mealRecord.reset}
+      >
+        <MealRecordPage
+          step={mealRecord.step}
+          onStepChange={mealRecord.setStep}
+          onNestedDialogOpenChange={(dialogOpen) => {
+            mealRecordNestedDialogOpenRef.current = dialogOpen;
+          }}
         />
       </Popup>
 

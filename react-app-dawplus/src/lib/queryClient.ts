@@ -252,5 +252,26 @@ export const queryKeys = {
       list: (acSeq: string | number) =>
         ["webview", "consultationInquiry", "list", String(acSeq)] as const,
     },
+    // Nutrition (음식 사진 칼로리)
+    nutrition: {
+      all: ["webview", "nutrition"] as const,
+      mealList: (fromDate?: string, toDate?: string, mealTypeCd?: string) =>
+        [
+          "webview",
+          "nutrition",
+          "mealList",
+          fromDate,
+          toDate,
+          mealTypeCd,
+        ] as const,
+      mealDailySummary: (fromDate?: string, toDate?: string) =>
+        ["webview", "nutrition", "mealDailySummary", fromDate, toDate] as const,
+      mealDetail: (seq: number) =>
+        ["webview", "nutrition", "mealDetail", seq] as const,
+      foodSearch: (keyword: string) =>
+        ["webview", "nutrition", "foodSearch", keyword] as const,
+      catalog: (since?: string) =>
+        ["webview", "nutrition", "catalog", since] as const,
+    },
   },
 } as const;

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  음식 사진 촬영용 임시 파일 경로.
+  카메라 앱에 넘길 수 있는 content:// URI 를 만들기 위한 최소 설정이며,
+  촬영 원본은 추론 직후 삭제한다.
+-->
+<paths>
+    <cache-path name="foodvision" path="foodvision/" />
+</paths>

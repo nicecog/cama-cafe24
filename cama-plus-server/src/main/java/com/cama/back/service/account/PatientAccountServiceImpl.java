@@ -12,6 +12,7 @@ import com.cama.back.service.email.EmailService;
 import com.cama.back.util.JhUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,7 @@ public class PatientAccountServiceImpl implements PatientAccountService {
     private final JhUtil jhUtil;
     private final EmailService emailService;
     private final AccountService accountService;
+    private final BiometricAccountService biometricAccountService;
 
     public PatientAccountServiceImpl(
             AccountRepository accountRepository,
@@ -42,13 +44,15 @@ public class PatientAccountServiceImpl implements PatientAccountService {
             PasswordEncoder passwordEncoder,
             JhUtil jhUtil,
             EmailService emailService,
-            AccountService accountService) {
+            AccountService accountService,
+            @Lazy BiometricAccountService biometricAccountService) {
         this.accountRepository = accountRepository;
         this.firebaseTokenRepository = firebaseTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.jhUtil = jhUtil;
         this.emailService = emailService;
         this.accountService = accountService;
+        this.biometricAccountService = biometricAccountService;
     }
 
     @Override
@@ -250,6 +254,14 @@ public class PatientAccountServiceImpl implements PatientAccountService {
         String encodedPassword = passwordEncoder.encode(temporaryPassword);
         accountRepository.updatePasswordBySeq(account.getSeq(), encodedPassword);
 
+        Account entity = accountRepository.findById(account.getSeq())
+                .orElseThrow(() -> new AccountNotFoundException("일치하는 회원 정보를 찾을 수 없습니다."));
+        entity.setPasswordMustChange(true);
+        accountRepository.save(entity);
+        biometricAccountService.revokeAllDevices(account.getSeq());
+        entity.setBiometricLoginEnabled(false);
+        accountRepository.save(entity);
+
         Optional<String> storedHash = accountRepository.findPasswordHashByLoginId(loginId);
         if (storedHash.isEmpty() || !passwordEncoder.matches(temporaryPassword, storedHash.get())) {
             throw new IllegalStateException("임시 비밀번호 저장 검증에 실패했습니다.");
@@ -393,6 +405,11 @@ public class PatientAccountServiceImpl implements PatientAccountService {
         }
 
         accountRepository.updatePasswordBySeq(account.getSeq(), passwordEncoder.encode(request.getNewPassword()));
+
+        account.setPasswordMustChange(false);
+        account.setBiometricLoginEnabled(false);
+        accountRepository.save(account);
+        biometricAccountService.revokeAllDevices(account.getSeq());
 
         boolean emailSent = trySendPasswordChangedEmail(account);
         String message = emailSent

@@ -8,6 +8,7 @@ export * from "./useCareTrackContent";
 export * from "./useCoachingQueries";
 export * from "./useContentsQueries";
 export * from "./useNotificationQueries";
+export * from "./useNutritionQueries";
 export * from "./useScheduleQueries";
 export * from "./useConsultationInquiryQueries";
 export * from "./useTrackQueries";

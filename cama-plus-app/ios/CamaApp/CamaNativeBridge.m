@@ -2,15 +2,22 @@
 #import "SpeechRecognitionHelper.h"
 
 #import <AVFoundation/AVFoundation.h>
+#import <LocalAuthentication/LocalAuthentication.h>
 #import <React/RCTBridge.h>
 #import <React/RCTConvert.h>
 #import <React/RCTUtils.h>
+#import <Security/Security.h>
 #import <Speech/Speech.h>
+#import <UIKit/UIKit.h>
 
 static NSString *const kNotImplemented = @"NOT_IMPLEMENTED";
 static NSString *const kPermissionDenied = @"PERMISSION_DENIED";
 static NSString *const kUnavailable = @"UNAVAILABLE";
+static NSString *const kCancelled = @"CANCELLED";
 static NSString *const kSpeechRecognitionEvent = @"CamaSpeechRecognition";
+static NSString *const kBiometricService = @"com.camaplus.biometric";
+static NSString *const kBiometricAccount = @"refresh_token";
+static NSString *const kDeviceIdKey = @"cama_device_id";
 
 @interface CamaNativeBridge () <AVSpeechSynthesizerDelegate, SpeechRecognitionHelperListener, RCTInvalidating>
 @property (nonatomic, weak) RCTBridge *bridge;
@@ -225,12 +232,160 @@ RCT_EXPORT_METHOD(readVital : (NSString *)vitalTypeCd resolver : (RCTPromiseReso
 
 RCT_EXPORT_METHOD(isBiometricAvailable : (RCTPromiseResolveBlock)resolve rejecter : (RCTPromiseRejectBlock)reject)
 {
-  reject(kNotImplemented, @"Native bridge stub — implementation pending", nil);
+  LAContext *context = [LAContext new];
+  NSError *error = nil;
+  BOOL can = [context canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:&error];
+  BOOL available = can || (error.code == LAErrorBiometryNotEnrolled);
+  NSString *type = @"NONE";
+  if (can || error.code == LAErrorBiometryNotEnrolled) {
+    switch (context.biometryType) {
+      case LABiometryTypeFaceID:
+        type = @"FACE";
+        break;
+      case LABiometryTypeTouchID:
+        type = @"FINGERPRINT";
+        break;
+      default:
+        type = @"UNKNOWN";
+        break;
+    }
+  }
+  resolve(@{
+    @"available" : @(available),
+    @"enrolled" : @(can),
+    @"biometryType" : type,
+  });
 }
 
 RCT_EXPORT_METHOD(authenticateBiometric : (NSDictionary *)options resolver : (RCTPromiseResolveBlock)resolve rejecter : (RCTPromiseRejectBlock)reject)
 {
-  reject(kNotImplemented, @"Native bridge stub — implementation pending", nil);
+  LAContext *context = [LAContext new];
+  NSError *error = nil;
+  if (![context canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:&error]) {
+    reject(kUnavailable, error.localizedDescription ?: @"Biometric unavailable", error);
+    return;
+  }
+  NSString *reason = options[@"reason"] ?: @"본인 확인을 위해 인증해 주세요.";
+  [context evaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics
+          localizedReason:reason
+                    reply:^(BOOL success, NSError *_Nullable authError) {
+                      if (success) {
+                        NSString *type = @"UNKNOWN";
+                        if (context.biometryType == LABiometryTypeFaceID) {
+                          type = @"FACE";
+                        } else if (context.biometryType == LABiometryTypeTouchID) {
+                          type = @"FINGERPRINT";
+                        }
+                        resolve(@{@"authenticated" : @YES, @"biometryType" : type});
+                      } else if (authError.code == LAErrorUserCancel || authError.code == LAErrorAppCancel ||
+                                 authError.code == LAErrorSystemCancel) {
+                        reject(kCancelled, authError.localizedDescription, authError);
+                      } else {
+                        reject(kUnavailable, authError.localizedDescription, authError);
+                      }
+                    }];
+}
+
+RCT_EXPORT_METHOD(storeBiometricSecret : (NSString *)secret resolver : (RCTPromiseResolveBlock)resolve rejecter : (RCTPromiseRejectBlock)reject)
+{
+  if (secret.length == 0) {
+    reject(@"INVALID_ARGUMENT", @"secret required", nil);
+    return;
+  }
+  NSData *data = [secret dataUsingEncoding:NSUTF8StringEncoding];
+  NSDictionary *query = @{
+    (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
+    (__bridge id)kSecAttrService : kBiometricService,
+    (__bridge id)kSecAttrAccount : kBiometricAccount,
+  };
+  SecItemDelete((__bridge CFDictionaryRef)query);
+  NSDictionary *add = @{
+    (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
+    (__bridge id)kSecAttrService : kBiometricService,
+    (__bridge id)kSecAttrAccount : kBiometricAccount,
+    (__bridge id)kSecValueData : data,
+    (__bridge id)kSecAttrAccessible : (__bridge id)kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+  };
+  OSStatus status = SecItemAdd((__bridge CFDictionaryRef)add, NULL);
+  if (status == errSecSuccess) {
+    resolve(@{@"stored" : @YES});
+  } else {
+    reject(kUnavailable, [NSString stringWithFormat:@"Keychain add failed: %d", (int)status], nil);
+  }
+}
+
+RCT_EXPORT_METHOD(getBiometricSecret : (RCTPromiseResolveBlock)resolve rejecter : (RCTPromiseRejectBlock)reject)
+{
+  NSDictionary *query = @{
+    (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
+    (__bridge id)kSecAttrService : kBiometricService,
+    (__bridge id)kSecAttrAccount : kBiometricAccount,
+    (__bridge id)kSecReturnData : @YES,
+    (__bridge id)kSecMatchLimit : (__bridge id)kSecMatchLimitOne,
+  };
+  CFTypeRef result = NULL;
+  OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, &result);
+  if (status != errSecSuccess || result == NULL) {
+    reject(kUnavailable, @"No biometric secret", nil);
+    return;
+  }
+  NSData *data = (__bridge_transfer NSData *)result;
+  NSString *secret = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+  LAContext *context = [LAContext new];
+  NSError *error = nil;
+  if (![context canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:&error]) {
+    reject(kUnavailable, error.localizedDescription ?: @"Biometric unavailable", error);
+    return;
+  }
+  [context evaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics
+          localizedReason:@"생체 인증으로 로그인합니다."
+                    reply:^(BOOL success, NSError *_Nullable authError) {
+                      if (success) {
+                        resolve(@{@"secret" : secret ?: @""});
+                      } else if (authError.code == LAErrorUserCancel || authError.code == LAErrorAppCancel ||
+                                 authError.code == LAErrorSystemCancel) {
+                        reject(kCancelled, authError.localizedDescription, authError);
+                      } else {
+                        reject(kUnavailable, authError.localizedDescription, authError);
+                      }
+                    }];
+}
+
+RCT_EXPORT_METHOD(clearBiometricSecret : (RCTPromiseResolveBlock)resolve rejecter : (RCTPromiseRejectBlock)reject)
+{
+  NSDictionary *query = @{
+    (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
+    (__bridge id)kSecAttrService : kBiometricService,
+    (__bridge id)kSecAttrAccount : kBiometricAccount,
+  };
+  SecItemDelete((__bridge CFDictionaryRef)query);
+  resolve(@{@"cleared" : @YES});
+}
+
+RCT_EXPORT_METHOD(hasBiometricSecret : (RCTPromiseResolveBlock)resolve rejecter : (RCTPromiseRejectBlock)reject)
+{
+  NSDictionary *query = @{
+    (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
+    (__bridge id)kSecAttrService : kBiometricService,
+    (__bridge id)kSecAttrAccount : kBiometricAccount,
+    (__bridge id)kSecReturnData : @NO,
+    (__bridge id)kSecMatchLimit : (__bridge id)kSecMatchLimitOne,
+  };
+  OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, NULL);
+  resolve(@{@"hasSecret" : @(status == errSecSuccess)});
+}
+
+RCT_EXPORT_METHOD(getDeviceId : (RCTPromiseResolveBlock)resolve rejecter : (RCTPromiseRejectBlock)reject)
+{
+  NSString *existing = [[NSUserDefaults standardUserDefaults] stringForKey:kDeviceIdKey];
+  if (existing.length > 0) {
+    resolve(@{@"deviceId" : existing});
+    return;
+  }
+  NSString *vendor = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+  NSString *deviceId = vendor.length > 0 ? vendor : [[NSUUID UUID] UUIDString];
+  [[NSUserDefaults standardUserDefaults] setObject:deviceId forKey:kDeviceIdKey];
+  resolve(@{@"deviceId" : deviceId});
 }
 
 #pragma mark - SpeechRecognitionHelperListener
@@ -317,7 +472,7 @@ RCT_EXPORT_METHOD(authenticateBiometric : (NSDictionary *)options resolver : (RC
     @"camera" : [self capability:YES implemented:NO permissions:@[ @"NSCameraUsageDescription" ]],
     @"photoLibrary" : [self capability:YES implemented:NO permissions:@[ @"NSPhotoLibraryUsageDescription" ]],
     @"location" : [self capability:YES implemented:NO permissions:@[ @"NSLocationWhenInUseUsageDescription" ]],
-    @"biometrics" : [self capability:YES implemented:NO permissions:@[ @"NSFaceIDUsageDescription" ]],
+    @"biometrics" : [self capability:YES implemented:YES permissions:@[ @"NSFaceIDUsageDescription" ]],
     @"stepCounter" : [self capability:YES implemented:YES permissions:@[ @"NSMotionUsageDescription", @"NSHealthShareUsageDescription" ]],
     @"speechRecognition" : [self capability:speechAvailable
                                 implemented:YES

@@ -76,6 +76,24 @@ public class Account {
     @Column(name = "patient_management_number")
     private String patientManagementNumber;
 
+    @Column(name = "password_must_change", nullable = false)
+    @Builder.Default
+    private boolean passwordMustChange = false;
+
+    @Column(name = "biometric_login_enabled", nullable = false)
+    @Builder.Default
+    private boolean biometricLoginEnabled = false;
+
+    @Column(name = "biometric_prompt_declined", nullable = false)
+    @Builder.Default
+    private boolean biometricPromptDeclined = false;
+
+    @Column(name = "biometric_prompt_answered_at")
+    private LocalDateTime biometricPromptAnsweredAt;
+
+    @Column(name = "biometric_device_limit")
+    private Integer biometricDeviceLimit;
+
     @Column(updatable = false, insertable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime createdAt;

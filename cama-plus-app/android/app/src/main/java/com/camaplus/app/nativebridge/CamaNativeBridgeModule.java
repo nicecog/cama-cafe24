@@ -2,48 +2,79 @@ package com.camaplus.app.nativebridge;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 
+import com.camaplus.app.BuildConfig;
 import com.camaplus.app.MainActivity;
 import com.camaplus.app.healthconnect.HealthConnectHeartRateReader;
 import com.camaplus.app.healthconnect.HealthConnectPermissionLauncher;
 import com.camaplus.app.healthconnect.HealthConnectSettingsNavigator;
+import com.camaplus.app.nativebridge.foodvision.FoodCatalog;
+import com.camaplus.app.nativebridge.foodvision.FoodDetection;
+import com.camaplus.app.nativebridge.foodvision.FoodPhotoCapture;
+import com.camaplus.app.nativebridge.foodvision.FoodVisionAggregator;
+import com.camaplus.app.nativebridge.foodvision.FoodVisionDecoder;
+import com.camaplus.app.nativebridge.foodvision.FoodVisionEngine;
+import com.camaplus.app.nativebridge.foodvision.FoodVisionProfile;
 import com.camaplus.app.speech.SpeechRecognitionHelper;
+import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.UiThreadUtil;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Queue;
+import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class CamaNativeBridgeModule extends ReactContextBaseJavaModule
-    implements TextToSpeech.OnInitListener {
+    implements TextToSpeech.OnInitListener, ActivityEventListener {
 
   private static final String MODULE = "CamaNativeBridge";
+  private static final String TAG = "CamaNativeBridge";
   private static final String NOT_IMPLEMENTED = "NOT_IMPLEMENTED";
   private static final String PERMISSION_DENIED = "PERMISSION_DENIED";
   private static final String UNAVAILABLE = "UNAVAILABLE";
+  private static final String CANCELLED = "CANCELLED";
   private static final String UTTERANCE_ID = "cama-tts";
   private static final String SPEECH_RECOGNITION_EVENT = "CamaSpeechRecognition";
 
+  private static final int REQUEST_FOOD_CAMERA = 9201;
+  private static final int REQUEST_FOOD_LIBRARY = 9202;
+  private static final int REQUEST_CAPTURE_CAMERA = 9203;
+  private static final int REQUEST_CAPTURE_LIBRARY = 9204;
+
+  private static final int DEFAULT_MAX_ITEMS = 8;
+
   private final ExecutorService healthConnectExecutor = Executors.newSingleThreadExecutor();
+  private final ExecutorService foodVisionExecutor = Executors.newSingleThreadExecutor();
 
   private final Handler mainHandler = new Handler(Looper.getMainLooper());
   private TextToSpeech tts;
@@ -57,8 +88,14 @@ public class CamaNativeBridgeModule extends ReactContextBaseJavaModule
 
   private SpeechRecognitionHelper speechRecognitionHelper;
 
+  private FoodVisionEngine foodVisionEngine;
+  private Promise pendingFoodPromise;
+  private File pendingCameraFile;
+  private PendingFoodOptions pendingFoodOptions;
+
   public CamaNativeBridgeModule(ReactApplicationContext reactContext) {
     super(reactContext);
+    reactContext.addActivityEventListener(this);
     tts = new TextToSpeech(reactContext.getApplicationContext(), this);
   }
 
@@ -71,6 +108,16 @@ public class CamaNativeBridgeModule extends ReactContextBaseJavaModule
   @Override
   public void onCatalystInstanceDestroy() {
     super.onCatalystInstanceDestroy();
+    getReactApplicationContext().removeActivityEventListener(this);
+    foodVisionExecutor.execute(
+        () -> {
+          if (foodVisionEngine != null) {
+            foodVisionEngine.close();
+            foodVisionEngine = null;
+          }
+        });
+    foodVisionExecutor.shutdown();
+    rejectPendingFood(CANCELLED, "Bridge destroyed");
     runOnMain(
         () -> {
           if (speechRecognitionHelper != null) {
@@ -192,13 +239,111 @@ public class CamaNativeBridgeModule extends ReactContextBaseJavaModule
 
   @ReactMethod
   public void capturePhoto(ReadableMap options, Promise promise) {
-    rejectNotImplemented(promise);
+    launchPhotoCapture(REQUEST_CAPTURE_CAMERA, promise);
   }
 
   @ReactMethod
   public void pickPhotoFromLibrary(ReadableMap options, Promise promise) {
-    rejectNotImplemented(promise);
+    launchPhotoCapture(REQUEST_CAPTURE_LIBRARY, promise);
   }
+
+  /**
+   * 촬영(또는 앨범 선택) → 온디바이스 추론 → 클래스 집계까지 한 번에 수행한다.
+   * 원본 이미지는 네이티브 임시 파일로만 존재하며 JS·서버로 전달되지 않는다.
+   */
+  @ReactMethod
+  public void analyzeFoodImage(ReadableMap options, Promise promise) {
+    if (pendingFoodPromise != null) {
+      promise.reject(UNAVAILABLE, "Food analysis already in progress");
+      return;
+    }
+
+    Activity activity = getCurrentActivity();
+    if (activity == null) {
+      promise.reject(UNAVAILABLE, "Activity unavailable");
+      return;
+    }
+
+    PendingFoodOptions parsed = PendingFoodOptions.from(options);
+    if ("library".equals(parsed.source)) {
+      pendingFoodPromise = promise;
+      pendingFoodOptions = parsed;
+      pendingCameraFile = null;
+      UiThreadUtil.runOnUiThread(
+          () -> {
+            try {
+              activity.startActivityForResult(
+                  FoodPhotoCapture.libraryIntent(), REQUEST_FOOD_LIBRARY);
+            } catch (Exception e) {
+              rejectPendingFood(UNAVAILABLE, e.getMessage());
+            }
+          });
+      return;
+    }
+
+    if (ContextCompat.checkSelfPermission(
+            getReactApplicationContext(), Manifest.permission.CAMERA)
+        != PackageManager.PERMISSION_GRANTED) {
+      promise.reject(PERMISSION_DENIED, "CAMERA permission denied");
+      return;
+    }
+
+    try {
+      File tempFile = FoodPhotoCapture.createTempFile(getReactApplicationContext());
+      Uri contentUri = FoodPhotoCapture.toContentUri(getReactApplicationContext(), tempFile);
+      Intent intent = FoodPhotoCapture.cameraIntent(contentUri);
+      grantCameraUriPermissions(intent, contentUri);
+
+      pendingFoodPromise = promise;
+      pendingFoodOptions = parsed;
+      pendingCameraFile = tempFile;
+
+      UiThreadUtil.runOnUiThread(
+          () -> {
+            try {
+              activity.startActivityForResult(intent, REQUEST_FOOD_CAMERA);
+            } catch (Exception e) {
+              FoodPhotoCapture.deleteQuietly(tempFile);
+              rejectPendingFood(UNAVAILABLE, e.getMessage());
+            }
+          });
+    } catch (Exception e) {
+      promise.reject(UNAVAILABLE, e.getMessage());
+    }
+  }
+
+  @ReactMethod
+  public void getFoodVisionInfo(Promise promise) {
+    foodVisionExecutor.execute(
+        () -> {
+          try {
+            FoodVisionEngine.Info info = ensureFoodVisionEngine().info(BuildConfig.VERSION_NAME);
+            WritableMap map = Arguments.createMap();
+            map.putString("modelVersion", info.modelVersion);
+            map.putString("catalogVersion", info.catalogVersion);
+            map.putString("profile", info.profile);
+            map.putInt("classCount", info.classCount);
+            promise.resolve(map);
+          } catch (Exception e) {
+            Log.e(TAG, "getFoodVisionInfo failed", e);
+            promise.reject(UNAVAILABLE, e.getMessage());
+          }
+        });
+  }
+
+  @Override
+  public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
+    if (requestCode == REQUEST_FOOD_CAMERA || requestCode == REQUEST_FOOD_LIBRARY) {
+      handleFoodAnalysisResult(requestCode, resultCode, data);
+      return;
+    }
+    if (requestCode == REQUEST_CAPTURE_CAMERA || requestCode == REQUEST_CAPTURE_LIBRARY) {
+      handleStandaloneCaptureResult(requestCode, resultCode, data);
+    }
+  }
+
+  @Override
+  public void onNewIntent(Intent intent) {}
 
   @ReactMethod
   public void getCurrentLocation(ReadableMap options, Promise promise) {
@@ -453,12 +598,51 @@ public class CamaNativeBridgeModule extends ReactContextBaseJavaModule
 
   @ReactMethod
   public void isBiometricAvailable(Promise promise) {
-    rejectNotImplemented(promise);
+    try {
+      promise.resolve(BiometricBridgeHelper.availability(getReactApplicationContext()));
+    } catch (Exception e) {
+      promise.reject("UNAVAILABLE", e.getMessage(), e);
+    }
   }
 
   @ReactMethod
   public void authenticateBiometric(ReadableMap options, Promise promise) {
-    rejectNotImplemented(promise);
+    FragmentActivity activity = asFragmentActivity();
+    BiometricBridgeHelper.authenticateForPromise(activity, options, promise);
+  }
+
+  @ReactMethod
+  public void storeBiometricSecret(String secret, Promise promise) {
+    BiometricBridgeHelper.storeSecret(getReactApplicationContext(), secret, promise);
+  }
+
+  @ReactMethod
+  public void getBiometricSecret(Promise promise) {
+    BiometricBridgeHelper.getSecret(
+        asFragmentActivity(), getReactApplicationContext(), promise);
+  }
+
+  @ReactMethod
+  public void clearBiometricSecret(Promise promise) {
+    BiometricBridgeHelper.clearSecret(getReactApplicationContext(), promise);
+  }
+
+  @ReactMethod
+  public void hasBiometricSecret(Promise promise) {
+    BiometricBridgeHelper.hasSecret(getReactApplicationContext(), promise);
+  }
+
+  @ReactMethod
+  public void getDeviceId(Promise promise) {
+    BiometricBridgeHelper.getDeviceId(getReactApplicationContext(), promise);
+  }
+
+  private FragmentActivity asFragmentActivity() {
+    android.app.Activity activity = getCurrentActivity();
+    if (activity instanceof FragmentActivity) {
+      return (FragmentActivity) activity;
+    }
+    return null;
   }
 
   private void speakTextOnMain(String text, double rate, Promise promise) {
@@ -549,36 +733,355 @@ public class CamaNativeBridgeModule extends ReactContextBaseJavaModule
     promise.reject(NOT_IMPLEMENTED, "Native bridge stub — implementation pending");
   }
 
-  /** @param implemented true when native SDK wiring is complete */
-  static WritableMap buildCapabilities(boolean implemented) {
+  private void launchPhotoCapture(int requestCode, Promise promise) {
+    if (pendingFoodPromise != null) {
+      promise.reject(UNAVAILABLE, "Photo capture already in progress");
+      return;
+    }
+
+    Activity activity = getCurrentActivity();
+    if (activity == null) {
+      promise.reject(UNAVAILABLE, "Activity unavailable");
+      return;
+    }
+
+    if (requestCode == REQUEST_CAPTURE_CAMERA) {
+      if (ContextCompat.checkSelfPermission(
+              getReactApplicationContext(), Manifest.permission.CAMERA)
+          != PackageManager.PERMISSION_GRANTED) {
+        promise.reject(PERMISSION_DENIED, "CAMERA permission denied");
+        return;
+      }
+      try {
+        File tempFile = FoodPhotoCapture.createTempFile(getReactApplicationContext());
+        Uri contentUri = FoodPhotoCapture.toContentUri(getReactApplicationContext(), tempFile);
+        Intent intent = FoodPhotoCapture.cameraIntent(contentUri);
+        grantCameraUriPermissions(intent, contentUri);
+        pendingFoodPromise = promise;
+        pendingCameraFile = tempFile;
+        pendingFoodOptions = null;
+        UiThreadUtil.runOnUiThread(
+            () -> {
+              try {
+                activity.startActivityForResult(intent, requestCode);
+              } catch (Exception e) {
+                FoodPhotoCapture.deleteQuietly(tempFile);
+                rejectPendingFood(UNAVAILABLE, e.getMessage());
+              }
+            });
+      } catch (Exception e) {
+        promise.reject(UNAVAILABLE, e.getMessage());
+      }
+      return;
+    }
+
+    pendingFoodPromise = promise;
+    pendingCameraFile = null;
+    pendingFoodOptions = null;
+    UiThreadUtil.runOnUiThread(
+        () -> {
+          try {
+            activity.startActivityForResult(FoodPhotoCapture.libraryIntent(), requestCode);
+          } catch (Exception e) {
+            rejectPendingFood(UNAVAILABLE, e.getMessage());
+          }
+        });
+  }
+
+  private void handleFoodAnalysisResult(int requestCode, int resultCode, @Nullable Intent data) {
+    if (pendingFoodPromise == null || pendingFoodOptions == null) {
+      FoodPhotoCapture.deleteQuietly(pendingCameraFile);
+      pendingCameraFile = null;
+      return;
+    }
+
+    if (resultCode != Activity.RESULT_OK) {
+      FoodPhotoCapture.deleteQuietly(pendingCameraFile);
+      pendingCameraFile = null;
+      rejectPendingFood(CANCELLED, "Food photo capture cancelled");
+      return;
+    }
+
+    final Uri imageUri;
+    final File tempToDelete;
+    if (requestCode == REQUEST_FOOD_CAMERA) {
+      if (pendingCameraFile == null || !pendingCameraFile.exists()) {
+        rejectPendingFood(UNAVAILABLE, "Captured photo file missing");
+        return;
+      }
+      // ContentResolver 는 file:// 보다 FileProvider content URI 를 안정적으로 연다
+      imageUri = FoodPhotoCapture.toContentUri(getReactApplicationContext(), pendingCameraFile);
+      tempToDelete = pendingCameraFile;
+      pendingCameraFile = null;
+    } else {
+      if (data == null || data.getData() == null) {
+        rejectPendingFood(CANCELLED, "No photo selected");
+        return;
+      }
+      imageUri = data.getData();
+      tempToDelete = null;
+    }
+
+    final PendingFoodOptions options = pendingFoodOptions;
+    final Promise promise = pendingFoodPromise;
+    pendingFoodPromise = null;
+    pendingFoodOptions = null;
+
+    foodVisionExecutor.execute(
+        () -> {
+          try {
+            FoodVisionEngine.Result result =
+                ensureFoodVisionEngine()
+                    .analyze(
+                        imageUri,
+                        BuildConfig.VERSION_NAME,
+                        options.profile,
+                        options.minConfidence,
+                        options.maxItems,
+                        options.includeCandidates);
+            promise.resolve(toFoodAnalysisMap(result));
+          } catch (Exception e) {
+            Log.e(TAG, "analyzeFoodImage failed", e);
+            promise.reject(UNAVAILABLE, e.getMessage());
+          } finally {
+            FoodPhotoCapture.deleteQuietly(tempToDelete);
+          }
+        });
+  }
+
+  private void handleStandaloneCaptureResult(
+      int requestCode, int resultCode, @Nullable Intent data) {
+    if (pendingFoodPromise == null) {
+      FoodPhotoCapture.deleteQuietly(pendingCameraFile);
+      pendingCameraFile = null;
+      return;
+    }
+
+    Promise promise = pendingFoodPromise;
+    File tempFile = pendingCameraFile;
+    pendingFoodPromise = null;
+    pendingCameraFile = null;
+
+    if (resultCode != Activity.RESULT_OK) {
+      FoodPhotoCapture.deleteQuietly(tempFile);
+      promise.reject(CANCELLED, "Photo capture cancelled");
+      return;
+    }
+
+    try {
+      WritableMap map = Arguments.createMap();
+      if (requestCode == REQUEST_CAPTURE_CAMERA) {
+        if (tempFile == null || !tempFile.exists()) {
+          promise.reject(UNAVAILABLE, "Captured photo file missing");
+          return;
+        }
+        Uri contentUri = FoodPhotoCapture.toContentUri(getReactApplicationContext(), tempFile);
+        map.putString("uri", contentUri.toString());
+        map.putString("mimeType", "image/jpeg");
+      } else {
+        if (data == null || data.getData() == null) {
+          promise.reject(CANCELLED, "No photo selected");
+          return;
+        }
+        map.putString("uri", data.getData().toString());
+      }
+      promise.resolve(map);
+    } catch (Exception e) {
+      FoodPhotoCapture.deleteQuietly(tempFile);
+      promise.reject(UNAVAILABLE, e.getMessage());
+    }
+  }
+
+  private FoodVisionEngine ensureFoodVisionEngine() {
+    if (foodVisionEngine == null) {
+      foodVisionEngine = new FoodVisionEngine(getReactApplicationContext());
+    }
+    return foodVisionEngine;
+  }
+
+  private void rejectPendingFood(String code, String message) {
+    Promise promise = pendingFoodPromise;
+    File tempFile = pendingCameraFile;
+    pendingFoodPromise = null;
+    pendingFoodOptions = null;
+    pendingCameraFile = null;
+    FoodPhotoCapture.deleteQuietly(tempFile);
+    if (promise != null) {
+      promise.reject(code, message != null ? message : code);
+    }
+  }
+
+  private void grantCameraUriPermissions(Intent intent, Uri uri) {
+    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+    List<ResolveInfo> resolvers =
+        getReactApplicationContext()
+            .getPackageManager()
+            .queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+    for (ResolveInfo resolver : resolvers) {
+      getReactApplicationContext()
+          .grantUriPermission(
+              resolver.activityInfo.packageName,
+              uri,
+              Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+    }
+  }
+
+  private static WritableMap toFoodAnalysisMap(FoodVisionEngine.Result result) {
+    WritableMap map = Arguments.createMap();
+    WritableArray items = Arguments.createArray();
+    for (FoodVisionAggregator.AggregatedItem item : result.items) {
+      FoodCatalog.FoodClass food = result.catalog.get(item.classId);
+      if (food == null) {
+        continue;
+      }
+      FoodDetection detection = item.representative();
+      WritableMap entry = Arguments.createMap();
+      entry.putString("classKey", food.classKey);
+      if (food.nameKo != null && !food.nameKo.isEmpty()) {
+        entry.putString("nameKo", food.nameKo);
+      }
+      entry.putDouble("confidence", detection.confidence);
+      entry.putInt("quantity", item.quantity());
+      if (food.servingG > 0f) {
+        entry.putDouble("servingG", food.servingG);
+      }
+      int preview = food.previewKcal(1f, item.quantity());
+      if (preview >= 0) {
+        entry.putInt("kcalPreview", preview);
+      }
+      float[] bbox = result.geometry.toSourceXywh(detection);
+      WritableArray bboxArray = Arguments.createArray();
+      bboxArray.pushDouble(bbox[0]);
+      bboxArray.pushDouble(bbox[1]);
+      bboxArray.pushDouble(bbox[2]);
+      bboxArray.pushDouble(bbox[3]);
+      entry.putArray("bbox", bboxArray);
+
+      WritableArray candidates = Arguments.createArray();
+      int[] candidateIds = detection.candidateClassIds;
+      float[] candidateScores = detection.candidateScores;
+      if (candidateIds != null) {
+        for (int i = 0; i < candidateIds.length; i++) {
+          FoodCatalog.FoodClass candidateFood = result.catalog.get(candidateIds[i]);
+          if (candidateFood == null) {
+            continue;
+          }
+          WritableMap candidate = Arguments.createMap();
+          candidate.putString("classKey", candidateFood.classKey);
+          if (candidateFood.nameKo != null && !candidateFood.nameKo.isEmpty()) {
+            candidate.putString("nameKo", candidateFood.nameKo);
+          }
+          candidate.putDouble(
+              "confidence",
+              candidateScores != null && i < candidateScores.length
+                  ? candidateScores[i]
+                  : 0d);
+          candidates.pushMap(candidate);
+        }
+      }
+      entry.putArray("candidates", candidates);
+      items.pushMap(entry);
+    }
+
+    map.putArray("items", items);
+    map.putString("modelVersion", result.modelVersion);
+    map.putString("catalogVersion", result.catalogVersion);
+    map.putString("profile", result.profile);
+    map.putDouble("inferenceMs", result.inferenceMs);
+    map.putString("capturedAt", isoNow());
+    map.putInt("imageWidth", result.imageWidth);
+    map.putInt("imageHeight", result.imageHeight);
+    return map;
+  }
+
+  private static String isoNow() {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US);
+    format.setTimeZone(TimeZone.getDefault());
+    return format.format(new Date());
+  }
+
+  /** @param heartRateImplemented Health Connect 가용 여부 */
+  static WritableMap buildCapabilities(boolean heartRateImplemented) {
     WritableMap root = Arguments.createMap();
     root.putString("platform", "android");
 
-    root.putMap("camera", capability(true, implemented, "android.permission.CAMERA"));
+    root.putMap("camera", capability(true, true, "android.permission.CAMERA"));
     root.putMap(
         "photoLibrary",
-        capability(true, implemented, "android.permission.READ_MEDIA_IMAGES"));
+        capability(true, true, "android.permission.READ_MEDIA_IMAGES"));
     root.putMap(
         "location",
-        capability(true, implemented, "android.permission.ACCESS_FINE_LOCATION"));
+        capability(true, heartRateImplemented, "android.permission.ACCESS_FINE_LOCATION"));
     root.putMap(
         "biometrics",
-        capability(true, implemented, "android.permission.USE_BIOMETRIC"));
+        capability(true, true, "android.permission.USE_BIOMETRIC"));
     root.putMap("stepCounter", capability(true, true, "android.permission.ACTIVITY_RECOGNITION"));
     root.putMap(
         "speechRecognition",
         capability(true, true, "android.permission.RECORD_AUDIO"));
+    root.putMap("foodVision", capability(true, true, "android.permission.CAMERA"));
 
     WritableMap vitals = Arguments.createMap();
-    vitals.putMap("HEART_RATE", capability(true, implemented, "android.permission.health.READ_HEART_RATE"));
-    vitals.putMap("SPO2", capability(true, implemented));
-    vitals.putMap("BP_SYSTOLIC", capability(true, implemented));
-    vitals.putMap("BP_DIASTOLIC", capability(true, implemented));
-    vitals.putMap("BODY_TEMP", capability(true, implemented));
-    vitals.putMap("RESPIRATORY_RATE", capability(true, implemented));
+    vitals.putMap(
+        "HEART_RATE",
+        capability(true, heartRateImplemented, "android.permission.health.READ_HEART_RATE"));
+    vitals.putMap("SPO2", capability(true, false));
+    vitals.putMap("BP_SYSTOLIC", capability(true, false));
+    vitals.putMap("BP_DIASTOLIC", capability(true, false));
+    vitals.putMap("BODY_TEMP", capability(true, false));
+    vitals.putMap("RESPIRATORY_RATE", capability(true, false));
     root.putMap("vitals", vitals);
 
     return root;
+  }
+
+  /** analyzeFoodImage 옵션. ActivityResult 콜백까지 살아 있어야 한다. */
+  private static final class PendingFoodOptions {
+    final String source;
+    final int maxItems;
+    final float minConfidence;
+    final boolean includeCandidates;
+    @Nullable final FoodVisionProfile profile;
+
+    private PendingFoodOptions(
+        String source,
+        int maxItems,
+        float minConfidence,
+        boolean includeCandidates,
+        @Nullable FoodVisionProfile profile) {
+      this.source = source;
+      this.maxItems = maxItems;
+      this.minConfidence = minConfidence;
+      this.includeCandidates = includeCandidates;
+      this.profile = profile;
+    }
+
+    static PendingFoodOptions from(@Nullable ReadableMap options) {
+      String source = "camera";
+      int maxItems = DEFAULT_MAX_ITEMS;
+      float minConfidence = FoodVisionDecoder.DEFAULT_MIN_CONFIDENCE;
+      boolean includeCandidates = true;
+      FoodVisionProfile profile = null;
+
+      if (options != null) {
+        if (options.hasKey("source") && options.getString("source") != null) {
+          source = options.getString("source");
+        }
+        if (options.hasKey("maxItems") && !options.isNull("maxItems")) {
+          maxItems = Math.max(0, (int) options.getDouble("maxItems"));
+        }
+        if (options.hasKey("minConfidence") && !options.isNull("minConfidence")) {
+          minConfidence = (float) options.getDouble("minConfidence");
+        }
+        if (options.hasKey("includeCandidates") && !options.isNull("includeCandidates")) {
+          includeCandidates = options.getBoolean("includeCandidates");
+        }
+        if (options.hasKey("profile") && options.getString("profile") != null) {
+          profile = FoodVisionProfile.fromKey(options.getString("profile"));
+        }
+      }
+      return new PendingFoodOptions(source, maxItems, minConfidence, includeCandidates, profile);
+    }
   }
 
   private static WritableMap capability(

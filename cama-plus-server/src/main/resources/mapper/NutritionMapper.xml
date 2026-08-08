@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cama.back.mapper.NutritionMapper">
+
+    <sql id="periodCondition">
+        <if test='mealTypeCd != null and mealTypeCd != ""'>
+           and l.meal_type_cd = #{mealTypeCd}
+        </if>
+        <if test='fromDate != null and fromDate != ""'>
+           and l.eaten_at &gt;= (#{fromDate}::date at time zone 'Asia/Seoul')
+        </if>
+        <if test='toDate != null and toDate != ""'>
+           and l.eaten_at &lt; ((#{toDate}::date + interval '1 day') at time zone 'Asia/Seoul')
+        </if>
+    </sql>
+
+    <select id="getMealLogList" resultType="com.cama.back.dto.nutrition.MealLogSummaryDto">
+        select l.seq
+              ,l.client_log_id
+              ,l.meal_type_cd
+              ,to_char(l.eaten_at at time zone 'Asia/Seoul', 'YYYY-MM-DD HH24:MI:SS') as eaten_at
+              ,l.source_cd
+              ,l.total_kcal
+              ,l.total_carb_g
+              ,l.total_protein_g
+              ,l.total_fat_g
+              ,l.needs_review
+              ,c.item_count
+              ,n.item_names
+              ,to_char(l.created_at at time zone 'Asia/Seoul', 'YYYY-MM-DD HH24:MI:SS') as created_at
+          from account_meal_log l
+          left join lateral (
+                select count(*) as item_count
+                  from account_meal_log_item x
+                 where x.meal_log_seq = l.seq
+               ) c on true
+          left join lateral (
+                select string_agg(t.name_ko, ', ' order by t.display_order, t.seq) as item_names
+                  from (
+                        select name_ko, display_order, seq
+                          from account_meal_log_item
+                         where meal_log_seq = l.seq
+                         order by display_order, seq
+                         limit 3
+                       ) t
+               ) n on true
+         where l.account_seq = #{accountSeq}
+           and l.is_enabled = true
+        <include refid="periodCondition"/>
+         order by l.eaten_at desc, l.seq desc
+        <if test='limit != null and limit &gt; 0'>
+         limit #{limit}
+        </if>
+    </select>
+
+    <select id="getMealDailySummary" resultType="com.cama.back.dto.nutrition.MealDailySummaryDto">
+        select to_char(l.eaten_at at time zone 'Asia/Seoul', 'YYYY-MM-DD') as meal_date
+              ,sum(l.total_kcal) as total_kcal
+              ,sum(l.total_carb_g) as total_carb_g
+              ,sum(l.total_protein_g) as total_protein_g
+              ,sum(l.total_fat_g) as total_fat_g
+              ,count(*) as meal_count
+          from account_meal_log l
+         where l.account_seq = #{accountSeq}
+           and l.is_enabled = true
+        <include refid="periodCondition"/>
+         group by 1
+         order by 1 desc
+        <if test='limit != null and limit &gt; 0'>
+         limit #{limit}
+        </if>
+    </select>
+
+</mapper>

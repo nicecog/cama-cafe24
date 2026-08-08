@@ -4,9 +4,11 @@
  */
 
 export * from "./account";
+export * from "./biometric";
 export * from "./coaching";
 export * from "./contents";
 export * from "./notification";
+export * from "./nutrition";
 export * from "./schedule";
 export * from "./track";
 export * from "./vital";

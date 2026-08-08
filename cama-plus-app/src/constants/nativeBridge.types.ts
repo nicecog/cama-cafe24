@@ -45,6 +45,7 @@ export type DeviceCapabilities = {
   biometrics: CapabilityStatus;
   stepCounter: CapabilityStatus;
   speechRecognition?: CapabilityStatus;
+  foodVision?: CapabilityStatus;
   vitals: Partial<Record<VitalTypeCd, CapabilityStatus>>;
 };
 
@@ -126,6 +127,57 @@ export type BiometricAuthResult = {
   biometryType?: BiometryType;
 };
 
+/** 온디바이스 음식 추론 입력 해상도 프로필 */
+export type FoodVisionProfile = '416-int8' | '320-int8';
+
+export type FoodVisionSource = 'camera' | 'library';
+
+export type FoodAnalysisOptions = {
+  source?: FoodVisionSource;
+  maxItems?: number;
+  minConfidence?: number;
+  includeCandidates?: boolean;
+  profile?: FoodVisionProfile;
+};
+
+export type FoodCandidate = {
+  classKey: string;
+  nameKo?: string;
+  confidence: number;
+};
+
+export type FoodDetectedItem = {
+  classKey: string;
+  nameKo?: string;
+  confidence: number;
+  quantity: number;
+  servingG?: number;
+  /** 앱 번들 catalog 기준 미리보기. 서버 정본 값이 도착하면 대체된다 */
+  kcalPreview?: number;
+  /** [x, y, w, h] 정규화 좌표 */
+  bbox?: [number, number, number, number];
+  candidates?: FoodCandidate[];
+};
+
+export type FoodImageAnalysisResult = {
+  items: FoodDetectedItem[];
+  modelVersion: string;
+  catalogVersion: string;
+  profile: FoodVisionProfile;
+  inferenceMs: number;
+  /** ISO-8601 */
+  capturedAt: string;
+  imageWidth?: number;
+  imageHeight?: number;
+};
+
+export type FoodVisionInfo = {
+  modelVersion: string;
+  catalogVersion: string;
+  profile: FoodVisionProfile;
+  classCount: number;
+};
+
 /** SPA → RN 요청 메시지 */
 export type WebToNativeRequest =
   | { type: 'getStepCount'; requestId: string }
@@ -151,6 +203,11 @@ export type WebToNativeRequest =
       requestId: string;
       options?: BiometricAuthOptions;
     }
+  | { type: 'storeBiometricSecret'; requestId: string; secret: string }
+  | { type: 'getBiometricSecret'; requestId: string }
+  | { type: 'clearBiometricSecret'; requestId: string }
+  | { type: 'hasBiometricSecret'; requestId: string }
+  | { type: 'getDeviceId'; requestId: string }
   | {
       type: 'speakText';
       requestId: string;
@@ -178,7 +235,13 @@ export type WebToNativeRequest =
       requestId: string;
       qrPayload: Record<string, unknown>;
       healthData: Record<string, unknown>;
-    };
+    }
+  | {
+      type: 'analyzeFoodImage';
+      requestId: string;
+      options?: FoodAnalysisOptions;
+    }
+  | { type: 'getFoodVisionInfo'; requestId: string };
 
 /** RN → SPA 응답 이벤트 (cama-native detail.type) */
 export type NativeBridgeResponseType =
@@ -190,11 +253,14 @@ export type NativeBridgeResponseType =
   | 'vitalReading'
   | 'vitalSamples'
   | 'biometric'
+  | 'deviceId'
   | 'speech'
   | 'speechRecognition'
   | 'healthConnectSettings'
   | 'tabletQrScan'
-  | 'tabletHealthDataSent';
+  | 'tabletHealthDataSent'
+  | 'foodImageAnalysis'
+  | 'foodVisionInfo';
 
 export type NativeBridgeResponseBase = {
   requestId: string;

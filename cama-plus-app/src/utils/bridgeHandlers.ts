@@ -12,12 +12,18 @@ import type {
 } from '@/constants/nativeBridge.types';
 import { getTodayStepCountFromDevice } from '@/native/StepCounter';
 import {
+  analyzeFoodImage,
   authenticateBiometric,
   cancelSpeechRecognition,
   capturePhoto,
   checkSpeechRecognitionAvailable,
+  clearBiometricSecret,
+  getBiometricSecret,
   getCurrentLocation,
   getDeviceCapabilities,
+  getDeviceId,
+  getFoodVisionInfo,
+  hasBiometricSecret,
   isBiometricAvailable,
   openHealthConnectSettings,
   pauseSpeech,
@@ -29,6 +35,7 @@ import {
   startSpeechRecognition,
   stopSpeech,
   stopSpeechRecognition,
+  storeBiometricSecret,
 } from '@/native/NativeBridgeModule';
 import { toNativeBridgeError } from '@/native/bridgeErrors';
 import { NativeBridgeError } from '@/native/bridgeErrors';
@@ -61,6 +68,24 @@ async function ensureMicPermission(): Promise<void> {
 function clearSpeechRecognitionSubscription() {
   speechRecognitionSubscription?.remove();
   speechRecognitionSubscription = null;
+}
+
+async function ensureCameraPermission(): Promise<void> {
+  if (Platform.OS !== 'android') {
+    return;
+  }
+  const granted = await PermissionsAndroid.request(
+    PermissionsAndroid.PERMISSIONS.CAMERA,
+    {
+      title: '카메라 권한',
+      message: '음식 사진으로 칼로리를 추정하려면 카메라 권한이 필요합니다.',
+      buttonPositive: '허용',
+      buttonNegative: '거부',
+    },
+  );
+  if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+    throw new NativeBridgeError(NATIVE_BRIDGE_ERRORS.PERMISSION_DENIED);
+  }
 }
 
 async function ensureTabletPermissions(cameraOnly: boolean): Promise<void> {
@@ -244,6 +269,60 @@ export async function dispatchBridgeRequest(
         });
         return;
       }
+      case 'storeBiometricSecret': {
+        const stored = await storeBiometricSecret(message.secret);
+        respond(webviewRef, {
+          type: 'biometric',
+          requestId,
+          ok: true,
+          mode: 'storeSecret',
+          ...stored,
+        });
+        return;
+      }
+      case 'getBiometricSecret': {
+        const secret = await getBiometricSecret();
+        respond(webviewRef, {
+          type: 'biometric',
+          requestId,
+          ok: true,
+          mode: 'getSecret',
+          ...secret,
+        });
+        return;
+      }
+      case 'clearBiometricSecret': {
+        const cleared = await clearBiometricSecret();
+        respond(webviewRef, {
+          type: 'biometric',
+          requestId,
+          ok: true,
+          mode: 'clearSecret',
+          ...cleared,
+        });
+        return;
+      }
+      case 'hasBiometricSecret': {
+        const has = await hasBiometricSecret();
+        respond(webviewRef, {
+          type: 'biometric',
+          requestId,
+          ok: true,
+          mode: 'hasSecret',
+          ...has,
+        });
+        return;
+      }
+      case 'getDeviceId': {
+        const device = await getDeviceId();
+        respond(webviewRef, {
+          type: 'deviceId',
+          requestId,
+          ok: true,
+          ...device,
+        });
+        return;
+      }
       case 'speakText': {
         injectNativeEvent(webviewRef, {
           type: 'speech',
@@ -403,6 +482,30 @@ export async function dispatchBridgeRequest(
         });
         return;
       }
+      case 'analyzeFoodImage': {
+        const options = message.options ?? {};
+        if (options.source !== 'library') {
+          await ensureCameraPermission();
+        }
+        const analysis = await analyzeFoodImage(options);
+        respond(webviewRef, {
+          type: 'foodImageAnalysis',
+          requestId,
+          ok: true,
+          ...analysis,
+        });
+        return;
+      }
+      case 'getFoodVisionInfo': {
+        const info = await getFoodVisionInfo();
+        respond(webviewRef, {
+          type: 'foodVisionInfo',
+          requestId,
+          ok: true,
+          ...info,
+        });
+        return;
+      }
       default:
         return;
     }
@@ -418,6 +521,11 @@ export async function dispatchBridgeRequest(
       readVitalSamples: 'vitalSamples',
       checkBiometricAvailable: 'biometric',
       authenticateBiometric: 'biometric',
+      storeBiometricSecret: 'biometric',
+      getBiometricSecret: 'biometric',
+      clearBiometricSecret: 'biometric',
+      hasBiometricSecret: 'biometric',
+      getDeviceId: 'deviceId',
       speakText: 'speech',
       stopSpeech: 'speech',
       pauseSpeech: 'speech',
@@ -429,6 +537,8 @@ export async function dispatchBridgeRequest(
       cancelSpeechRecognition: 'speechRecognition',
       scanTabletQr: 'tabletQrScan',
       sendTabletHealthData: 'tabletHealthDataSent',
+      analyzeFoodImage: 'foodImageAnalysis',
+      getFoodVisionInfo: 'foodVisionInfo',
     };
     respondError(
       webviewRef,

@@ -1,8 +1,10 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
+import * as React from "react";
 import { z } from "zod";
 import { accountMeAtom } from "@/atoms/accountAtoms";
 import { readStoredWebviewSession } from "@/atoms/authSessionAtom";
+import { BiometricEnrollPrompt } from "@/components/auth/BiometricEnrollPrompt";
 import { useForegroundHealthSync } from "@/hooks/useForegroundHealthSync";
 import { getDevAuthBypassLoginId, isDevAuthBypassEnabled } from "@/lib/devAuth";
 import { getTokenEncryptedStorage } from "@/lib/encryptedStorage";
@@ -48,6 +50,35 @@ export const Route = createFileRoute("/_auth")({
 function AuthLayout() {
   const accountMe = useAtomValue(accountMeAtom);
   useForegroundHealthSync(accountMe.data?.seq);
+  const loginId = accountMe.data?.loginId;
+  const [offerBiometric, setOfferBiometric] = React.useState(false);
 
-  return <Outlet />;
+  React.useEffect(() => {
+    try {
+      if (sessionStorage.getItem("cama.offerBiometric") === "1" && loginId) {
+        setOfferBiometric(true);
+      }
+    } catch {
+      // ignore
+    }
+  }, [loginId]);
+
+  return (
+    <>
+      <Outlet />
+      {offerBiometric && loginId ? (
+        <BiometricEnrollPrompt
+          loginId={loginId}
+          onDone={() => {
+            try {
+              sessionStorage.removeItem("cama.offerBiometric");
+            } catch {
+              // ignore
+            }
+            setOfferBiometric(false);
+          }}
+        />
+      ) : null}
+    </>
+  );
 }
